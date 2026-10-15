@@ -1,0 +1,138 @@
+{
+  "version": 1,
+  "recommended": "qwen3-asr-0.6b-q8",
+  "models": [
+    {
+      "id": "qwen3-asr-0.6b-q8",
+      "name": "Qwen3-ASR 0.6B",
+      "family": "qwen3_asr",
+      "precision": "Q8_0",
+      "file": "qwen3-asr-0.6b-q8_0.gguf",
+      "size": 1151272416,
+      "sha256": "6c44ec2fb4cee513892d7863c1fcc3ea6b699ffa4d899b0ef4ab19956d9544f7",
+      "license": "Apache-2.0",
+      "languages": "中英日韩等 30 种语言 + 22 种中文方言",
+      "summary": "均衡之选：多语种、抗噪声，自动识别语言，适合大多数场景。",
+      "speed": 3,
+      "accuracy": 4,
+      "tags": ["多语种", "自动识别语言", "方言"],
+      "sources": {
+        "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/main/Qwen3-ASR-0.6B-GGUF/qwen3-asr-0.6b-q8_0.gguf",
+        "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/Qwen3-ASR-0.6B-GGUF/qwen3-asr-0.6b-q8_0.gguf"
+      }
+    },
+    {
+      "id": "sensevoice-small-q8",
+      "name": "SenseVoice Small",
+      "family": "sense_asr",
+      "precision": "Q8_0",
+      "file": "sensevoice-small-q8-audiocpp-v1.gguf",
+      "size": 254211200,
+      "sha256": "4dedf169f625437fb336f2959674f399819729a765e184128c0e25a6e16ff0ec",
+      "license": "FunASR Model License v1.1",
+      "languages": "中文、粤语、英语、日语、韩语等",
+      "summary": "极速轻量：体积小、速度快，中文与粤语表现出色，适合低配设备。",
+      "speed": 5,
+      "accuracy": 3,
+      "tags": ["轻量", "粤语"],
+      "sources": {
+        "huggingface": "https://huggingface.co/FunAudioLLM/SenseVoiceSmall-GGUF-audiocpp/resolve/5c3fcfe748a8714216bc135476d5863084fddb72/sensevoice-small-q8-audiocpp-v1.gguf"
+      }
+    },
+    {
+      "id": "fun-asr-nano-q8",
+      "name": "Fun-ASR Nano",
+      "family": "fun_asr_nano",
+      "precision": "Q8_0",
+      "file": "fun-asr-nano-2512-q8_0.gguf",
+      "size": 1045334432,
+      "sha256": "4d727357574b079b7f43336b2930f39da086ca02f5d8d50872090b4c1c3d5e0a",
+      "license": "FunASR Model License v1.1",
+      "languages": "中文、英语、日语",
+      "summary": "中文专精：通义实验室出品，中文识别与数字规整效果好。",
+      "speed": 3,
+      "accuracy": 4,
+      "tags": ["中文优化"],
+      "sources": {
+        "huggingface": "https://huggingface.co/FunAudioLLM/Fun-ASR-Nano-2512-GGUF/resolve/ce72677f84900f0dc57f498ace253bfb3c9155b6/fun-asr-nano-2512-q8_0.gguf",
+        "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/Fun-ASR-Nano-2512-GGUF/fun-asr-nano-2512-q8_0.gguf"
+      }
+    },
+    {
+      "id": "qwen3-asr-1.7b-q8",
+      "name": "Qwen3-ASR 1.7B",
+      "family": "qwen3_asr",
+      "precision": "Q8_0",
+      "file": "qwen3-asr-1.7b-q8_0.gguf",
+      "size": 2473010048,
+      "sha256": "da4fc2ac7f24dee784d1684eb1f35836cdbf559519452ae11777670734c0a4f8",
+      "license": "Apache-2.0",
+      "languages": "中英日韩等 30 种语言 + 22 种中文方言",
+      "summary": "高精度：更大的 Qwen3-ASR，准确率更高，需要更多内存。",
+      "speed": 2,
+      "accuracy": 5,
+      "tags": ["高精度", "多语种"],
+      "sources": {
+        "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/main/Qwen3-ASR-1.7B-GGUF/qwen3-asr-1.7b-q8_0.gguf",
+        "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/Qwen3-ASR-1.7B-GGUF/qwen3-asr-1.7b-q8_0.gguf"
+      }
+    },
+    {
+      "id": "parakeet-tdt-0.6b-v3-q8",
+      "name": "Parakeet TDT 0.6B v3",
+      "family": "parakeet_tdt",
+      "precision": "Q8_0",
+      "file": "parakeet-tdt-0.6b-v3-q8_0.gguf",
+      "size": 915733744,
+      "sha256": "074e61ac1abd3d3efcfc10798d17bf9a975b31768b466fc2578364d206dde64c",
+      "license": "CC-BY-4.0",
+      "languages": "英语及 24 种欧洲语言",
+      "summary": "欧洲语言：NVIDIA 出品，速度快，自带逐词时间戳。",
+      "speed": 4,
+      "accuracy": 4,
+      "tags": ["欧洲语言", "逐词时间戳"],
+      "sources": {
+        "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/main/Parakeet-TDT-0.6B-v3-GGUF/parakeet-tdt-0.6b-v3-q8_0.gguf",
+        "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/Parakeet-TDT-0.6B-v3-GGUF/parakeet-tdt-0.6b-v3-q8_0.gguf"
+      }
+    },
+    {
+      "id": "nemotron-asr-0.6b-q8",
+      "name": "Nemotron 3.5 ASR 0.6B",
+      "family": "nemotron_asr",
+      "precision": "Q8_0",
+      "file": "nemotron-3.5-asr-streaming-0.6b-q8_0.gguf",
+      "size": 930625888,
+      "sha256": "c58b62c1bdd6c5d7b14b08126c5bd16c1289fee6e0d6ac0761dbd3aa6d714935",
+      "license": "OpenMDW-1.1",
+      "languages": "40 种语言（含中文）",
+      "summary": "多语种流式：NVIDIA Nemotron，覆盖 40 种语言，会议场景表现稳定。",
+      "speed": 4,
+      "accuracy": 4,
+      "tags": ["多语种"],
+      "sources": {
+        "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/main/Nemotron-3.5-ASR-Streaming-0.6B-GGUF/nemotron-3.5-asr-streaming-0.6b-q8_0.gguf",
+        "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/Nemotron-3.5-ASR-Streaming-0.6B-GGUF/nemotron-3.5-asr-streaming-0.6b-q8_0.gguf"
+      }
+    },
+    {
+      "id": "moonshine-small-q8",
+      "name": "Moonshine Small",
+      "family": "moonshine_asr",
+      "precision": "Q8_0",
+      "file": "moonshine-streaming-small-q8_0.gguf",
+      "size": 300621792,
+      "sha256": "4d03fd9debad978240f522de238dba0b1a10fb0c9539e608701418682838a892",
+      "license": "MIT",
+      "languages": "仅英语",
+      "summary": "英语轻量：体积小、延迟低，适合英文听写。",
+      "speed": 5,
+      "accuracy": 3,
+      "tags": ["轻量", "英语"],
+      "sources": {
+        "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/main/Moonshine-Streaming-GGUF/moonshine-streaming-small-q8_0.gguf",
+        "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/Moonshine-Streaming-GGUF/moonshine-streaming-small-q8_0.gguf"
+      }
+    }
+  ]
+}

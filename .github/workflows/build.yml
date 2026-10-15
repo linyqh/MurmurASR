@@ -1,0 +1,79 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  app:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-26
+            engine: bash engine/scripts/build-engine.sh --backend metal
+          - os: ubuntu-24.04
+            engine: bash engine/scripts/build-engine.sh --backend vulkan
+          - os: windows-2022
+            engine: pwsh engine/scripts/build-engine.ps1 -Backend vulkan
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev \
+            patchelf libasound2-dev libvulkan-dev glslc spirv-headers
+
+      - name: Vulkan SDK
+        if: runner.os == 'Windows'
+        uses: humbletim/setup-vulkan-sdk@v1.2.1
+        with:
+          vulkan-query-version: latest
+          vulkan-components: Vulkan-Headers, Vulkan-Loader, Glslang
+          vulkan-use-cache: true
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - name: Cache engine build
+        uses: actions/cache@v4
+        with:
+          path: |
+            engine/vendor
+            engine/build
+          key: engine-${{ matrix.os }}-${{ hashFiles('engine/audiocpp.lock') }}
+
+      - name: Build engine
+        run: ${{ matrix.engine }}
+
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - name: Rust tests
+        working-directory: src-tauri
+        run: cargo test
+
+      - name: Bundle
+        run: npx tauri build
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: murmur-${{ matrix.os }}
+          path: |
+            src-tauri/target/release/bundle/**/*.dmg
+            src-tauri/target/release/bundle/**/*.msi
+            src-tauri/target/release/bundle/**/*.exe
+            src-tauri/target/release/bundle/**/*.deb
+            src-tauri/target/release/bundle/**/*.AppImage
+            src-tauri/target/release/bundle/**/*.rpm

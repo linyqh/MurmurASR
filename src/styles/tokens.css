@@ -1,0 +1,126 @@
+/* Murmur design tokens — modelled on macOS 26/27 (Liquid Glass) system styling. */
+
+:root {
+  color-scheme: light dark;
+
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro", "PingFang SC",
+    "Hiragino Sans GB", "Segoe UI Variable", "Segoe UI", "Microsoft YaHei UI", Inter, system-ui,
+    sans-serif;
+  --font-rounded: ui-rounded, "SF Pro Rounded", var(--font-sans);
+  --font-mono: ui-monospace, "SF Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+
+  /* System accent (macOS blue). */
+  --accent: #0a84ff;
+  --accent-hover: #0077ed;
+  --accent-pressed: #006adb;
+  --accent-fg: #ffffff;
+  --accent-soft: rgb(10 132 255 / 0.14);
+
+  --red: #ff3b30;
+  --orange: #ff9500;
+  --green: #28cd41;
+  --yellow: #ffcc00;
+  --purple: #af52de;
+
+  /* Labels. */
+  --label: rgb(0 0 0 / 0.88);
+  --label-2: rgb(0 0 0 / 0.56);
+  --label-3: rgb(0 0 0 / 0.32);
+  --label-4: rgb(0 0 0 / 0.16);
+
+  /* Surfaces. The window background is the native material; content sits on it. */
+  --window-bg: rgb(246 246 248 / 0.72);
+  --content-bg: rgb(255 255 255 / 0.86);
+  --sidebar-bg: transparent;
+  --card-bg: rgb(255 255 255 / 0.9);
+  --card-bg-hover: rgb(255 255 255 / 1);
+  --control-bg: rgb(0 0 0 / 0.05);
+  --control-bg-hover: rgb(0 0 0 / 0.08);
+  --control-bg-active: rgb(0 0 0 / 0.12);
+  --fill: rgb(120 120 128 / 0.12);
+  --fill-2: rgb(120 120 128 / 0.18);
+  --separator: rgb(0 0 0 / 0.08);
+  --separator-strong: rgb(0 0 0 / 0.14);
+  --selection: rgb(0 0 0 / 0.07);
+  --selection-active: var(--accent);
+
+  /* Liquid Glass. */
+  --glass-bg: rgb(255 255 255 / 0.62);
+  --glass-border: rgb(255 255 255 / 0.7);
+  --glass-edge: rgb(0 0 0 / 0.06);
+  --glass-highlight: inset 0 1px 0 rgb(255 255 255 / 0.9), inset 0 -0.5px 0 rgb(0 0 0 / 0.04);
+  --glass-shadow: 0 8px 28px rgb(0 0 0 / 0.1), 0 1px 3px rgb(0 0 0 / 0.08);
+  --glass-blur: saturate(180%) blur(28px);
+
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.06), 0 0 0 0.5px rgb(0 0 0 / 0.06);
+  --shadow-md: 0 4px 16px rgb(0 0 0 / 0.08), 0 0 0 0.5px rgb(0 0 0 / 0.06);
+  --shadow-lg: 0 24px 64px rgb(0 0 0 / 0.18), 0 0 0 0.5px rgb(0 0 0 / 0.08);
+
+  /* Concentric radii (macOS 26 corner language). */
+  --r-window: 26px;
+  --r-xl: 22px;
+  --r-lg: 16px;
+  --r-md: 12px;
+  --r-sm: 8px;
+  --r-xs: 6px;
+  --r-pill: 999px;
+
+  --sidebar-width: 236px;
+  --titlebar-height: 52px;
+
+  --ease: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-spring: cubic-bezier(0.34, 1.36, 0.64, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --accent: #0a84ff;
+    --accent-hover: #2b95ff;
+    --accent-pressed: #409cff;
+    --accent-soft: rgb(10 132 255 / 0.22);
+
+    --red: #ff453a;
+    --orange: #ff9f0a;
+    --green: #32d74b;
+    --yellow: #ffd60a;
+    --purple: #bf5af2;
+
+    --label: rgb(255 255 255 / 0.92);
+    --label-2: rgb(255 255 255 / 0.56);
+    --label-3: rgb(255 255 255 / 0.3);
+    --label-4: rgb(255 255 255 / 0.14);
+
+    --window-bg: rgb(30 30 32 / 0.7);
+    --content-bg: rgb(28 28 30 / 0.86);
+    --card-bg: rgb(255 255 255 / 0.06);
+    --card-bg-hover: rgb(255 255 255 / 0.09);
+    --control-bg: rgb(255 255 255 / 0.08);
+    --control-bg-hover: rgb(255 255 255 / 0.12);
+    --control-bg-active: rgb(255 255 255 / 0.16);
+    --fill: rgb(120 120 128 / 0.24);
+    --fill-2: rgb(120 120 128 / 0.32);
+    --separator: rgb(255 255 255 / 0.08);
+    --separator-strong: rgb(255 255 255 / 0.14);
+    --selection: rgb(255 255 255 / 0.1);
+
+    --glass-bg: rgb(44 44 48 / 0.58);
+    --glass-border: rgb(255 255 255 / 0.12);
+    --glass-edge: rgb(0 0 0 / 0.4);
+    --glass-highlight: inset 0 1px 0 rgb(255 255 255 / 0.12), inset 0 -0.5px 0 rgb(0 0 0 / 0.3);
+    --glass-shadow: 0 8px 28px rgb(0 0 0 / 0.4), 0 1px 3px rgb(0 0 0 / 0.3);
+
+    --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.3), 0 0 0 0.5px rgb(255 255 255 / 0.06);
+    --shadow-md: 0 4px 16px rgb(0 0 0 / 0.35), 0 0 0 0.5px rgb(255 255 255 / 0.08);
+    --shadow-lg: 0 24px 64px rgb(0 0 0 / 0.5), 0 0 0 0.5px rgb(255 255 255 / 0.1);
+  }
+}
+
+/* Platforms without a native window material get an opaque, still-native-feeling base. */
+:root[data-platform="linux"] {
+  --window-bg: rgb(240 240 242);
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-platform="linux"] {
+    --window-bg: rgb(32 32 34);
+  }
+}

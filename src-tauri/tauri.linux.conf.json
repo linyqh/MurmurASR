@@ -1,0 +1,17 @@
+{
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "Murmur",
+        "width": 1080,
+        "height": 720,
+        "minWidth": 760,
+        "minHeight": 520,
+        "center": true,
+        "transparent": false,
+        "dragDropEnabled": true
+      }
+    ]
+  }
+}
