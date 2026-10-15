@@ -118,6 +118,19 @@ MURMUR_TEST_DOWNLOAD=1 cargo test --release --test download
 ./scripts/package-macos.sh   # 生成 .app 和 .dmg
 ```
 
+Windows（在 PowerShell 中运行，生成 NSIS 安装程序）：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/package-windows.ps1              # Vulkan（默认）
+powershell -ExecutionPolicy Bypass -File scripts/package-windows.ps1 -Backend cpu -RebuildEngine
+```
+
+产物为 `src-tauri/target/release/bundle/nsis/Murmur_<版本>_x64-setup.exe` 及同名 `.sha256`。
+需要 Visual Studio 2022（C++ 工作负载，脚本会自动使用其自带的 CMake）、Rust、Node 22、Git，
+Vulkan 后端还需要 Vulkan SDK（`VULKAN_SDK` 环境变量，或安装在 `C:\VulkanSDK\` 下）。
+安装程序按当前用户安装、无需管理员权限，内置 WebView2 引导程序；引擎目录随附 VC++ 运行库与
+Vulkan 加载器，因此目标机器无需另装 VC++ 运行库，没有 Vulkan 驱动时自动使用 CPU 推理。
+
 DMG 包含冰蓝安装引导背景、固定的拖拽图标位置，以及首次下载模型的说明。
 脚本首次运行会用 Python 3 在 `src-tauri/target/dmg-tools` 创建隔离环境，安装锁定版本的
 `dmgbuild` 依赖；直接生成 Finder 布局，无需 AppleScript 或自动化权限。
@@ -137,7 +150,7 @@ Developer ID Application 身份。打包脚本会加载此本机配置，对应�
 | 平台 | 推理后端 | 引擎构建 | 状态 |
 |---|---|---|---|
 | macOS（Apple 芯片） | Metal | `engine/scripts/build-engine.sh` | 已在本机构建并验证 |
-| Windows x64 | Vulkan / CUDA / CPU | `engine/scripts/build-engine.ps1` | 已有脚本和 CI，尚未在真机上验证 |
+| Windows x64 | Vulkan / CUDA / CPU | `engine/scripts/build-engine.ps1` | 已在本机构建并验证（Vulkan，无驱动时退回 CPU） |
 | Linux x64 | Vulkan / CPU | `engine/scripts/build-engine.sh --backend vulkan` | 已有脚本和 CI，尚未在真机上验证 |
 
 `.github/workflows/build.yml` 会在三个平台上分别编译引擎、运行测试并打包。窗口外观按平台区分：macOS 用 sidebar 材质，Windows 用 Mica，Linux 用不透明窗口（见 `tauri.*.conf.json`）。

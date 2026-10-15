@@ -9,7 +9,7 @@ Base URL: `http://127.0.0.1:7895` on the Murmur machine, or `http://<LAN-IP>:789
 | Linux | `~/.local/share/app.murmur.asr/api.json` |
 
 ```json
-{ "baseUrl": "http://127.0.0.1:7895", "lanUrl": "http://192.168.1.23:7895", "port": 7895, "pid": 12345, "version": "0.1.9" }
+{ "baseUrl": "http://127.0.0.1:7895", "lanUrl": "http://192.168.1.23:7895", "port": 7895, "pid": 12345, "version": "0.1.10" }
 ```
 
 `lanUrl` is `null` when LAN access is off. The file is removed when the API is turned off or the app quits; it may be stale after a crash, so always confirm with `GET /health`.
@@ -28,7 +28,7 @@ Errors are JSON: `{ "error": "message" }`.
 {
   "ok": true,
   "app": "murmur",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "engine": { "version": "0.9.1", "error": null },
   "model": {
     "id": "qwen3-asr-0.6b-q8",

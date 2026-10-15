@@ -195,6 +195,25 @@ fn path_cstring(path: &Path) -> Result<CString> {
     cstring(&path.to_string_lossy())
 }
 
+/// Windows does not search a DLL's own directory for its dependencies, so the
+/// Vulkan loader and VC runtime staged next to audiocpp.dll would be missed.
+#[cfg(windows)]
+unsafe fn open_library(path: &Path) -> std::result::Result<Library, libloading::Error> {
+    use libloading::os::windows::{
+        Library as WinLibrary, LOAD_LIBRARY_SEARCH_DEFAULT_DIRS, LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR,
+    };
+    WinLibrary::load_with_flags(
+        path,
+        LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR | LOAD_LIBRARY_SEARCH_DEFAULT_DIRS,
+    )
+    .map(Library::from)
+}
+
+#[cfg(not(windows))]
+unsafe fn open_library(path: &Path) -> std::result::Result<Library, libloading::Error> {
+    Library::new(path)
+}
+
 /// Copies a borrowed C string. The ABI never returns NULL, but be defensive.
 unsafe fn borrowed(ptr: *const c_char) -> String {
     if ptr.is_null() {
@@ -217,7 +236,7 @@ impl Engine {
 
     pub fn load(path: &Path) -> Result<Self> {
         // SAFETY: loading a trusted library shipped inside the app bundle.
-        let lib = unsafe { Library::new(path) }.map_err(|source| EngineError::Load {
+        let lib = unsafe { open_library(path) }.map_err(|source| EngineError::Load {
             path: path.display().to_string(),
             source,
         })?;

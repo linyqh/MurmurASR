@@ -14,5 +14,18 @@
         "dragDropEnabled": true
       }
     ]
+  },
+  "bundle": {
+    "targets": ["nsis"],
+    "publisher": "Murmur",
+    "windows": {
+      "webviewInstallMode": { "type": "embedBootstrapper", "silent": true },
+      "nsis": {
+        "installMode": "currentUser",
+        "installerIcon": "icons/icon.ico",
+        "languages": ["SimpChinese", "English"],
+        "displayLanguageSelector": false
+      }
+    }
   }
 }
