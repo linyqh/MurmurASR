@@ -33,6 +33,12 @@ pub struct LoadedModelInfo {
     pub accepts_itn: bool,
     #[serde(skip)]
     accepts_chunk_mode: bool,
+    /// Whether requests ask the model for `return_timestamps`.
+    #[serde(skip)]
+    request_timestamps: bool,
+    /// Whether the model emits sub-word tokens that must be joined into words.
+    #[serde(skip)]
+    merge_tokens: bool,
     pub word_timestamps: bool,
     pub backend: String,
     pub load_ms: u64,
@@ -129,6 +135,7 @@ enum Command {
         id: String,
         path: PathBuf,
         family: String,
+        aligner: Option<PathBuf>,
         backend: String,
         threads: i32,
     },
@@ -236,6 +243,7 @@ impl EngineHandle {
         id: String,
         path: PathBuf,
         family: String,
+        aligner: Option<PathBuf>,
         backend: String,
         threads: i32,
     ) -> Result<(), WorkerError> {
@@ -243,6 +251,7 @@ impl EngineHandle {
             id,
             path,
             family,
+            aligner,
             backend,
             threads,
         })
@@ -335,9 +344,10 @@ impl<F: Fn(EngineEvent)> Worker<F> {
                     id,
                     path,
                     family,
+                    aligner,
                     backend,
                     threads,
-                } => self.load(id, &path, &family, &backend, threads),
+                } => self.load(id, &path, &family, aligner.as_deref(), &backend, threads),
                 Command::Unload => {
                     self.loaded = None;
                     (self.emit)(EngineEvent::ModelUnloaded);
@@ -407,7 +417,15 @@ impl<F: Fn(EngineEvent)> Worker<F> {
             .map_err(|e| e.to_string())
     }
 
-    fn load(&mut self, id: String, path: &Path, family: &str, backend: &str, threads: i32) {
+    fn load(
+        &mut self,
+        id: String,
+        path: &Path,
+        family: &str,
+        aligner: Option<&Path>,
+        backend: &str,
+        threads: i32,
+    ) {
         (self.emit)(EngineEvent::ModelLoading { id: id.clone() });
         // Release the previous model first so two never sit in memory together.
         self.loaded = None;
@@ -422,12 +440,23 @@ impl<F: Fn(EngineEvent)> Worker<F> {
                 return Err(format!("模型 {family} 不支持语音识别"));
             }
             // Only pass options a family declares: some validate strictly.
-            let session_names = model.option_names(true);
-            let request_names = model.option_names(false);
+            let (session_names, request_names) = declared_options(&model, family);
             let mut session_options = Vec::new();
             if session_names.iter().any(|n| n == "vad_model_path") {
                 session_options.push(("vad_model_path", vad_path.clone()));
             }
+            // Families such as Qwen3-ASR only produce word timestamps through a
+            // companion forced aligner, and reject `return_timestamps` without one.
+            let aligner_option = session_names
+                .iter()
+                .find(|n| n.ends_with("forced_aligner_path"));
+            let aligner_attached = match (aligner_option, aligner) {
+                (Some(name), Some(aligner)) => {
+                    session_options.push((name.as_str(), aligner.to_string_lossy().into_owned()));
+                    true
+                }
+                _ => false,
+            };
             let options = session_options.as_slice();
             let (session, used_backend) =
                 match model.session("asr", RunMode::Offline, backend, threads, options) {
@@ -442,6 +471,8 @@ impl<F: Fn(EngineEvent)> Worker<F> {
                     Err(e) => return Err(e.to_string()),
                 };
             let declares = |name: &str| request_names.iter().any(|n| n == name);
+            let request_timestamps =
+                declares("return_timestamps") && (aligner_option.is_none() || aligner_attached);
             let info = LoadedModelInfo {
                 id: id.clone(),
                 family: model.family(),
@@ -449,7 +480,9 @@ impl<F: Fn(EngineEvent)> Worker<F> {
                 accepts_language: declares("language"),
                 accepts_itn: declares("enable_itn"),
                 accepts_chunk_mode: declares("audio_chunk_mode"),
-                word_timestamps: model.supports_timestamps(),
+                request_timestamps,
+                merge_tokens: family == "nemotron_asr",
+                word_timestamps: request_timestamps || model.supports_timestamps(),
                 backend: used_backend,
                 load_ms: 0,
             };
@@ -491,6 +524,7 @@ impl<F: Fn(EngineEvent)> Worker<F> {
     fn request_options(
         info: &LoadedModelInfo,
         options: &TranscribeOptions,
+        timestamps: bool,
     ) -> Vec<(&'static str, String)> {
         let mut out = Vec::new();
         if info.accepts_language {
@@ -505,7 +539,39 @@ impl<F: Fn(EngineEvent)> Worker<F> {
         if info.accepts_chunk_mode {
             out.push(("audio_chunk_mode", "none".to_string()));
         }
+        if timestamps && info.request_timestamps {
+            out.push(("return_timestamps", "true".to_string()));
+        }
         out
+    }
+
+    /// Transcribes one chunk, retrying without timestamps if alignment fails so
+    /// a single bad alignment cannot sink the whole job.
+    fn transcribe_chunk(
+        loaded: &mut Loaded,
+        samples: &[f32],
+        request: &[(&str, String)],
+        plain: &[(&str, String)],
+    ) -> Result<ffi::Transcript, String> {
+        let audio = AudioInput {
+            samples,
+            sample_rate: TARGET_RATE,
+        };
+        let mut transcript = match loaded.session.transcribe(&audio, request) {
+            Ok(t) => t,
+            Err(e) if request.len() != plain.len() => {
+                log::warn!("transcription with timestamps failed ({e}); retrying without");
+                loaded
+                    .session
+                    .transcribe(&audio, plain)
+                    .map_err(|e| e.to_string())?
+            }
+            Err(e) => return Err(e.to_string()),
+        };
+        if loaded.info.merge_tokens {
+            transcript.words = merge_tokens(transcript.words);
+        }
+        Ok(transcript)
     }
 
     fn transcribe_file(
@@ -559,7 +625,8 @@ impl<F: Fn(EngineEvent)> Worker<F> {
 
         let chunks = file_chunks(&spans, total);
         let loaded = self.loaded.as_mut().expect("checked above");
-        let request = Self::request_options(&loaded.info, options);
+        let request = Self::request_options(&loaded.info, options, true);
+        let plain = Self::request_options(&loaded.info, options, false);
         let speech_total: usize = chunks.iter().map(Span::samples).sum::<usize>().max(1);
         let mut done = 0usize;
         let mut language = String::new();
@@ -569,16 +636,7 @@ impl<F: Fn(EngineEvent)> Worker<F> {
                 return Err("cancelled".into());
             }
             let piece = &samples[chunk.start..chunk.end];
-            let transcript = loaded
-                .session
-                .transcribe(
-                    &AudioInput {
-                        samples: piece,
-                        sample_rate: TARGET_RATE,
-                    },
-                    &request,
-                )
-                .map_err(|e| e.to_string())?;
+            let transcript = Self::transcribe_chunk(loaded, piece, &request, &plain)?;
             done += chunk.samples();
             if language.is_empty() && !transcript.language.is_empty() {
                 language = transcript.language.clone();
@@ -593,15 +651,7 @@ impl<F: Fn(EngineEvent)> Worker<F> {
                 start: offset,
                 end: chunk.end as f64 / rate,
                 text,
-                words: transcript
-                    .words
-                    .into_iter()
-                    .map(|w| Word {
-                        text: w.text,
-                        start: w.start + offset,
-                        end: w.end + offset,
-                    })
-                    .collect(),
+                words: offset_words(transcript.words, offset),
             };
             index += 1;
             (self.emit)(EngineEvent::JobSegment {
@@ -646,27 +696,33 @@ impl<F: Fn(EngineEvent)> Worker<F> {
         let mut last_level = Instant::now();
         let ticker = crossbeam_channel::tick(Duration::from_millis(100));
         let loaded = self.loaded.as_mut().expect("checked above");
-        let request = Self::request_options(&loaded.info, options);
+        let request = Self::request_options(&loaded.info, options, true);
+        let plain = Self::request_options(&loaded.info, options, false);
         let emit = &self.emit;
 
-        let mut transcribe = |span: Span, recording: &[f32]| -> Result<String, String> {
-            let start = span.start.saturating_sub(r / 5);
-            let end = (span.end + r / 10).min(recording.len());
-            if end <= start + r / 10 {
-                return Ok(String::new());
-            }
-            loaded
-                .session
-                .transcribe(
-                    &AudioInput {
-                        samples: &recording[start..end],
-                        sample_rate: TARGET_RATE,
-                    },
-                    &request,
-                )
-                .map(|t| clean_text(&t.text))
-                .map_err(|e| e.to_string())
-        };
+        // Partials skip timestamps: alignment on every refresh would stall the mic loop.
+        let mut transcribe =
+            |span: Span, recording: &[f32], final_: bool| -> Result<Segment, String> {
+                let start = span.start.saturating_sub(r / 5);
+                let end = (span.end + r / 10).min(recording.len());
+                let mut segment = Segment {
+                    index: 0,
+                    start: span.start as f64 / r as f64,
+                    end: span.end as f64 / r as f64,
+                    text: String::new(),
+                    words: Vec::new(),
+                };
+                if end <= start + r / 10 {
+                    return Ok(segment);
+                }
+                let request = if final_ { &request } else { &plain };
+                let transcript =
+                    Self::transcribe_chunk(loaded, &recording[start..end], request, &plain)?;
+                let offset = start as f64 / r as f64;
+                segment.text = clean_text(&transcript.text);
+                segment.words = offset_words(transcript.words, offset);
+                Ok(segment)
+            };
 
         let result = loop {
             if stop.load(Ordering::Relaxed) {
@@ -693,17 +749,11 @@ impl<F: Fn(EngineEvent)> Worker<F> {
                                 partial_len = 0;
                             }
                             EndpointEvent::Utterance { span, .. } => {
-                                match transcribe(span, &recording) {
-                                    Ok(text) if !text.is_empty() => {
+                                match transcribe(span, &recording, true) {
+                                    Ok(segment) if !segment.text.is_empty() => {
                                         emit(EngineEvent::LiveSegment {
                                             session: session_id.into(),
-                                            segment: Segment {
-                                                index,
-                                                start: span.start as f64 / r as f64,
-                                                end: span.end as f64 / r as f64,
-                                                text,
-                                                words: Vec::new(),
-                                            },
+                                            segment: Segment { index, ..segment },
                                         });
                                         index += 1;
                                     }
@@ -728,8 +778,8 @@ impl<F: Fn(EngineEvent)> Worker<F> {
                         let now = recording.len();
                         let grown = now.saturating_sub(start);
                         if grown >= (r as f32 * LIVE_MIN_PARTIAL_SECONDS) as usize && now > partial_len {
-                            if let Ok(text) = transcribe(Span { start, end: now }, &recording) {
-                                emit(EngineEvent::LivePartial { session: session_id.into(), text });
+                            if let Ok(segment) = transcribe(Span { start, end: now }, &recording, false) {
+                                emit(EngineEvent::LivePartial { session: session_id.into(), text: segment.text });
                             }
                             partial_len = now;
                         }
@@ -746,17 +796,11 @@ impl<F: Fn(EngineEvent)> Worker<F> {
             recording.extend(rs.process(&block));
         }
         if let Some(span) = endpointer.flush(recording.len()) {
-            if let Ok(text) = transcribe(span, &recording) {
-                if !text.is_empty() {
+            if let Ok(segment) = transcribe(span, &recording, true) {
+                if !segment.text.is_empty() {
                     emit(EngineEvent::LiveSegment {
                         session: session_id.into(),
-                        segment: Segment {
-                            index,
-                            start: span.start as f64 / r as f64,
-                            end: span.end as f64 / r as f64,
-                            text,
-                            words: Vec::new(),
-                        },
+                        segment: Segment { index, ..segment },
                     });
                 }
             }
@@ -836,6 +880,7 @@ pub mod testing {
         layout: EngineLayout,
         model_path: &Path,
         family: &str,
+        aligner: Option<&Path>,
         backend: &str,
         audio: &Path,
         language: Option<String>,
@@ -849,7 +894,7 @@ pub mod testing {
             move |e| sink.borrow_mut().push(e),
             Arc::default(),
         );
-        worker.load("test".into(), model_path, family, backend, 4);
+        worker.load("test".into(), model_path, family, aligner, backend, 4);
         if let Some(EngineEvent::ModelError { error, .. }) = events.borrow().last() {
             return Err(error.clone());
         }
@@ -882,9 +927,117 @@ pub fn clean_text(text: &str) -> String {
     out.split_whitespace().collect::<Vec<_>>().join(" ")
 }
 
+/// Option names the model accepts as (session, request). Some loaders (Qwen3-ASR,
+/// Fun-ASR) don't expose their spec through introspection, so the options Murmur
+/// uses are listed here from audio.cpp's `model_specs/<family>.json`.
+fn declared_options(model: &Model, family: &str) -> (Vec<String>, Vec<String>) {
+    let (session, request) = (model.option_names(true), model.option_names(false));
+    if !session.is_empty() || !request.is_empty() {
+        return (session, request);
+    }
+    let (session, request): (&[&str], &[&str]) = match family {
+        "qwen3_asr" => (
+            &["qwen3_asr.forced_aligner_path"],
+            &["language", "return_timestamps", "audio_chunk_mode"],
+        ),
+        "fun_asr_nano" => (&[], &["language", "enable_itn", "audio_chunk_mode"]),
+        _ => (&[], &[]),
+    };
+    let owned = |names: &[&str]| names.iter().map(|n| n.to_string()).collect();
+    (owned(session), owned(request))
+}
+
+/// Shifts chunk-relative word times onto the recording timeline, dropping
+/// entries with no visible text.
+fn offset_words(words: Vec<Word>, offset: f64) -> Vec<Word> {
+    words
+        .into_iter()
+        .filter_map(|w| {
+            let text = w.text.trim();
+            (!text.is_empty()).then(|| Word {
+                text: text.to_string(),
+                start: w.start + offset,
+                end: w.end.max(w.start) + offset,
+            })
+        })
+        .collect()
+}
+
+/// Joins sub-word tokens into words: a token starting with whitespace opens a
+/// new word, anything else continues the previous one. Tokens without spaces
+/// between them (CJK) therefore stay one unit per token.
+fn merge_tokens(tokens: Vec<Word>) -> Vec<Word> {
+    let mut words: Vec<Word> = Vec::new();
+    for token in tokens {
+        let opens = token.text.starts_with(char::is_whitespace);
+        match words.last_mut() {
+            Some(last) if !opens && !is_cjk_start(&token.text) && !ends_cjk(&last.text) => {
+                last.text.push_str(&token.text);
+                last.end = token.end.max(last.end);
+            }
+            _ => words.push(token),
+        }
+    }
+    words.retain(|w| !w.text.trim().is_empty());
+    words
+}
+
+fn is_cjk(c: char) -> bool {
+    matches!(c, '\u{3040}'..='\u{30ff}' | '\u{3400}'..='\u{4dbf}' | '\u{4e00}'..='\u{9fff}' | '\u{ac00}'..='\u{d7af}')
+}
+
+fn is_cjk_start(text: &str) -> bool {
+    text.chars().next().is_some_and(is_cjk)
+}
+
+fn ends_cjk(text: &str) -> bool {
+    text.chars().last().is_some_and(is_cjk)
+}
+
 #[cfg(test)]
 mod tests {
-    use super::clean_text;
+    use super::{clean_text, merge_tokens, offset_words, Word};
+
+    fn w(text: &str, start: f64, end: f64) -> Word {
+        Word {
+            text: text.into(),
+            start,
+            end,
+        }
+    }
+
+    #[test]
+    fn merges_subword_tokens() {
+        let words = merge_tokens(vec![
+            w("Hel", 0.0, 0.1),
+            w("lo", 0.1, 0.2),
+            w(" wor", 0.3, 0.4),
+            w("ld", 0.4, 0.5),
+            w(",", 0.5, 0.55),
+        ]);
+        let texts: Vec<_> = words.iter().map(|w| w.text.trim()).collect();
+        assert_eq!(texts, ["Hello", "world,"]);
+        assert_eq!((words[1].start, words[1].end), (0.3, 0.55));
+    }
+
+    #[test]
+    fn keeps_cjk_tokens_separate() {
+        let words = merge_tokens(vec![
+            w("你", 0.0, 0.1),
+            w("好", 0.1, 0.2),
+            w("AI", 0.2, 0.3),
+        ]);
+        let texts: Vec<_> = words.iter().map(|w| w.text.as_str()).collect();
+        assert_eq!(texts, ["你", "好", "AI"]);
+    }
+
+    #[test]
+    fn offsets_and_trims_words() {
+        let words = offset_words(vec![w(" hi ", 0.5, 0.4), w("  ", 1.0, 1.1)], 10.0);
+        assert_eq!(words.len(), 1);
+        assert_eq!(words[0].text, "hi");
+        assert_eq!((words[0].start, words[0].end), (10.5, 10.5));
+    }
 
     #[test]
     fn strips_control_tags() {

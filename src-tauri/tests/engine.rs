@@ -3,6 +3,9 @@
 //!
 //! MURMUR_TEST_MODEL=/path/model.gguf MURMUR_TEST_FAMILY=qwen3_asr \
 //! MURMUR_TEST_AUDIO=/path/speech.wav cargo test --test engine -- --nocapture
+//!
+//! Set MURMUR_TEST_ALIGNER=/path/qwen3-forced-aligner.gguf to also require word
+//! timestamps.
 
 use std::path::PathBuf;
 use std::time::Instant;
@@ -36,9 +39,19 @@ fn transcribes_file_through_worker() {
     let family = std::env::var("MURMUR_TEST_FAMILY").unwrap_or_else(|_| "qwen3_asr".into());
     let backend = std::env::var("MURMUR_TEST_BACKEND").unwrap_or_else(|_| "metal".into());
     let language = std::env::var("MURMUR_TEST_LANGUAGE").ok();
+    let aligner = env_path("MURMUR_TEST_ALIGNER");
 
     let started = Instant::now();
-    let events = run_file(layout, &model, &family, &backend, &audio, language).expect("worker run");
+    let events = run_file(
+        layout,
+        &model,
+        &family,
+        aligner.as_deref(),
+        &backend,
+        &audio,
+        language,
+    )
+    .expect("worker run");
     let elapsed = started.elapsed().as_secs_f64();
 
     let mut loaded = false;
@@ -71,6 +84,14 @@ fn transcribes_file_through_worker() {
     assert!(loaded, "model did not load: {events:?}");
     for s in &segments {
         eprintln!("[{:7.2} - {:7.2}] {}", s.start, s.end, s.text);
+        if !s.words.is_empty() {
+            let words: Vec<_> = s
+                .words
+                .iter()
+                .map(|w| format!("{}@{:.2}-{:.2}", w.text, w.start, w.end))
+                .collect();
+            eprintln!("          {}", words.join(" "));
+        }
     }
     eprintln!("{duration:.1}s audio, wall {elapsed:.2}s incl. load");
     assert!(!segments.is_empty(), "expected at least one segment");
@@ -79,6 +100,17 @@ fn transcribes_file_through_worker() {
         "segments overlap"
     );
     assert!(segments.last().unwrap().end <= duration + 1e-6);
+    if aligner.is_some() {
+        let words: Vec<_> = segments.iter().flat_map(|s| &s.words).collect();
+        assert!(!words.is_empty(), "expected word timestamps");
+        assert!(words
+            .iter()
+            .all(|w| w.start <= w.end && w.end <= duration + 0.5));
+        assert!(
+            words.windows(2).all(|p| p[0].start <= p[1].start + 1e-6),
+            "word starts go backwards"
+        );
+    }
     if let Ok(expect) = std::env::var("MURMUR_TEST_EXPECT") {
         let joined: String = segments.iter().map(|s| s.text.as_str()).collect();
         assert!(

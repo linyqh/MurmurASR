@@ -3,6 +3,8 @@ import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 
 export interface CatalogModel {
   id: string;
+  /** Absent for ordinary ASR models. */
+  kind?: "asr" | "aligner";
   name: string;
   family: string;
   precision: string;
@@ -17,6 +19,8 @@ export interface CatalogModel {
   tags: string[];
   wordTimestamps: boolean;
   speakerDiarization: boolean;
+  /** Companion aligner that adds word timestamps once installed. */
+  aligner?: string;
   sources: Record<string, string>;
 }
 

@@ -25,6 +25,15 @@ const segments = [
   { index: 3, start: 33.1, end: 52.6, text: "Friends, neighbors, and fellow builders of the common life—we meet at a time when it is easy to confuse noise with strength and speed with progress." },
 ];
 
+/** Spreads per-character (CJK) or per-word timings evenly across a segment. */
+function mockWords(seg: { start: number; end: number; text: string }) {
+  const units = /[一-鿿]/.test(seg.text)
+    ? (seg.text.match(/[一-鿿]|[A-Za-z0-9]+/g) ?? [])
+    : seg.text.split(/\s+/).map((w) => w.replace(/[^\p{L}\p{N}']/gu, "")).filter(Boolean);
+  const step = (seg.end - seg.start) / Math.max(1, units.length);
+  return units.map((text, i) => ({ text, start: seg.start + i * step, end: seg.start + (i + 0.85) * step }));
+}
+
 const history = [
   { id: "t1", title: "AI 播客第 42 期", source: "file", createdAt: now - 3_600_000, duration: 1854, preview: segments[0].text },
   { id: "t2", title: "实时转写 10月15日 09:12", source: "live", createdAt: now - 6 * 3_600_000, duration: 312, preview: "今天的站会主要同步三件事" },
@@ -46,6 +55,9 @@ function snapshot() {
       : [
           { id: "qwen3-asr-0.6b-q8", path: "/models/qwen3.gguf", size: 1151272416 },
           { id: "sensevoice-small-q8", path: "/models/sense.gguf", size: 254211200 },
+          ...(s === "models"
+            ? [{ id: "qwen3-forced-aligner-0.6b-q8", path: "/models/aligner.gguf", size: 1129966496 }]
+            : []),
         ],
     downloading: s === "models" ? ["fun-asr-nano-q8"] : s === "onboarding-dl" ? ["qwen3-asr-0.6b-q8"] : [],
     loaded: fresh || s === "onboarding-dl" ? null : loaded,
@@ -88,7 +100,7 @@ const handlers: Record<string, Handler> = {
     language: "Chinese",
     model: "Qwen3-ASR 0.6B",
     audioPath: "/tmp/demo.m4a",
-    segments,
+    segments: segments.map((seg, i) => (i === 1 ? seg : { ...seg, words: mockWords(seg) })),
     elapsedMs: 9000,
   }),
   transcribe_file: () => {

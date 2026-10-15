@@ -11,7 +11,7 @@
 
 | 模型 | 大小 | 特点 |
 |---|---|---|
-| **Qwen3-ASR 0.6B（推荐）** | 1.2 GB | 30 种语言 + 22 种中文方言，自动识别语言 |
+| **Qwen3-ASR 0.6B（推荐）** | 1.2 GB | 30 种语言 + 22 种中文方言，自动识别语言；装上对齐模型后输出词级时间戳 |
 | SenseVoice Small | 254 MB | 极速轻量，中文 / 粤语出色 |
 | Fun-ASR Nano | 1.0 GB | 中文专精，数字规整好 |
 | Qwen3-ASR 1.7B | 2.5 GB | 更高精度 |
@@ -20,6 +20,15 @@
 | Moonshine Small | 301 MB | 英语，低延迟 |
 
 模型目录在 `src-tauri/catalog.json`，后端和前端共用这一份。
+
+### 词级时间戳
+
+支持的模型会自动请求词级时间戳。记录页播放时逐词高亮，点击单词可跳转播放；导出 JSON 时每段带 `words`。
+
+- Parakeet、Kroko、GigaAM、CrisperWhisper、Nemotron 原生输出词级时间戳。Nemotron 给出的是子词 token，会合并成词。
+- Qwen3-ASR 需要额外下载 **Qwen3 强制对齐模型**（1.1 GB，在模型卡片里下载），支持中、粤、英、日、韩、法、德、意、葡、俄、西 11 种语言，中文按字对齐。下载后重新加载模型即可生效。对齐失败的片段会自动退回为不带时间戳的结果。
+- 实时听写只为最终结果生成时间戳，中间结果不做对齐。
+- 编辑某段文字后，该段的词级时间戳会被清除。
 
 实测（Apple M6，Metal）：Qwen3-ASR 0.6B 转写 7 分钟英文约 21 秒（约 20× 实时）；SenseVoice 转写 31 秒中文约 0.6 秒。新安装后首次加载模型需要编译 Metal 着色器（约 7 秒），之后约 1 秒。
 
@@ -61,6 +70,7 @@ cd src-tauri && cargo test
 # 用真实引擎和模型的端到端测试（没有模型时自动跳过）
 MURMUR_TEST_MODEL=/path/qwen3-asr-0.6b-q8_0.gguf MURMUR_TEST_AUDIO=/path/speech.m4a \
   cargo test --release --test engine -- --nocapture
+# 加上 MURMUR_TEST_ALIGNER=/path/qwen3-forced-aligner-0.6b-q8_0.gguf 会同时校验词级时间戳
 
 # 下载测试：会下载约 254 MB，测试中途取消后续传并校验 SHA-256
 MURMUR_TEST_DOWNLOAD=1 cargo test --release --test download

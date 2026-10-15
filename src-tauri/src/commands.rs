@@ -12,7 +12,9 @@ use tauri::{AppHandle, Emitter, Manager, State};
 
 use crate::audio::{self, InputDevice};
 use crate::engine::{EngineEvent, EngineHandle, LoadedModelInfo, Segment, TranscribeOptions};
-use crate::models::{self, Catalog, CatalogModel, DownloadEvent, Downloads, InstalledModel};
+use crate::models::{
+    self, Catalog, CatalogModel, DownloadEvent, Downloads, InstalledModel, ModelKind,
+};
 use crate::store::{self, ExportFormat, Settings, Store, Transcript, TranscriptSummary};
 
 pub const EVENT_ENGINE: &str = "engine://event";
@@ -318,7 +320,12 @@ pub fn cancel_download(state: State<'_, AppState>, id: String) -> bool {
 #[tauri::command]
 pub fn delete_model(state: State<'_, AppState>, id: String) -> CmdResult<()> {
     let model = catalog_model(&state, &id)?;
-    if state.loaded.lock().as_ref().is_some_and(|l| l.id == id) {
+    // The loaded model may hold this file open as its aligner.
+    let in_use = state.loaded.lock().as_ref().is_some_and(|l| {
+        l.id == id
+            || state.catalog.get(&l.id).and_then(|m| m.aligner.as_deref()) == Some(id.as_str())
+    });
+    if in_use {
         state.engine.unload().map_err(|e| e.to_string())?;
     }
     {
@@ -334,10 +341,15 @@ pub fn delete_model(state: State<'_, AppState>, id: String) -> CmdResult<()> {
 #[tauri::command]
 pub fn load_model(state: State<'_, AppState>, id: String) -> CmdResult<()> {
     let model = catalog_model(&state, &id)?;
-    let path = models::model_path(&state.models_dir(), &model);
+    if model.kind != ModelKind::Asr {
+        return Err(format!("{} 是辅助模型，不能单独用于识别", model.name));
+    }
+    let root = state.models_dir();
+    let path = models::model_path(&root, &model);
     if !path.exists() {
         return Err("模型尚未下载".into());
     }
+    let aligner = models::installed_aligner(&root, &state.catalog, &model);
     let (backend, threads) = {
         let mut settings = state.settings.lock();
         settings.active_model = Some(id.clone());
@@ -347,7 +359,7 @@ pub fn load_model(state: State<'_, AppState>, id: String) -> CmdResult<()> {
     *state.loading.lock() = Some(id.clone());
     state
         .engine
-        .load_model(id, path, model.family, backend, threads)
+        .load_model(id, path, model.family, aligner, backend, threads)
         .map_err(|e| e.to_string())
 }
 

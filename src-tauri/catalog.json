@@ -16,8 +16,9 @@
       "speed": 3,
       "accuracy": 4,
       "tags": ["多语种", "自动识别语言", "方言"],
-      "wordTimestamps": false,
+      "wordTimestamps": true,
       "speakerDiarization": false,
+      "aligner": "qwen3-forced-aligner-0.6b-q8",
       "sources": {
         "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/main/Qwen3-ASR-0.6B-GGUF/qwen3-asr-0.6b-q8_0.gguf",
         "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/Qwen3-ASR-0.6B-GGUF/qwen3-asr-0.6b-q8_0.gguf"
@@ -78,8 +79,9 @@
       "speed": 2,
       "accuracy": 5,
       "tags": ["高精度", "多语种"],
-      "wordTimestamps": false,
+      "wordTimestamps": true,
       "speakerDiarization": false,
+      "aligner": "qwen3-forced-aligner-0.6b-q8",
       "sources": {
         "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/main/Qwen3-ASR-1.7B-GGUF/qwen3-asr-1.7b-q8_0.gguf",
         "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/Qwen3-ASR-1.7B-GGUF/qwen3-asr-1.7b-q8_0.gguf"
@@ -209,6 +211,28 @@
       "sources": {
         "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/main/CrisperWhisper2.0-GGUF/crisperwhisper-2-large-q8_0.gguf",
         "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/CrisperWhisper2.0-GGUF/crisperwhisper-2-large-q8_0.gguf"
+      }
+    },
+    {
+      "id": "qwen3-forced-aligner-0.6b-q8",
+      "kind": "aligner",
+      "name": "Qwen3 强制对齐模型",
+      "family": "qwen3_forced_aligner",
+      "precision": "Q8_0",
+      "file": "qwen3-forced-aligner-0.6b-q8_0.gguf",
+      "size": 1129966496,
+      "sha256": "75209490b11cec2b0db749ca5f4ff92266f58efd30f7fd04d9eb2a3ac9cc929f",
+      "license": "Apache-2.0",
+      "languages": "中、粤、英、日、韩、法、德、意、葡、俄、西",
+      "summary": "为 Qwen3-ASR 生成词级时间戳（中文为字级），转写后自动对齐。",
+      "speed": 3,
+      "accuracy": 4,
+      "tags": [],
+      "wordTimestamps": true,
+      "speakerDiarization": false,
+      "sources": {
+        "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/main/Qwen3-ForcedAligner-0.6B-GGUF/qwen3-forced-aligner-0.6b-q8_0.gguf",
+        "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/Qwen3-ForcedAligner-0.6B-GGUF/qwen3-forced-aligner-0.6b-q8_0.gguf"
       }
     }
   ]

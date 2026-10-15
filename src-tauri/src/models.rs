@@ -18,6 +18,8 @@ const CATALOG_JSON: &str = include_str!("../catalog.json");
 #[serde(rename_all = "camelCase")]
 pub struct CatalogModel {
     pub id: String,
+    #[serde(default)]
+    pub kind: ModelKind,
     pub name: String,
     pub family: String,
     pub precision: String,
@@ -32,7 +34,18 @@ pub struct CatalogModel {
     pub tags: Vec<String>,
     pub word_timestamps: bool,
     pub speaker_diarization: bool,
+    /// Companion aligner model that adds word timestamps once installed.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub aligner: Option<String>,
     pub sources: HashMap<String, String>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
+#[serde(rename_all = "lowercase")]
+pub enum ModelKind {
+    #[default]
+    Asr,
+    Aligner,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -103,6 +116,18 @@ pub fn model_path(models_root: &Path, model: &CatalogModel) -> PathBuf {
 
 fn partial_path(models_root: &Path, model: &CatalogModel) -> PathBuf {
     model_dir(models_root, model).join(format!("{}.part", model.file))
+}
+
+/// Path of `model`'s companion aligner when it is fully downloaded.
+pub fn installed_aligner(
+    models_root: &Path,
+    catalog: &Catalog,
+    model: &CatalogModel,
+) -> Option<PathBuf> {
+    let aligner = catalog.get(model.aligner.as_deref()?)?;
+    let path = model_path(models_root, aligner);
+    let len = std::fs::metadata(&path).ok()?.len();
+    (len == aligner.size).then_some(path)
 }
 
 pub fn installed(models_root: &Path, catalog: &Catalog) -> Vec<InstalledModel> {
@@ -433,7 +458,13 @@ mod tests {
             assert!(model.size > 0);
             assert!(model.sources.contains_key("huggingface"));
             assert!(model.file.ends_with(".gguf"));
+            if let Some(aligner) = &model.aligner {
+                let aligner = catalog.get(aligner).expect("aligner is in the catalog");
+                assert_eq!(aligner.kind, ModelKind::Aligner);
+            }
         }
+        let recommended = catalog.get(&catalog.recommended).unwrap();
+        assert_eq!(recommended.kind, ModelKind::Asr);
     }
 
     #[test]

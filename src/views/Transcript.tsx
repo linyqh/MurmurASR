@@ -3,9 +3,17 @@ import { convertFileSrc } from "@tauri-apps/api/core";
 import { save, ask } from "@tauri-apps/plugin-dialog";
 import { writeText } from "@tauri-apps/plugin-clipboard-manager";
 import { revealItemInDir } from "@tauri-apps/plugin-opener";
-import { api, type ExportFormat, type Transcript } from "../lib/api";
+import { api, type ExportFormat, type Segment, type Transcript } from "../lib/api";
 import { useStore } from "../lib/store";
-import { formatClock, formatDuration, formatRelativeDate, joinSegments, languageLabel } from "../lib/format";
+import {
+  activeWord,
+  alignWords,
+  formatClock,
+  formatDuration,
+  formatRelativeDate,
+  joinSegments,
+  languageLabel,
+} from "../lib/format";
 import {
   IconCopy,
   IconFolder,
@@ -90,7 +98,8 @@ export function TranscriptView({ id }: { id: string }) {
     setEditing(null);
     const trimmed = text.trim();
     if (trimmed === t.segments[index].text) return;
-    const segments = t.segments.map((s, i) => (i === index ? { ...s, text: trimmed } : s));
+    // Old word timings no longer match edited text.
+    const segments = t.segments.map((s, i) => (i === index ? { ...s, text: trimmed, words: undefined } : s));
     try {
       setT(await api.updateTranscript(t.id, { segments }));
     } catch (e) {
@@ -236,7 +245,15 @@ export function TranscriptView({ id }: { id: string }) {
                   />
                 ) : (
                   <div className="segment-text selectable" onDoubleClick={() => setEditing(i)}>
-                    {s.text}
+                    {s.words?.length ? (
+                      <SegmentText
+                        segment={s}
+                        time={i === current && (playing || position > 0) ? position : null}
+                        onSeek={audioSrc ? seek : undefined}
+                      />
+                    ) : (
+                      s.text
+                    )}
                   </div>
                 )}
                 {editing !== i && (
@@ -290,6 +307,38 @@ export function TranscriptView({ id }: { id: string }) {
             onError={() => toast("无法播放音频文件（文件可能已移动或删除）", "error")}
           />
         </div>
+      )}
+    </>
+  );
+}
+
+function SegmentText({
+  segment,
+  time,
+  onSeek,
+}: {
+  segment: Segment;
+  time: number | null;
+  onSeek?: (seconds: number) => void;
+}) {
+  const words = segment.words ?? [];
+  const pieces = useMemo(() => alignWords(segment.text, words), [segment.text, words]);
+  const active = time === null ? -1 : activeWord(words, time);
+  return (
+    <>
+      {pieces.map((p, k) =>
+        p.word < 0 ? (
+          p.text
+        ) : (
+          <span
+            key={k}
+            className={`word${p.word === active ? " active" : ""}${onSeek ? " seekable" : ""}`}
+            title={formatClock(words[p.word].start)}
+            onClick={onSeek && (() => onSeek(words[p.word].start))}
+          >
+            {p.text}
+          </span>
+        ),
       )}
     </>
   );

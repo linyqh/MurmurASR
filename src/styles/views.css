@@ -542,6 +542,28 @@
 .model-capabilities .badge {
   gap: 4px;
 }
+.aligner-addon {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: var(--r-md);
+  background: var(--fill);
+  font-size: 12px;
+}
+.aligner-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 26px;
+  line-height: 1.45;
+}
+.aligner-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
 .model-tags {
   display: flex;
   flex-wrap: wrap;
@@ -664,6 +686,20 @@
 .segment-text {
   font-size: 15px;
   line-height: 1.7;
+}
+.word {
+  border-radius: 3px;
+  transition: background 120ms var(--ease), color 120ms var(--ease);
+}
+.word.seekable {
+  cursor: pointer;
+}
+.word.seekable:hover {
+  background: var(--selection);
+}
+.word.active {
+  background: var(--accent);
+  color: var(--accent-fg);
 }
 .segment-edit {
   font-size: 15px;

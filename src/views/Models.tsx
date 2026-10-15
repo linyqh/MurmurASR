@@ -17,7 +17,8 @@ export function ModelsView() {
   const installed = new Set(models.installed.map((m) => m.id));
   const recommended = models.catalog.models.find((m) => m.id === models.catalog.recommended);
   const others = models.catalog.models.filter(
-    (m) => m.id !== models.catalog.recommended && (filter === "all" || installed.has(m.id)),
+    (m) =>
+      m.kind !== "aligner" && m.id !== models.catalog.recommended && (filter === "all" || installed.has(m.id)),
   );
   const showRecommended = recommended && (filter === "all" || installed.has(recommended.id));
   const totalInstalled = models.installed.reduce((sum, m) => sum + m.size, 0);
@@ -115,6 +116,7 @@ function ModelCard({
   const loaded = models?.loaded?.id === model.id;
   const loading = models?.loading === model.id;
   const downloading = !!download || queued;
+  const aligner = model.aligner ? models?.catalog.models.find((m) => m.id === model.aligner) : undefined;
 
   const startDownload = async () => {
     try {
@@ -180,6 +182,7 @@ function ModelCard({
         <CapabilityBadge supported={model.wordTimestamps} label="词级时间戳" />
         <CapabilityBadge supported={model.speakerDiarization} label="说话人分段" />
       </div>
+      {aligner && <AlignerAddon aligner={aligner} owner={model} />}
       <div className="model-tags">
         {model.tags.map((t) => (
           <span key={t} className="badge">
@@ -234,6 +237,68 @@ function ModelCard({
         )}
       </div>
     </article>
+  );
+}
+
+/** Optional companion download that adds word timestamps to `owner`. */
+function AlignerAddon({ aligner, owner }: { aligner: CatalogModel; owner: CatalogModel }) {
+  const { models, downloads, refreshModels, toast } = useStore();
+  const installed = !!models?.installed.some((m) => m.id === aligner.id);
+  const download = downloads[aligner.id];
+  const downloading = !!download || !!models?.downloading.includes(aligner.id);
+  const ownerLoaded = models?.loaded?.id === owner.id;
+  const active = ownerLoaded && !!models?.loaded?.wordTimestamps;
+
+  const run = async (action: () => Promise<unknown>) => {
+    try {
+      await action();
+      await refreshModels();
+    } catch (e) {
+      toast(String(e), "error");
+    }
+  };
+
+  const remove = async () => {
+    const ok = await ask(`删除后 ${owner.name} 将不再输出词级时间戳，可随时重新下载。`, {
+      title: `删除“${aligner.name}”？`,
+      kind: "warning",
+      okLabel: "删除",
+      cancelLabel: "取消",
+    });
+    if (ok) await run(() => api.deleteModel(aligner.id));
+  };
+
+  return (
+    <div className="aligner-addon">
+      <div className="aligner-line">
+        <span>
+          <strong>{aligner.name}</strong>
+          <span className="muted"> · {formatBytes(aligner.size)} · {aligner.summary}</span>
+        </span>
+        <div className="toolbar-spacer" />
+        {downloading ? null : installed ? (
+          <>
+            {ownerLoaded && !active ? (
+              <button className="btn" onClick={() => void run(() => api.loadModel(owner.id))}>
+                重新加载以启用
+              </button>
+            ) : (
+              <span className="aligner-state muted">
+                <IconCheck size={12} /> 已安装
+              </span>
+            )}
+            <button className="icon-btn" aria-label="删除对齐模型" onClick={() => void remove()}>
+              <IconTrash size={14} />
+            </button>
+          </>
+        ) : (
+          <button className="btn" onClick={() => void run(() => api.downloadModel(aligner.id))}>
+            <IconDownload size={13} /> 下载
+          </button>
+        )}
+      </div>
+      {downloading && <DownloadStatus model={aligner} download={download} />}
+    </div>
   );
 }
 

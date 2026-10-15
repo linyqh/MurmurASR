@@ -261,10 +261,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           setDownloads(({ [e.id]: _, ...rest }) => rest);
           if (e.state === "failed") toast(`下载失败：${e.error}`, "error");
           if (e.state === "done") {
-            const name = modelsRef.current?.catalog.models.find((m) => m.id === e.id)?.name ?? e.id;
-            toast(`${name} 下载完成`);
+            const model = modelsRef.current?.catalog.models.find((m) => m.id === e.id);
+            toast(`${model?.name ?? e.id} 下载完成`);
             // First model on this machine: make it usable without another click.
-            if (!modelsRef.current?.loaded && !modelsRef.current?.loading) {
+            if (model?.kind !== "aligner" && !modelsRef.current?.loaded && !modelsRef.current?.loading) {
               void api.loadModel(e.id).catch((err) => toast(errorText(err), "error"));
             }
           }

@@ -62,6 +62,52 @@ export function joinSegments(texts: string[]): string {
   return out;
 }
 
+export interface TextPiece {
+  text: string;
+  /** Index into the segment's words, or -1 for text no word covers. */
+  word: number;
+}
+
+/**
+ * Splits `text` into pieces carrying each timed word, so the original
+ * punctuation and spacing survive even though aligners return bare words.
+ * Words that cannot be found in order are skipped.
+ */
+export function alignWords(text: string, words: { text: string }[]): TextPiece[] {
+  const pieces: TextPiece[] = [];
+  const lower = text.toLowerCase();
+  let pos = 0;
+  words.forEach((w, i) => {
+    const needle = w.text.trim().toLowerCase();
+    if (!needle) return;
+    const at = lower.indexOf(needle, pos);
+    if (at < 0) return;
+    if (at > pos) pieces.push({ text: text.slice(pos, at), word: -1 });
+    let end = at + needle.length;
+    // Keep trailing punctuation with its word so highlights don't flicker on it.
+    while (end < text.length && /[^\s\p{L}\p{N}]/u.test(text[end])) end++;
+    pieces.push({ text: text.slice(at, end), word: i });
+    pos = end;
+  });
+  if (pos < text.length) pieces.push({ text: text.slice(pos), word: -1 });
+  return pieces;
+}
+
+/** Index of the word playing at `time`, or -1. */
+export function activeWord(words: { start: number; end: number }[], time: number): number {
+  let found = -1;
+  for (let i = 0; i < words.length; i++) {
+    if (words[i].start > time) break;
+    found = i;
+  }
+  if (found >= 0) {
+    const next = words[found + 1];
+    // Hold the last spoken word through short gaps, but not past the next word.
+    if (time > words[found].end + 0.6 && (!next || time < next.start)) return -1;
+  }
+  return found;
+}
+
 export const LANGUAGE_LABELS: Record<string, string> = {
   auto: "自动检测",
   zh: "中文",
