@@ -736,6 +736,17 @@
   font-size: 12px;
   margin: 0 0 16px;
 }
+.transcript-downloads {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.transcript-download-note {
+  flex-basis: 100%;
+  margin: 0;
+  font-size: 12px;
+}
 .segments {
   max-width: 820px;
 }

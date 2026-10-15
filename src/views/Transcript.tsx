@@ -16,6 +16,7 @@ import {
 } from "../lib/format";
 import {
   IconCopy,
+  IconDownload,
   IconFolder,
   IconPause,
   IconPencil,
@@ -41,6 +42,7 @@ export function TranscriptView({ id }: { id: string }) {
   const [position, setPosition] = useState(0);
   const [editing, setEditing] = useState<number | null>(null);
   const [menu, setMenu] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const [renaming, setRenaming] = useState(false);
   const audio = useRef<HTMLAudioElement>(null);
   const segRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -79,6 +81,7 @@ export function TranscriptView({ id }: { id: string }) {
   if (!t) return null;
 
   const fullText = joinSegments(t.segments.map((s) => s.text));
+  const hasWordTimestamps = t.segments.some((s) => s.words?.length);
 
   const seek = (seconds: number) => {
     const el = audio.current;
@@ -114,18 +117,22 @@ export function TranscriptView({ id }: { id: string }) {
   };
 
   const doExport = async (format: ExportFormat, ext: string) => {
+    if (exporting) return;
     setMenu(false);
-    const path = await save({
-      title: "导出转写",
-      defaultPath: `${t.title}.${ext}`,
-      filters: [{ name: ext.toUpperCase(), extensions: [ext] }],
-    });
-    if (!path) return;
+    setExporting(true);
     try {
+      const path = await save({
+        title: "导出转写",
+        defaultPath: `${t.title}.${ext}`,
+        filters: [{ name: ext.toUpperCase(), extensions: [ext] }],
+      });
+      if (!path) return;
       await api.exportTranscript(t.id, format, path);
-      toast("已导出");
+      toast(`已导出 ${ext.toUpperCase()} 文件`);
     } catch (e) {
       toast(String(e), "error");
+    } finally {
+      setExporting(false);
     }
   };
 
@@ -173,6 +180,7 @@ export function TranscriptView({ id }: { id: string }) {
             <button
               className="icon-btn"
               aria-label="导出"
+              disabled={exporting}
               aria-haspopup="menu"
               onClick={(e) => {
                 e.stopPropagation();
@@ -204,6 +212,22 @@ export function TranscriptView({ id }: { id: string }) {
           {t.language && ` · ${languageLabel(t.language)}`}
           {t.model && ` · ${t.model}`}
           {t.elapsedMs > 0 && t.duration > 0 && ` · 用时 ${(t.elapsedMs / 1000).toFixed(1)} 秒`}
+        </div>
+
+        <div className="transcript-downloads">
+          <button className="btn primary" disabled={exporting} onClick={() => void doExport("srt", "srt")}>
+            <IconDownload size={14} />
+            下载 SRT 字幕文件
+          </button>
+          <button className="btn" disabled={exporting} onClick={() => void doExport("json", "json")}>
+            <IconDownload size={14} />
+            下载词级时间戳 JSON 文件
+          </button>
+          {!hasWordTimestamps && (
+            <p className="transcript-download-note muted">
+              这条记录未保存词级时间戳，JSON 将包含分段时间戳和转写文本。
+            </p>
+          )}
         </div>
 
         {t.segments.length === 0 ? (
