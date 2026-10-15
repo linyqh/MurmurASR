@@ -1,3 +1,4 @@
+mod api;
 mod audio;
 mod commands;
 pub mod engine;
@@ -63,8 +64,14 @@ pub fn run() {
             let state = AppState::new(engine, store);
 
             // Restore the last used model so the app is ready immediately.
-            let restore = state.settings.lock().active_model.clone();
+            let (restore, api_enabled, api_port) = {
+                let s = state.settings.lock();
+                (s.active_model.clone(), s.api_enabled, s.api_port)
+            };
             app.manage(state);
+            app.state::<AppState>()
+                .api
+                .configure(app.handle(), api_enabled, api_port);
             if let Some(id) = restore {
                 let state = app.state::<AppState>();
                 if let Err(e) = commands::load_model(state, id) {
@@ -77,6 +84,7 @@ pub fn run() {
             commands::app_info,
             commands::get_settings,
             commands::update_settings,
+            commands::api_status,
             commands::list_models,
             commands::download_model,
             commands::cancel_download,

@@ -504,6 +504,17 @@ button {
   flex: 1;
   min-width: 0;
 }
+.port-input {
+  width: 72px;
+  border: 0;
+  border-radius: var(--r-xs);
+  padding: 3px 8px;
+  background: var(--fill);
+  text-align: right;
+}
+.port-input:disabled {
+  opacity: 0.5;
+}
 .form-row .label .hint {
   font-size: 11px;
   color: var(--label-2);

@@ -10,6 +10,7 @@ use parking_lot::Mutex;
 use serde::Serialize;
 use tauri::{AppHandle, Emitter, Manager, State};
 
+use crate::api::{self, Api, ApiStatus};
 use crate::audio::{self, InputDevice};
 use crate::engine::{EngineEvent, EngineHandle, LoadedModelInfo, Segment, TranscribeOptions};
 use crate::models::{
@@ -20,6 +21,7 @@ use crate::store::{self, ExportFormat, Settings, Store, Transcript, TranscriptSu
 pub const EVENT_ENGINE: &str = "engine://event";
 pub const EVENT_DOWNLOAD: &str = "models://download";
 pub const EVENT_HISTORY: &str = "history://changed";
+pub const EVENT_API_JOB: &str = "api://job";
 
 /// A transcript being assembled from engine events.
 struct Pending {
@@ -35,6 +37,7 @@ pub struct AppState {
     pub settings: Mutex<Settings>,
     pub loaded: Mutex<Option<LoadedModelInfo>>,
     pub loading: Mutex<Option<String>>,
+    pub api: Api,
     pending: Mutex<HashMap<String, Pending>>,
 }
 
@@ -49,6 +52,7 @@ impl AppState {
             settings: Mutex::new(settings),
             loaded: Mutex::new(None),
             loading: Mutex::new(None),
+            api: Api::default(),
             pending: Mutex::new(HashMap::new()),
         }
     }
@@ -181,7 +185,7 @@ impl AppState {
         (id, cancel)
     }
 
-    fn cancel(&self, id: &str) -> bool {
+    pub fn cancel(&self, id: &str) -> bool {
         match self.pending.lock().get(id) {
             Some(p) => {
                 p.cancel.store(true, std::sync::atomic::Ordering::Relaxed);
@@ -242,13 +246,25 @@ pub fn get_settings(state: State<'_, AppState>) -> Settings {
 }
 
 #[tauri::command]
-pub fn update_settings(state: State<'_, AppState>, settings: Settings) -> CmdResult<Settings> {
+pub fn update_settings(
+    app: AppHandle,
+    state: State<'_, AppState>,
+    settings: Settings,
+) -> CmdResult<Settings> {
     state
         .store
         .save_settings(&settings)
         .map_err(|e| e.to_string())?;
     *state.settings.lock() = settings.clone();
+    state
+        .api
+        .configure(&app, settings.api_enabled, settings.api_port);
     Ok(settings)
+}
+
+#[tauri::command]
+pub fn api_status(app: AppHandle, state: State<'_, AppState>) -> ApiStatus {
+    state.api.status(&api::skill_dir(&app))
 }
 
 #[derive(Serialize)]
@@ -340,7 +356,11 @@ pub fn delete_model(state: State<'_, AppState>, id: String) -> CmdResult<()> {
 
 #[tauri::command]
 pub fn load_model(state: State<'_, AppState>, id: String) -> CmdResult<()> {
-    let model = catalog_model(&state, &id)?;
+    start_model_load(&state, id)
+}
+
+pub fn start_model_load(state: &AppState, id: String) -> CmdResult<()> {
+    let model = catalog_model(state, &id)?;
     if model.kind != ModelKind::Asr {
         return Err(format!("{} 是辅助模型，不能单独用于识别", model.name));
     }
@@ -363,7 +383,7 @@ pub fn load_model(state: State<'_, AppState>, id: String) -> CmdResult<()> {
         .map_err(|e| e.to_string())
 }
 
-fn transcribe_options(settings: &Settings) -> TranscribeOptions {
+pub fn transcribe_options(settings: &Settings) -> TranscribeOptions {
     TranscribeOptions {
         language: (settings.language != "auto").then(|| settings.language.clone()),
         itn: settings.itn,
@@ -384,11 +404,28 @@ pub fn transcribe_file(state: State<'_, AppState>, path: String) -> CmdResult<St
         .map(|s| s.to_string_lossy().into_owned())
         .unwrap_or_else(|| "未命名".into());
     let options = transcribe_options(&state.settings.lock());
-    let (id, cancel) = state.new_pending("file", title, Some(path));
-    state
+    queue_file(&state, file, title, options, None)
+}
+
+/// Queues a file job. `upload` is a copy we own and remove if the job fails.
+pub fn queue_file(
+    state: &AppState,
+    file: PathBuf,
+    title: String,
+    options: TranscribeOptions,
+    upload: Option<PathBuf>,
+) -> CmdResult<String> {
+    let audio_path = file.to_string_lossy().into_owned();
+    let (id, cancel) = state.new_pending("file", title, Some(audio_path));
+    state.api.track(&id, upload);
+    if let Err(e) = state
         .engine
         .transcribe_file(id.clone(), file, options, cancel)
-        .map_err(|e| e.to_string())?;
+    {
+        state.pending.lock().remove(&id);
+        state.api.forget(&id);
+        return Err(e.to_string());
+    }
     Ok(id)
 }
 
@@ -491,6 +528,8 @@ pub fn export_transcript(
 pub fn forward_engine_event(app: &AppHandle, event: EngineEvent) {
     let state = app.state::<AppState>();
     let history_changed = state.observe(&event);
+    // After `observe`, so API waiters see the transcript already saved.
+    state.api.observe(&event);
     #[cfg(debug_assertions)]
     smoke_hook(app, &state, &event);
     let _ = app.emit(EVENT_ENGINE, &event);

@@ -1,0 +1,16 @@
+interface:
+  display_name: "Murmur ASR"
+  short_description: "On-device speech-to-text, subtitles and word timestamps via the Murmur desktop app"
+  default_prompt: "Use $murmur-asr to transcribe the given audio or video file with the local Murmur app and return the text or subtitles."
+compatibility:
+  canonical_format: "agent-skills"
+  adapter_targets:
+    - "claude"
+    - "openai"
+    - "generic"
+  execution:
+    context: "local-http-api"
+    shell: "bash"
+  trust:
+    source_tier: "local"
+    remote_inline_execution: "forbid"

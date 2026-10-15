@@ -10,6 +10,7 @@ import {
 } from "react";
 import {
   api,
+  onApiJob,
   onDownloadEvent,
   onEngineEvent,
   onHistoryChanged,
@@ -272,7 +273,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           break;
       }
     };
-    const subs = [onEngineEvent(onEngine), onDownloadEvent(onDownload), onHistoryChanged(() => void refreshHistory())];
+    const onApi = ({ id, title }: { id: string; title: string }) =>
+      setJobs((j) => ({ ...j, [id]: { id, title, phase: "queued", progress: 0, duration: 0, segments: [] } }));
+    const subs = [
+      onEngineEvent(onEngine),
+      onDownloadEvent(onDownload),
+      onApiJob(onApi),
+      onHistoryChanged(() => void refreshHistory()),
+    ];
     return () => subs.forEach((p) => void p.then((un) => un()));
   }, [refreshModels, refreshHistory, toast]);
 

@@ -20,6 +20,8 @@ pub struct Settings {
     pub save_recordings: bool,
     pub models_dir: Option<String>,
     pub onboarded: bool,
+    pub api_enabled: bool,
+    pub api_port: u16,
 }
 
 impl Default for Settings {
@@ -35,6 +37,8 @@ impl Default for Settings {
             save_recordings: true,
             models_dir: None,
             onboarded: false,
+            api_enabled: true,
+            api_port: crate::api::DEFAULT_PORT,
         }
     }
 }

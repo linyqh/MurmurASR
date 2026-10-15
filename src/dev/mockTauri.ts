@@ -87,8 +87,16 @@ const handlers: Record<string, Handler> = {
     saveRecordings: true,
     modelsDir: null,
     onboarded: !scenario().startsWith("onboarding"),
+    apiEnabled: true,
+    apiPort: 7895,
   }),
   update_settings: (a) => a.settings,
+  api_status: () => ({
+    running: true,
+    url: "http://127.0.0.1:7895",
+    error: null,
+    skillDir: "/Applications/Murmur.app/Contents/Resources/skills/murmur-asr",
+  }),
   list_models: snapshot,
   list_history: () => (scenario() === "empty" || scenario().startsWith("onboarding") ? [] : history),
   list_input_devices: () => [

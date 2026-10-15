@@ -66,7 +66,8 @@
       "icons/icon.ico"
     ],
     "resources": {
-      "resources/engine/": "engine/"
+      "resources/engine/": "engine/",
+      "../skills/murmur-asr/": "skills/murmur-asr/"
     },
     "macOS": {
       "minimumSystemVersion": "13.3",

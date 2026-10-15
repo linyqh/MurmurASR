@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { open } from "@tauri-apps/plugin-dialog";
 import { revealItemInDir } from "@tauri-apps/plugin-opener";
-import { api, type InputDevice } from "../lib/api";
+import { writeText } from "@tauri-apps/plugin-clipboard-manager";
+import { api, type ApiStatus, type InputDevice } from "../lib/api";
 import { useStore } from "../lib/store";
 import { languageLabel, selectableLanguages } from "../lib/format";
 import { Segmented, Select, Switch } from "../components/controls";
@@ -9,10 +10,20 @@ import { Segmented, Select, Switch } from "../components/controls";
 export function SettingsView() {
   const { settings, saveSettings, info, models, toast, refreshModels } = useStore();
   const [devices, setDevices] = useState<InputDevice[]>([]);
+  const [apiStatus, setApiStatus] = useState<ApiStatus | null>(null);
+  const [portDraft, setPortDraft] = useState("");
 
   useEffect(() => {
     void api.listInputDevices().then(setDevices);
   }, []);
+
+  useEffect(() => {
+    void api.apiStatus().then(setApiStatus);
+  }, [settings?.apiEnabled, settings?.apiPort]);
+
+  useEffect(() => {
+    if (settings) setPortDraft(String(settings.apiPort));
+  }, [settings?.apiPort]);
 
   if (!settings || !info) return null;
 
@@ -24,6 +35,18 @@ export function SettingsView() {
     await saveSettings(patch);
     if (loaded) await api.loadModel(loaded.id).catch((e) => toast(String(e), "error"));
   };
+
+  const commitPort = () => {
+    const port = Number(portDraft);
+    if (Number.isInteger(port) && port >= 1024 && port <= 65535) {
+      if (port !== settings.apiPort) void saveSettings({ apiPort: port });
+    } else {
+      setPortDraft(String(settings.apiPort));
+      toast("端口需为 1024–65535 之间的整数", "error");
+    }
+  };
+
+  const copy = (text: string) => void writeText(text).then(() => toast("已复制到剪贴板"));
 
   const chooseModelsDir = async () => {
     const dir = await open({ directory: true, title: "选择模型存放位置" });
@@ -125,6 +148,63 @@ export function SettingsView() {
               onChange={(v) => void reload({ threads: Number(v) })}
             />
           </div>
+        </div>
+
+        <h3 className="form-group-title">本地接口</h3>
+        <div className="form-group">
+          <div className="form-row">
+            <div className="label">
+              允许其他程序调用
+              <div className="hint">
+                {apiStatus?.error ? (
+                  <span className="error-text">{apiStatus.error}</span>
+                ) : (
+                  "仅本机可访问，Agent 可通过 skill 调用转写"
+                )}
+              </div>
+            </div>
+            <Switch
+              label="允许其他程序调用"
+              checked={settings.apiEnabled}
+              onChange={(apiEnabled) => void saveSettings({ apiEnabled })}
+            />
+          </div>
+          <div className="form-row">
+            <div className="label">端口</div>
+            <input
+              className="port-input tabular"
+              aria-label="端口"
+              inputMode="numeric"
+              value={portDraft}
+              disabled={!settings.apiEnabled}
+              onChange={(e) => setPortDraft(e.target.value.replace(/\D/g, ""))}
+              onBlur={commitPort}
+              onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
+            />
+          </div>
+          {apiStatus?.running && apiStatus.url && (
+            <div className="form-row">
+              <div className="label">服务地址</div>
+              <span className="value selectable tabular">{apiStatus.url}</span>
+              <button className="btn" onClick={() => copy(apiStatus.url!)}>
+                复制
+              </button>
+            </div>
+          )}
+          {apiStatus && (
+            <div className="form-row">
+              <div className="label">
+                Agent Skill
+                <div className="hint">把这个文件夹安装到 Agent 的 skills 目录</div>
+              </div>
+              <span className="value selectable" title={apiStatus.skillDir}>
+                {apiStatus.skillDir}
+              </span>
+              <button className="btn" onClick={() => void revealItemInDir(apiStatus.skillDir)}>
+                显示
+              </button>
+            </div>
+          )}
         </div>
 
         <h3 className="form-group-title">存储</h3>

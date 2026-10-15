@@ -68,6 +68,15 @@ export interface Settings {
   saveRecordings: boolean;
   modelsDir: string | null;
   onboarded: boolean;
+  apiEnabled: boolean;
+  apiPort: number;
+}
+
+export interface ApiStatus {
+  running: boolean;
+  url: string | null;
+  error: string | null;
+  skillDir: string;
 }
 
 export interface AppInfo {
@@ -154,6 +163,7 @@ export const api = {
   appInfo: () => invoke<AppInfo>("app_info"),
   getSettings: () => invoke<Settings>("get_settings"),
   updateSettings: (settings: Settings) => invoke<Settings>("update_settings", { settings }),
+  apiStatus: () => invoke<ApiStatus>("api_status"),
   listModels: () => invoke<ModelsSnapshot>("list_models"),
   downloadModel: (id: string) => invoke<void>("download_model", { id }),
   cancelDownload: (id: string) => invoke<boolean>("cancel_download", { id }),
@@ -178,6 +188,9 @@ export const onEngineEvent = (cb: (e: EngineEvent) => void): Promise<UnlistenFn>
 
 export const onDownloadEvent = (cb: (e: DownloadEvent) => void): Promise<UnlistenFn> =>
   listen<DownloadEvent>("models://download", (e) => cb(e.payload));
+
+export const onApiJob = (cb: (job: { id: string; title: string }) => void): Promise<UnlistenFn> =>
+  listen<{ id: string; title: string }>("api://job", (e) => cb(e.payload));
 
 export const onHistoryChanged = (cb: () => void): Promise<UnlistenFn> =>
   listen("history://changed", () => cb());
