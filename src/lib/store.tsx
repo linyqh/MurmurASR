@@ -14,6 +14,7 @@ import {
   onDownloadEvent,
   onEngineEvent,
   onHistoryChanged,
+  type ApiStatus,
   type AppInfo,
   type DownloadEvent,
   type EngineEvent,
@@ -27,6 +28,7 @@ export type View =
   | { name: "home" }
   | { name: "live" }
   | { name: "models" }
+  | { name: "api" }
   | { name: "settings" }
   | { name: "transcript"; id: string };
 
@@ -65,6 +67,7 @@ export interface Toast {
 interface Store {
   info: AppInfo | null;
   settings: Settings | null;
+  apiStatus: ApiStatus | null;
   models: ModelsSnapshot | null;
   downloads: Record<string, DownloadProgress>;
   history: TranscriptSummary[];
@@ -99,7 +102,7 @@ function initialView(): View {
   if (!import.meta.env.DEV || !location.hash) return { name: "home" };
   const [name, id] = location.hash.slice(1).split(":");
   if (name === "transcript" && id) return { name, id };
-  if (name === "live" || name === "models" || name === "settings") return { name };
+  if (name === "live" || name === "models" || name === "api" || name === "settings") return { name };
   return { name: "home" };
 }
 
@@ -108,6 +111,7 @@ const errorText = (e: unknown) => (e instanceof Error ? e.message : String(e));
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [info, setInfo] = useState<AppInfo | null>(null);
   const [settings, setSettings] = useState<Settings | null>(null);
+  const [apiStatus, setApiStatus] = useState<ApiStatus | null>(null);
   const [models, setModels] = useState<ModelsSnapshot | null>(null);
   const [downloads, setDownloads] = useState<Record<string, DownloadProgress>>({});
   const [history, setHistory] = useState<TranscriptSummary[]>([]);
@@ -130,6 +134,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const refreshModels = useCallback(async () => {
     setModels(await api.listModels());
   }, []);
+
+  // The server restarts whenever its settings change.
+  useEffect(() => {
+    if (settings) void api.apiStatus().then(setApiStatus);
+  }, [settings?.apiEnabled, settings?.apiLan, settings?.apiPort]);
 
   const refreshHistory = useCallback(async () => {
     setHistory(await api.listHistory());
@@ -331,6 +340,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     () => ({
       info,
       settings,
+      apiStatus,
       models,
       downloads,
       history,
@@ -351,6 +361,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     [
       info,
       settings,
+      apiStatus,
       models,
       downloads,
       history,

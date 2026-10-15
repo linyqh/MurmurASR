@@ -1,18 +1,19 @@
-//! Local HTTP API so other programs (and agents) can transcribe through the
-//! running app. Jobs go through the same engine queue and history as the UI.
-//! Binds to 127.0.0.1 only and refuses browser requests.
+//! HTTP API so other programs (and agents) can transcribe through the running
+//! app. Jobs go through the same engine queue and history as the UI.
+//! Listens on loopback, or on every interface when LAN access is on. Browser
+//! requests are refused; LAN clients must upload files and cannot browse history.
 
 use std::collections::HashMap;
-use std::net::{Ipv4Addr, TcpListener};
+use std::net::{IpAddr, Ipv4Addr, SocketAddr, TcpListener, UdpSocket};
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 
-use axum::extract::{DefaultBodyLimit, FromRequest, Multipart, Query, Request, State};
+use axum::extract::{ConnectInfo, DefaultBodyLimit, FromRequest, Multipart, Query, Request, State};
 use axum::http::{header, HeaderMap, StatusCode};
 use axum::middleware::{self, Next};
 use axum::response::{IntoResponse, Response};
 use axum::routing::{get, post};
-use axum::{Json, Router};
+use axum::{Extension, Json, Router};
 use parking_lot::Mutex;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
@@ -73,6 +74,7 @@ struct Jobs {
 
 struct Server {
     port: u16,
+    lan: bool,
     task: tauri::async_runtime::JoinHandle<()>,
 }
 
@@ -89,6 +91,8 @@ pub struct Api {
 pub struct ApiStatus {
     running: bool,
     url: Option<String>,
+    /// Address other devices on the network use, when LAN access is on.
+    lan_url: Option<String>,
     error: Option<String>,
     skill_dir: String,
 }
@@ -114,11 +118,28 @@ fn base_url(port: u16) -> String {
     format!("http://127.0.0.1:{port}")
 }
 
+/// The address of the interface that routes outward. Connecting a UDP socket
+/// only selects a route; no packet is sent.
+fn lan_ip() -> Option<IpAddr> {
+    let socket = UdpSocket::bind((Ipv4Addr::UNSPECIFIED, 0)).ok()?;
+    socket.connect((Ipv4Addr::new(192, 168, 0, 1), 80)).ok()?;
+    let ip = socket.local_addr().ok()?.ip();
+    (!ip.is_loopback() && !ip.is_unspecified()).then_some(ip)
+}
+
+fn lan_url(port: u16) -> Option<String> {
+    lan_ip().map(|ip| format!("http://{ip}:{port}"))
+}
+
 impl Api {
     /// Starts, restarts or stops the server to match the settings.
-    pub fn configure(&self, app: &AppHandle, enabled: bool, port: u16) {
+    pub fn configure(&self, app: &AppHandle, enabled: bool, lan: bool, port: u16) {
         let mut server = self.server.lock();
-        if enabled && server.as_ref().is_some_and(|s| s.port == port) {
+        if enabled
+            && server
+                .as_ref()
+                .is_some_and(|s| s.port == port && s.lan == lan)
+        {
             return;
         }
         let restarted = server.take().map(|old| old.task.abort()).is_some();
@@ -128,11 +149,16 @@ impl Api {
         if !enabled {
             return;
         }
+        let host = if lan {
+            Ipv4Addr::UNSPECIFIED
+        } else {
+            Ipv4Addr::LOCALHOST
+        };
         // An aborted server releases its socket asynchronously.
         let attempts = if restarted { 20 } else { 1 };
         let mut bound = None;
         for attempt in 0..attempts {
-            match TcpListener::bind((Ipv4Addr::LOCALHOST, port)) {
+            match TcpListener::bind((host, port)) {
                 Ok(listener) => {
                     bound = Some(Ok(listener));
                     break;
@@ -161,7 +187,8 @@ impl Api {
         let task = tauri::async_runtime::spawn(async move {
             match tokio::net::TcpListener::from_std(listener) {
                 Ok(listener) => {
-                    if let Err(e) = axum::serve(listener, router).await {
+                    let service = router.into_make_service_with_connect_info::<SocketAddr>();
+                    if let Err(e) = axum::serve(listener, service).await {
                         log::error!("API server stopped: {e}");
                     }
                 }
@@ -170,20 +197,32 @@ impl Api {
         });
         let info = json!({
             "baseUrl": base_url(port),
+            "lanUrl": if lan { lan_url(port) } else { None },
             "port": port,
             "pid": std::process::id(),
             "version": env!("CARGO_PKG_VERSION"),
         });
         let _ = std::fs::write(&discovery, info.to_string());
-        log::info!("API server listening on {}", base_url(port));
-        *server = Some(Server { port, task });
+        log::info!("API server listening on {host}:{port}");
+        *server = Some(Server { port, lan, task });
+    }
+
+    /// Removes the discovery file so callers don't find a dead server.
+    pub fn shutdown(&self, app: &AppHandle) {
+        if let Some(server) = self.server.lock().take() {
+            server.task.abort();
+        }
+        let _ = std::fs::remove_file(discovery_file(app));
     }
 
     pub fn status(&self, skill_dir: &Path) -> ApiStatus {
-        let port = self.server.lock().as_ref().map(|s| s.port);
+        let server = self.server.lock().as_ref().map(|s| (s.port, s.lan));
         ApiStatus {
-            running: port.is_some(),
-            url: port.map(base_url),
+            running: server.is_some(),
+            url: server.map(|(port, _)| base_url(port)),
+            lan_url: server
+                .filter(|(_, lan)| *lan)
+                .and_then(|(port, _)| lan_url(port)),
             error: self.error.lock().clone(),
             skill_dir: skill_dir.to_string_lossy().into_owned(),
         }
@@ -306,7 +345,7 @@ fn router(app: AppHandle) -> Router {
         .route("/transcripts", get(list_transcripts))
         .route("/transcripts/{id}", get(get_transcript))
         .layer(DefaultBodyLimit::disable())
-        .layer(middleware::from_fn(local_only))
+        .layer(middleware::from_fn(guard))
         .with_state(app)
 }
 
@@ -327,30 +366,54 @@ impl IntoResponse for ApiError {
 
 type ApiResult<T> = Result<T, ApiError>;
 
-fn is_local_host(host: &str) -> bool {
+/// Accepts IP literals, `localhost` and mDNS `.local` names. Any other domain
+/// name in `Host` means a DNS-rebinding page is driving a browser at us.
+fn is_trusted_host(host: &str) -> bool {
     let name = match host.rsplit_once(':') {
         Some((name, port)) if port.chars().all(|c| c.is_ascii_digit()) => name,
         _ => host,
     };
-    matches!(name, "127.0.0.1" | "localhost" | "[::1]")
+    let name = name.trim_start_matches('[').trim_end_matches(']');
+    name.parse::<IpAddr>().is_ok()
+        || name.eq_ignore_ascii_case("localhost")
+        || name.to_ascii_lowercase().ends_with(".local")
 }
 
-/// Blocks DNS rebinding and cross-site requests from web pages: only local,
-/// non-browser clients may drive the engine or read local files.
-async fn local_only(req: Request, next: Next) -> Response {
+/// Whether the request comes from this machine rather than the network.
+#[derive(Clone, Copy)]
+struct Peer {
+    local: bool,
+}
+
+/// Refuses web pages (cross-site requests and DNS rebinding) and tags each
+/// request with whether it came from this machine.
+async fn guard(mut req: Request, next: Next) -> Response {
     let headers = req.headers();
-    let local = headers
+    let trusted = headers
         .get(header::HOST)
         .and_then(|h| h.to_str().ok())
-        .is_some_and(is_local_host);
-    if !local || headers.contains_key(header::ORIGIN) {
+        .is_some_and(is_trusted_host);
+    if !trusted || headers.contains_key(header::ORIGIN) {
         return ApiError::new(
             StatusCode::FORBIDDEN,
-            "only local non-browser clients may call this API",
+            "browser requests are not allowed; call this API from a program",
         )
         .into_response();
     }
+    let local = req
+        .extensions()
+        .get::<ConnectInfo<SocketAddr>>()
+        .is_some_and(|ConnectInfo(addr)| addr.ip().to_canonical().is_loopback());
+    req.extensions_mut().insert(Peer { local });
     next.run(req).await
+}
+
+fn local_only(peer: Peer, message: &str) -> ApiResult<()> {
+    if peer.local {
+        Ok(())
+    } else {
+        Err(ApiError::new(StatusCode::FORBIDDEN, message))
+    }
 }
 
 async fn health(State(app): State<AppHandle>) -> Json<Value> {
@@ -585,6 +648,7 @@ fn ensure_model(state: &AppState, requested: Option<&str>) -> ApiResult<()> {
 
 async fn transcribe(State(app): State<AppHandle>, request: Request) -> ApiResult<Response> {
     let state = app.state::<AppState>();
+    let peer = *request.extensions().get::<Peer>().expect("set by guard");
     let multipart = request
         .headers()
         .get(header::CONTENT_TYPE)
@@ -608,6 +672,10 @@ async fn transcribe(State(app): State<AppHandle>, request: Request) -> ApiResult
             file_stem(upload_name.as_deref().unwrap_or("")),
         ),
         (None, Some(path)) => {
+            local_only(
+                peer,
+                "`path` only works on the machine running Murmur; upload the file as `file` instead",
+            )?;
             let file = PathBuf::from(path);
             if !file.is_file() {
                 return Err(ApiError::new(
@@ -744,11 +812,16 @@ struct ListQuery {
 
 async fn list_transcripts(
     State(app): State<AppHandle>,
+    Extension(peer): Extension<Peer>,
     Query(query): Query<ListQuery>,
-) -> Json<Value> {
+) -> ApiResult<Json<Value>> {
+    local_only(
+        peer,
+        "listing history only works on the machine running Murmur",
+    )?;
     let mut items = app.state::<AppState>().store.list_transcripts();
     items.truncate(query.limit.unwrap_or(20));
-    Json(json!({ "transcripts": items }))
+    Ok(Json(json!({ "transcripts": items })))
 }
 
 #[derive(Deserialize)]
@@ -780,14 +853,15 @@ mod tests {
     use super::*;
 
     #[test]
-    fn accepts_only_loopback_hosts() {
-        assert!(is_local_host("127.0.0.1:7895"));
-        assert!(is_local_host("localhost:7895"));
-        assert!(is_local_host("[::1]:7895"));
-        assert!(is_local_host("localhost"));
-        assert!(!is_local_host("evil.example:7895"));
-        assert!(!is_local_host("127.0.0.1.evil.example"));
-        assert!(!is_local_host("192.168.1.2:7895"));
+    fn trusts_ip_and_local_hosts_only() {
+        assert!(is_trusted_host("127.0.0.1:7895"));
+        assert!(is_trusted_host("localhost:7895"));
+        assert!(is_trusted_host("[::1]:7895"));
+        assert!(is_trusted_host("localhost"));
+        assert!(is_trusted_host("192.168.1.2:7895"));
+        assert!(is_trusted_host("Viccys-MacBook.local:7895"));
+        assert!(!is_trusted_host("evil.example:7895"));
+        assert!(!is_trusted_host("127.0.0.1.evil.example"));
     }
 
     #[test]

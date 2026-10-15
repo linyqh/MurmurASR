@@ -10,7 +10,9 @@ import platform
 import sys
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
+import uuid
 from pathlib import Path
 
 DEFAULT_URL = "http://127.0.0.1:7895"
@@ -43,11 +45,43 @@ class ApiError(Exception):
     pass
 
 
-def request(url: str, method: str = "GET", body: dict | None = None, timeout: float = 30):
-    data = json.dumps(body).encode() if body is not None else None
+def is_local(url: str) -> bool:
+    return urllib.parse.urlparse(url).hostname in ("127.0.0.1", "localhost", "::1")
+
+
+def multipart(fields: dict, file: Path) -> tuple[bytes, str]:
+    boundary = uuid.uuid4().hex
+    parts = []
+    for name, value in fields.items():
+        parts.append(
+            f'--{boundary}\r\nContent-Disposition: form-data; name="{name}"\r\n\r\n{value}\r\n'.encode()
+        )
+    filename = file.name.replace('"', "")
+    parts.append(
+        f'--{boundary}\r\nContent-Disposition: form-data; name="file"; filename="{filename}"\r\n'
+        f"Content-Type: application/octet-stream\r\n\r\n".encode()
+    )
+    parts.append(file.read_bytes())
+    parts.append(f"\r\n--{boundary}--\r\n".encode())
+    return b"".join(parts), f"multipart/form-data; boundary={boundary}"
+
+
+def request(
+    url: str,
+    method: str = "GET",
+    body: dict | None = None,
+    timeout: float = 30,
+    upload: Path | None = None,
+):
+    content_type = None
+    data = None
+    if upload is not None:
+        data, content_type = multipart(body or {}, upload)
+    elif body is not None:
+        data, content_type = json.dumps(body).encode(), "application/json"
     req = urllib.request.Request(url, data=data, method=method)
-    if data is not None:
-        req.add_header("Content-Type", "application/json")
+    if content_type:
+        req.add_header("Content-Type", content_type)
     try:
         with urllib.request.urlopen(req, timeout=timeout) as resp:
             raw = resp.read()
@@ -62,8 +96,8 @@ def request(url: str, method: str = "GET", body: dict | None = None, timeout: fl
         raise ApiError(f"HTTP {e.code}: {message}") from None
     except urllib.error.URLError as e:
         raise ApiError(
-            f"cannot reach Murmur at {url} ({e.reason}). Open the Murmur app and enable "
-            "Settings → 本地接口 → 允许其他程序调用."
+            f"cannot reach Murmur at {url} ({e.reason}). Open the Murmur app and check its "
+            "API 接口 page: 启用 API 服务 must be on (and 允许局域网访问 for remote calls)."
         ) from None
 
 
@@ -76,7 +110,11 @@ def main() -> int:
     parser.add_argument("--itn", choices=["true", "false"], help="number/punctuation normalization")
     parser.add_argument("--title", help="title shown in Murmur's history")
     parser.add_argument("-o", "--output", help="write the result to this file instead of stdout")
-    parser.add_argument("--url", help=f"API base URL (default: discovery file or {DEFAULT_URL})")
+    parser.add_argument(
+        "--url",
+        help=f"API base URL, e.g. http://192.168.1.23:7895 for Murmur on another machine "
+        f"(default: $MURMUR_API_URL, the discovery file, or {DEFAULT_URL})",
+    )
     args = parser.parse_args()
 
     audio = Path(args.audio).expanduser().resolve()
@@ -97,7 +135,11 @@ def main() -> int:
             model = installed[0]
             print(f"loading model {model} …", file=sys.stderr)
 
-        body: dict = {"path": str(audio), "format": args.format, "wait": False}
+        # The app reads local files in place; remote machines need an upload.
+        local = is_local(url)
+        body: dict = {"format": args.format, "wait": False}
+        if local:
+            body["path"] = str(audio)
         if model:
             body["model"] = model
         if args.language:
@@ -106,7 +148,11 @@ def main() -> int:
             body["itn"] = args.itn == "true"
         if args.title:
             body["title"] = args.title
-        job = request(f"{url}/transcribe", "POST", body)
+        if local:
+            job = request(f"{url}/transcribe", "POST", body)
+        else:
+            form = {k: str(v).lower() if isinstance(v, bool) else v for k, v in body.items()}
+            job = request(f"{url}/transcribe", "POST", form, timeout=600, upload=audio)
 
         last = None
         while True:

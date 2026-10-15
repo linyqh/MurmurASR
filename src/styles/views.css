@@ -855,3 +855,77 @@
   gap: 8px;
   margin-top: 20px;
 }
+
+/* ---------- API ---------- */
+
+.api-page code,
+.api-code pre {
+  font-family: var(--font-mono);
+}
+.api-url {
+  font-size: 12.5px;
+  color: var(--label);
+}
+.api-note {
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+  font-size: 11.5px;
+  line-height: 1.5;
+  margin: -8px 2px 20px;
+  max-width: 720px;
+}
+.api-note svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--orange);
+}
+.api-endpoint {
+  gap: 12px;
+}
+.api-endpoint code {
+  font-size: 12px;
+  min-width: 210px;
+}
+.api-endpoint .label {
+  font-size: 12px;
+}
+.api-method {
+  width: 40px;
+  flex-shrink: 0;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.api-method.get {
+  color: var(--green);
+}
+.api-method.post {
+  color: var(--accent);
+}
+.api-code-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.api-code-head .form-group-title {
+  margin: 0 0 0 2px;
+}
+.api-code {
+  position: relative;
+  margin-bottom: 20px;
+}
+.api-code pre {
+  margin: 0;
+  padding: 14px 16px;
+  font-size: 12px;
+  line-height: 1.6;
+  overflow-x: auto;
+  white-space: pre;
+}
+.api-code-copy {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}

@@ -6,6 +6,7 @@ import { HomeView } from "./views/Home";
 import { LiveView } from "./views/Live";
 import { ModelsView } from "./views/Models";
 import { SettingsView } from "./views/Settings";
+import { ApiView } from "./views/Api";
 import { TranscriptView } from "./views/Transcript";
 import { Onboarding } from "./views/Onboarding";
 import { IconUpload } from "./components/icons";
@@ -52,6 +53,7 @@ export function App() {
         {view.name === "home" && <HomeView />}
         {view.name === "live" && <LiveView />}
         {view.name === "models" && <ModelsView />}
+        {view.name === "api" && <ApiView />}
         {view.name === "settings" && <SettingsView />}
         {view.name === "transcript" && <TranscriptView key={view.id} id={view.id} />}
         {dragging && (

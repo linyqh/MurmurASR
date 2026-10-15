@@ -5,7 +5,7 @@
 - **文件转写**：拖入音频或视频文件（MP3、M4A、WAV、FLAC、OGG、MP4、MOV 等）即可转写，进度实时显示
 - **实时听写**：用麦克风实时转文字，说话过程中显示中间结果，可选择保存录音
 - **记录**：可搜索、编辑、跟随播放定位，支持导出 TXT / SRT / VTT / Markdown / JSON
-- **本地接口**：App 运行时在 `127.0.0.1:7895` 提供 HTTP 接口，其他程序和 Agent 可以调用转写（附带 Agent Skill）
+- **API 接口**：App 运行时在 7895 端口提供 HTTP 接口，本机和局域网内的其他设备、Agent 都可以调用转写（附带 Agent Skill）
 - **模型管理**：安装包不含模型，首次启动会引导下载推荐模型；支持断点续传和 SHA-256 校验，下载源可选 Hugging Face、ModelScope 或 HF 镜像
 
 ## 模型
@@ -33,16 +33,18 @@
 
 实测（Apple M6，Metal）：Qwen3-ASR 0.6B 转写 7 分钟英文约 21 秒（约 20× 实时）；SenseVoice 转写 31 秒中文约 0.6 秒。新安装后首次加载模型需要编译 Metal 着色器（约 7 秒），之后约 1 秒。
 
-## 本地接口与 Agent Skill
+## API 接口与 Agent Skill
 
-App 运行时会启动一个只监听本机的 HTTP 服务（默认端口 7895，可在“设置 → 本地接口”中关闭或改端口）。通过接口提交的任务和界面里的任务共用同一个推理队列，结果同样保存到记录中。
+App 运行时会启动 HTTP 服务（默认端口 7895）。侧边栏的 **API 接口** 页面可以开关服务、开关局域网访问、修改端口，并显示本机 / 局域网地址、接口列表和 curl / Python / JavaScript 调用示例。通过接口提交的任务和界面里的任务共用同一个推理队列，结果同样保存到记录中。
+
+局域网访问默认开启，同一网络中的其他电脑、手机可以用 `http://<本机局域网 IP>:7895` 调用。接口没有密码，在公共网络中建议关闭局域网访问。
 
 ```bash
 curl http://127.0.0.1:7895/health
-# 本机文件：直接传路径，不上传
+# 本机调用：直接传路径，不上传
 curl -H 'Content-Type: application/json' -d '{"path":"/abs/path/talk.m4a","format":"srt"}' http://127.0.0.1:7895/transcribe
-# 上传文件
-curl -F file=@talk.m4a -F format=txt http://127.0.0.1:7895/transcribe
+# 局域网内其他设备：上传文件
+curl -F file=@talk.m4a -F format=txt http://192.168.1.23:7895/transcribe
 ```
 
 | 接口 | 说明 |
@@ -51,9 +53,9 @@ curl -F file=@talk.m4a -F format=txt http://127.0.0.1:7895/transcribe
 | `GET /models` / `POST /models/load` | 模型列表 / 加载已下载的模型 |
 | `POST /transcribe` | 转写（JSON 传 `path` 或 multipart 传 `file`；`format` 可选 json/txt/srt/vtt/md；`wait=false` 异步） |
 | `GET /jobs/{id}` / `POST /jobs/{id}/cancel` | 查询进度 / 取消 |
-| `GET /transcripts` / `GET /transcripts/{id}?format=` | 历史记录 / 按格式导出 |
+| `GET /transcripts` / `GET /transcripts/{id}?format=` | 历史记录（仅本机） / 按格式导出 |
 
-服务启动后会把地址写入数据目录下的 `api.json`，供调用方发现端口。为防止网页借浏览器调用，接口拒绝带 `Origin` 头或非本机 `Host` 的请求。
+服务启动后会把地址写入数据目录下的 `api.json`，供本机调用方发现端口，App 退出时删除。为防止网页借浏览器调用，接口拒绝带 `Origin` 头、或 `Host` 为其他域名的请求。局域网内的其他设备只能上传文件，不能用 `path` 读取本机文件，也不能列出历史记录。
 
 `skills/murmur-asr/` 是给 Agent 用的 skill（`SKILL.md` + 完整接口说明 + 零依赖的 Python 调用脚本），打包时会放进 App 资源目录，设置页可直接定位。把这个文件夹复制到 Agent 的 skills 目录（如 `~/.claude/skills/`）即可。
 

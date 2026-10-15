@@ -69,12 +69,14 @@ export interface Settings {
   modelsDir: string | null;
   onboarded: boolean;
   apiEnabled: boolean;
+  apiLan: boolean;
   apiPort: number;
 }
 
 export interface ApiStatus {
   running: boolean;
   url: string | null;
+  lanUrl: string | null;
   error: string | null;
   skillDir: string;
 }

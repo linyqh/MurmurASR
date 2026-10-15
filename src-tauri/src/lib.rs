@@ -64,14 +64,14 @@ pub fn run() {
             let state = AppState::new(engine, store);
 
             // Restore the last used model so the app is ready immediately.
-            let (restore, api_enabled, api_port) = {
+            let (restore, api_enabled, api_lan, api_port) = {
                 let s = state.settings.lock();
-                (s.active_model.clone(), s.api_enabled, s.api_port)
+                (s.active_model.clone(), s.api_enabled, s.api_lan, s.api_port)
             };
             app.manage(state);
             app.state::<AppState>()
                 .api
-                .configure(app.handle(), api_enabled, api_port);
+                .configure(app.handle(), api_enabled, api_lan, api_port);
             if let Some(id) = restore {
                 let state = app.state::<AppState>();
                 if let Err(e) = commands::load_model(state, id) {
@@ -108,6 +108,7 @@ pub fn run() {
             // That aborts if model buffers are still alive, so release them first.
             if let tauri::RunEvent::Exit = event {
                 let state = app.state::<AppState>();
+                state.api.shutdown(app);
                 if !state.engine.shutdown(std::time::Duration::from_secs(3)) {
                     log::warn!("engine did not stop in time; exiting without static teardown");
                     // SAFETY: terminates immediately; skips destructors that would abort.

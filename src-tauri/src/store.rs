@@ -21,6 +21,7 @@ pub struct Settings {
     pub models_dir: Option<String>,
     pub onboarded: bool,
     pub api_enabled: bool,
+    pub api_lan: bool,
     pub api_port: u16,
 }
 
@@ -38,6 +39,7 @@ impl Default for Settings {
             models_dir: None,
             onboarded: false,
             api_enabled: true,
+            api_lan: true,
             api_port: crate::api::DEFAULT_PORT,
         }
     }

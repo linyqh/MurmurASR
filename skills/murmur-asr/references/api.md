@@ -1,6 +1,6 @@
 # Murmur Local API Reference
 
-Base URL: `http://127.0.0.1:7895` by default (port is configurable in Murmur's Settings). The running app writes the current address to `api.json` in its data directory:
+Base URL: `http://127.0.0.1:7895` on the Murmur machine, or `http://<LAN-IP>:7895` from other devices when 允许局域网访问 is on (both shown on Murmur's **API 接口** page, where the port can be changed). The running app writes its addresses to `api.json` in its data directory:
 
 | OS | Discovery file |
 |---|---|
@@ -9,12 +9,18 @@ Base URL: `http://127.0.0.1:7895` by default (port is configurable in Murmur's S
 | Linux | `~/.local/share/app.murmur.asr/api.json` |
 
 ```json
-{ "baseUrl": "http://127.0.0.1:7895", "port": 7895, "pid": 12345, "version": "0.1.4" }
+{ "baseUrl": "http://127.0.0.1:7895", "lanUrl": "http://192.168.1.23:7895", "port": 7895, "pid": 12345, "version": "0.1.6" }
 ```
 
-The file is removed when the API is turned off; it may be stale if the app crashed, so always confirm with `GET /health`.
+`lanUrl` is `null` when LAN access is off. The file is removed when the API is turned off or the app quits; it may be stale after a crash, so always confirm with `GET /health`.
 
-Access rules: the server binds to loopback only, requires a `Host` of `127.0.0.1`/`localhost`, and rejects any request carrying an `Origin` header (browsers). Errors are JSON: `{ "error": "message" }`.
+Access rules:
+
+- The server listens on loopback, or on all interfaces when LAN access is on. There is no authentication.
+- Requests with an `Origin` header (browsers) or a `Host` that is a domain name other than `localhost` / `*.local` (DNS rebinding) get `403`.
+- Callers on other machines get `403` for `path` in `/transcribe` and for `GET /transcripts`; they must upload files and fetch results by id.
+
+Errors are JSON: `{ "error": "message" }`.
 
 ## `GET /health`
 
@@ -22,7 +28,7 @@ Access rules: the server binds to loopback only, requires a `Host` of `127.0.0.1
 {
   "ok": true,
   "app": "murmur",
-  "version": "0.1.4",
+  "version": "0.1.6",
   "engine": { "version": "0.9.1", "error": null },
   "model": {
     "id": "qwen3-asr-0.6b-q8",
@@ -116,7 +122,7 @@ Returns `{ "id": "…", "cancelling": true }` if the job was still running.
 
 ## `GET /transcripts?limit=20`
 
-Recent history (file and live), newest first: `id`, `title`, `source`, `createdAt`, `duration`, `preview`.
+Same machine only. Recent history (file and live), newest first: `id`, `title`, `source`, `createdAt`, `duration`, `preview`.
 
 ## `GET /transcripts/{id}?format=srt`
 

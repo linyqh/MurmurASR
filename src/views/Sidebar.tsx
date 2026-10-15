@@ -1,10 +1,11 @@
 import { useMemo, useState } from "react";
 import { useStore } from "../lib/store";
 import { formatDuration, formatRelativeDate } from "../lib/format";
-import { IconCube, IconGear, IconMic, IconSearch, IconWaveform, IconDoc } from "../components/icons";
+import { IconCube, IconGear, IconGlobe, IconMic, IconSearch, IconWaveform, IconDoc } from "../components/icons";
 
 export function Sidebar() {
-  const { view, setView, history, models, live, jobs } = useStore();
+  const { view, setView, history, models, live, jobs, settings, apiStatus } = useStore();
+  const apiRunning = apiStatus?.running ?? false;
   const [query, setQuery] = useState("");
 
   const filtered = useMemo(() => {
@@ -57,6 +58,14 @@ export function Sidebar() {
         >
           <IconCube className="icon" />
           模型
+        </button>
+        <button
+          className={`sidebar-item${view.name === "api" ? " active" : ""}`}
+          onClick={() => setView({ name: "api" })}
+        >
+          <IconGlobe className="icon" />
+          API 接口
+          {settings?.apiEnabled && <span className={`status-dot ${apiRunning ? "ready" : "idle"}`} />}
         </button>
       </nav>
 

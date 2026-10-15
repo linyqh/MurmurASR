@@ -256,9 +256,12 @@ pub fn update_settings(
         .save_settings(&settings)
         .map_err(|e| e.to_string())?;
     *state.settings.lock() = settings.clone();
-    state
-        .api
-        .configure(&app, settings.api_enabled, settings.api_port);
+    state.api.configure(
+        &app,
+        settings.api_enabled,
+        settings.api_lan,
+        settings.api_port,
+    );
     Ok(settings)
 }
 
