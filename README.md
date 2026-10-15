@@ -72,6 +72,15 @@ MURMUR_TEST_DOWNLOAD=1 cargo test --release --test download
 ./scripts/package-macos.sh   # 生成 .app 和 .dmg
 ```
 
+macOS 本机签名：复制 `.env.macos.local.example` 为 `.env.macos.local`，将
+`APPLE_SIGNING_IDENTITY` 设置为 `security find-identity -v -p codesigning` 中的
+Developer ID Application 身份。打包脚本会加载此本机配置，对应用和 DMG 签名并验证；
+`.env.macos.local` 不纳入 Git。
+
+需要 Apple 公证时，先运行 `xcrun notarytool store-credentials murmur-notary`，
+按提示将凭据保存到钥匙串，再在本机配置中设置 `MURMUR_NOTARY_PROFILE="murmur-notary"`。
+脚本会依次公证应用和 DMG，并附加、验证公证票据。未配置该项时只构建签名包，不完成公证。
+
 ## 跨平台
 
 | 平台 | 推理后端 | 引擎构建 | 状态 |

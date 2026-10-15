@@ -8,3 +8,4 @@ engine/build/
 engine/audiocpp.h
 *.log
 .DS_Store
+.env.macos.local
