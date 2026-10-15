@@ -16,6 +16,8 @@
       "speed": 3,
       "accuracy": 4,
       "tags": ["多语种", "自动识别语言", "方言"],
+      "wordTimestamps": false,
+      "speakerDiarization": false,
       "sources": {
         "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/main/Qwen3-ASR-0.6B-GGUF/qwen3-asr-0.6b-q8_0.gguf",
         "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/Qwen3-ASR-0.6B-GGUF/qwen3-asr-0.6b-q8_0.gguf"
@@ -35,6 +37,8 @@
       "speed": 5,
       "accuracy": 3,
       "tags": ["轻量", "粤语"],
+      "wordTimestamps": false,
+      "speakerDiarization": false,
       "sources": {
         "huggingface": "https://huggingface.co/FunAudioLLM/SenseVoiceSmall-GGUF-audiocpp/resolve/5c3fcfe748a8714216bc135476d5863084fddb72/sensevoice-small-q8-audiocpp-v1.gguf"
       }
@@ -53,6 +57,8 @@
       "speed": 3,
       "accuracy": 4,
       "tags": ["中文优化"],
+      "wordTimestamps": false,
+      "speakerDiarization": false,
       "sources": {
         "huggingface": "https://huggingface.co/FunAudioLLM/Fun-ASR-Nano-2512-GGUF/resolve/ce72677f84900f0dc57f498ace253bfb3c9155b6/fun-asr-nano-2512-q8_0.gguf",
         "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/Fun-ASR-Nano-2512-GGUF/fun-asr-nano-2512-q8_0.gguf"
@@ -72,6 +78,8 @@
       "speed": 2,
       "accuracy": 5,
       "tags": ["高精度", "多语种"],
+      "wordTimestamps": false,
+      "speakerDiarization": false,
       "sources": {
         "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/main/Qwen3-ASR-1.7B-GGUF/qwen3-asr-1.7b-q8_0.gguf",
         "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/Qwen3-ASR-1.7B-GGUF/qwen3-asr-1.7b-q8_0.gguf"
@@ -91,6 +99,8 @@
       "speed": 4,
       "accuracy": 4,
       "tags": ["欧洲语言", "逐词时间戳"],
+      "wordTimestamps": true,
+      "speakerDiarization": false,
       "sources": {
         "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/main/Parakeet-TDT-0.6B-v3-GGUF/parakeet-tdt-0.6b-v3-q8_0.gguf",
         "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/Parakeet-TDT-0.6B-v3-GGUF/parakeet-tdt-0.6b-v3-q8_0.gguf"
@@ -106,10 +116,12 @@
       "sha256": "c58b62c1bdd6c5d7b14b08126c5bd16c1289fee6e0d6ac0761dbd3aa6d714935",
       "license": "OpenMDW-1.1",
       "languages": "40 种语言（含中文）",
-      "summary": "多语种流式：NVIDIA Nemotron，覆盖 40 种语言，会议场景表现稳定。",
+      "summary": "多语种流式：NVIDIA Nemotron，覆盖 40 种语言，会议场景表现稳定，自带逐词时间戳。",
       "speed": 4,
       "accuracy": 4,
-      "tags": ["多语种"],
+      "tags": ["多语种", "逐词时间戳"],
+      "wordTimestamps": true,
+      "speakerDiarization": false,
       "sources": {
         "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/main/Nemotron-3.5-ASR-Streaming-0.6B-GGUF/nemotron-3.5-asr-streaming-0.6b-q8_0.gguf",
         "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/Nemotron-3.5-ASR-Streaming-0.6B-GGUF/nemotron-3.5-asr-streaming-0.6b-q8_0.gguf"
@@ -129,9 +141,74 @@
       "speed": 5,
       "accuracy": 3,
       "tags": ["轻量", "英语"],
+      "wordTimestamps": false,
+      "speakerDiarization": false,
       "sources": {
         "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/main/Moonshine-Streaming-GGUF/moonshine-streaming-small-q8_0.gguf",
         "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/Moonshine-Streaming-GGUF/moonshine-streaming-small-q8_0.gguf"
+      }
+    },
+    {
+      "id": "gigaam-asr-v3-ctc-f16",
+      "name": "GigaAM ASR v3 CTC",
+      "family": "gigaam_asr",
+      "precision": "F16",
+      "file": "gigaam-v3-ctc-f16.gguf",
+      "size": 441594240,
+      "sha256": "da89e41a9bd7dbc06097dda4478db7de1a999bd8bb937341ed5b2f13461a0b84",
+      "license": "MIT",
+      "languages": "俄语、哈萨克语、吉尔吉斯语、乌兹别克语、英语",
+      "summary": "俄语专精：Sber 出品，俄语及中亚语言识别效果好，自带逐词时间戳。",
+      "speed": 4,
+      "accuracy": 4,
+      "tags": ["俄语", "逐词时间戳"],
+      "wordTimestamps": true,
+      "speakerDiarization": false,
+      "sources": {
+        "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/main/GigaAM-ASR-GGUF/gigaam-v3-ctc-f16.gguf",
+        "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/GigaAM-ASR-GGUF/gigaam-v3-ctc-f16.gguf"
+      }
+    },
+    {
+      "id": "kroko-asr-en-community-q8",
+      "name": "Kroko Community ASR (英语)",
+      "family": "kroko_asr",
+      "precision": "Q8_0",
+      "file": "kroko-en-community-64-l-q8_0.gguf",
+      "size": 167756928,
+      "sha256": "596c749fcb6c582f2d7aaa9aefcff2929e405867a4d04864a55b2c9c2963baa5",
+      "license": "CC-BY-SA-4.0",
+      "languages": "英语（社区模型另支持德法意荷等欧洲语言）",
+      "summary": "极速欧洲语言：Zipformer2/RNN-T 架构，体积小、速度快，自带逐词时间戳。",
+      "speed": 5,
+      "accuracy": 3,
+      "tags": ["轻量", "欧洲语言", "逐词时间戳"],
+      "wordTimestamps": true,
+      "speakerDiarization": false,
+      "sources": {
+        "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/main/Kroko-ASR-GGUF/kroko-en-community-64-l-q8_0.gguf",
+        "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/Kroko-ASR-GGUF/kroko-en-community-64-l-q8_0.gguf"
+      }
+    },
+    {
+      "id": "crisperwhisper-2-large-q8",
+      "name": "CrisperWhisper 2.0 Large",
+      "family": "crisperwhisper",
+      "precision": "Q8_0",
+      "file": "crisperwhisper-2-large-q8_0.gguf",
+      "size": 1716306528,
+      "sha256": "392e636876d6d5ae8716f0f98b78480b61bb8c199d63f20523e95308b3425c2e",
+      "license": "Nyra Health 非商业研究许可",
+      "languages": "近百种语言（Whisper 系多语种覆盖）",
+      "summary": "高精度时间戳：业界领先的词级时间戳精度，仅限非商业用途。",
+      "speed": 2,
+      "accuracy": 5,
+      "tags": ["多语种", "逐词时间戳", "非商业用途"],
+      "wordTimestamps": true,
+      "speakerDiarization": false,
+      "sources": {
+        "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/main/CrisperWhisper2.0-GGUF/crisperwhisper-2-large-q8_0.gguf",
+        "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/CrisperWhisper2.0-GGUF/crisperwhisper-2-large-q8_0.gguf"
       }
     }
   ]

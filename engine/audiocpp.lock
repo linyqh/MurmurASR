@@ -1,4 +1,4 @@
 AUDIOCPP_REPO=https://github.com/0xShug0/audio.cpp.git
 AUDIOCPP_REF=v0.9.1
 AUDIOCPP_COMMIT=cf124a67cc55d8f65a9a15eec69edbff0fb212c8
-AUDIOCPP_MODELS=qwen3_asr,sense_asr,fun_asr_nano,parakeet_tdt,moonshine_asr,nemotron_asr
+AUDIOCPP_MODELS=qwen3_asr,sense_asr,fun_asr_nano,parakeet_tdt,moonshine_asr,nemotron_asr,gigaam_asr,kroko_asr,crisperwhisper

@@ -15,6 +15,8 @@ export interface CatalogModel {
   speed: number;
   accuracy: number;
   tags: string[];
+  wordTimestamps: boolean;
+  speakerDiarization: boolean;
   sources: Record<string, string>;
 }
 

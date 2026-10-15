@@ -534,6 +534,14 @@
   align-items: center;
   gap: 6px;
 }
+.model-capabilities {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.model-capabilities .badge {
+  gap: 4px;
+}
 .model-tags {
   display: flex;
   flex-wrap: wrap;

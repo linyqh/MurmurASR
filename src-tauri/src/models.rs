@@ -30,6 +30,8 @@ pub struct CatalogModel {
     pub speed: u8,
     pub accuracy: u8,
     pub tags: Vec<String>,
+    pub word_timestamps: bool,
+    pub speaker_diarization: bool,
     pub sources: HashMap<String, String>,
 }
 

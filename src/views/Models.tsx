@@ -5,7 +5,7 @@ import { api, type CatalogModel } from "../lib/api";
 import { useStore, type DownloadProgress } from "../lib/store";
 import { formatBytes, formatEta } from "../lib/format";
 import { Meter, Progress, Segmented } from "../components/controls";
-import { IconCheckCircle, IconDownload, IconFolder, IconSparkle, IconTrash, IconX } from "../components/icons";
+import { IconCheck, IconCheckCircle, IconDownload, IconFolder, IconSparkle, IconTrash, IconX } from "../components/icons";
 
 type Filter = "all" | "installed";
 
@@ -176,6 +176,10 @@ function ModelCard({
           <Meter level={model.accuracy} />
         </div>
       </div>
+      <div className="model-capabilities">
+        <CapabilityBadge supported={model.wordTimestamps} label="词级时间戳" />
+        <CapabilityBadge supported={model.speakerDiarization} label="说话人分段" />
+      </div>
       <div className="model-tags">
         {model.tags.map((t) => (
           <span key={t} className="badge">
@@ -230,6 +234,14 @@ function ModelCard({
         )}
       </div>
     </article>
+  );
+}
+
+function CapabilityBadge({ supported, label }: { supported: boolean; label: string }) {
+  return (
+    <span className={`badge${supported ? " green" : ""}`}>
+      {supported ? <IconCheck size={11} /> : <IconX size={11} />} {label}
+    </span>
   );
 }
 
