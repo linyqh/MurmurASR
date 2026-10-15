@@ -750,6 +750,36 @@
 .segments {
   max-width: 820px;
 }
+.transcript-view-controls {
+  margin: 18px 0 16px;
+}
+.transcript-view-switch {
+  display: flex;
+  gap: 8px;
+}
+.transcript-view-controls p {
+  margin: 10px 0 0;
+  font-size: 12px;
+}
+.subtitle-line-setting {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  font-size: 12px;
+}
+.subtitle-text {
+  min-width: 0;
+  white-space: pre;
+  overflow-x: auto;
+}
+.subtitle-issues {
+  margin-top: 4px;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--label-3);
+  white-space: normal;
+}
 .segment {
   position: relative;
   display: grid;

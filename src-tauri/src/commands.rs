@@ -173,6 +173,8 @@ impl AppState {
             model,
             audio_path,
             segments: Vec::new(),
+            subtitles: Vec::new(),
+            subtitle_max_lines: 1,
             elapsed_ms: 0,
         };
         self.pending.lock().insert(
@@ -251,6 +253,9 @@ pub fn update_settings(
     state: State<'_, AppState>,
     settings: Settings,
 ) -> CmdResult<Settings> {
+    if !matches!(settings.subtitle_max_lines, 1 | 2) {
+        return Err("字幕行数只能设置为一行或两行".into());
+    }
     state
         .store
         .save_settings(&settings)
@@ -498,6 +503,7 @@ pub fn update_transcript(
     if let Some(segments) = segments {
         t.segments = segments;
     }
+    t.refresh_subtitles(state.settings.lock().subtitle_max_lines);
     state.store.save_transcript(&t).map_err(|e| e.to_string())?;
     let _ = app.emit(EVENT_HISTORY, ());
     Ok(t)

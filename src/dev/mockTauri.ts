@@ -3,6 +3,7 @@
  * during development. Never loaded inside the app.
  */
 import catalog from "../../src-tauri/catalog.json";
+import type { Segment, Transcript, Settings } from "../lib/api";
 
 type Handler = (args: Record<string, unknown>) => unknown;
 
@@ -41,6 +42,12 @@ const history = [
   { id: "t4", title: "Commencement speech", source: "file", createdAt: now - 9 * 86_400_000, duration: 418, preview: "Friends, neighbors" },
 ];
 
+const mockTranscripts = new Map<string, Transcript>();
+let mockSettings: Settings | null = null;
+const fallbackSubtitles = (items: Segment[]) => items.map((s, index) => ({
+  ...s, index, words: [], timing: "segment" as const, issues: ["segment_timing"],
+}));
+
 function scenario() {
   return new URLSearchParams(location.search).get("mock") ?? "home";
 }
@@ -76,12 +83,13 @@ const handlers: Record<string, Handler> = {
     modelsDir: "/Users/demo/Library/Application Support/app.murmur.asr/models",
     backends: ["metal", "cpu"],
   }),
-  get_settings: () => ({
+  get_settings: () => mockSettings ??= ({
     activeModel: "qwen3-asr-0.6b-q8",
     backend: "metal",
     threads: 6,
     language: "auto",
     itn: true,
+    subtitleMaxLines: 1,
     downloadSource: "auto",
     inputDevice: null,
     saveRecordings: true,
@@ -91,7 +99,7 @@ const handlers: Record<string, Handler> = {
     apiLan: true,
     apiPort: 7895,
   }),
-  update_settings: (a) => a.settings,
+  update_settings: (a) => { mockSettings = a.settings as Settings; return mockSettings; },
   api_status: () => ({
     running: true,
     url: "http://127.0.0.1:7895",
@@ -106,14 +114,43 @@ const handlers: Record<string, Handler> = {
     { id: "coreaudio:airpods", name: "AirPods Pro", isDefault: false },
   ],
   export_files: (a) => (a.formats as string[]).map((f) => `${a.dir}/AI 播客第 43 期.${f}`),
-  get_transcript: (a) => ({
+  get_transcript: async (a) => {
+    const id = String(a.id);
+    const maxLines = mockSettings?.subtitleMaxLines ?? 1;
+    const cacheKey = `${id}:${maxLines}`;
+    if (mockTranscripts.has(cacheKey)) return mockTranscripts.get(cacheKey);
+    // A locally generated subtitle_preview result can be inspected in the real UI.
+    const fixture = new URLSearchParams(location.search).get("fixture");
+    if (fixture?.startsWith("/output/")) {
+      const response = await fetch(fixture.replace("{lines}", String(maxLines)));
+      if (!response.ok) throw new Error("无法读取字幕预览文件");
+      const transcript = await response.json() as Transcript;
+      mockTranscripts.set(cacheKey, transcript);
+      return transcript;
+    }
+    const transcript = {
     ...(history.find((h) => h.id === a.id) ?? { id: a.id, title: "AI 播客第 43 期", source: "file", createdAt: now, duration: 1854 }),
     language: "Chinese",
     model: "Qwen3-ASR 0.6B",
     audioPath: "/tmp/demo.m4a",
     segments: segments.map((seg, i) => (i === 1 ? seg : { ...seg, words: mockWords(seg) })),
+    subtitles: fallbackSubtitles(segments),
+    subtitleMaxLines: maxLines,
     elapsedMs: 9000,
-  }),
+    } as Transcript;
+    mockTranscripts.set(cacheKey, transcript);
+    return transcript;
+  },
+  update_transcript: (a) => {
+    const transcript = [...mockTranscripts.values()].find((t) => t.id === a.id);
+    if (!transcript) throw new Error("记录不存在");
+    if (typeof a.title === "string") transcript.title = a.title;
+    if (Array.isArray(a.segments)) {
+      transcript.segments = a.segments as Segment[];
+      transcript.subtitles = fallbackSubtitles(transcript.segments);
+    }
+    return { ...transcript };
+  },
   transcribe_file: () => {
     setTimeout(() => {
       emit("engine://event", { kind: "jobStarted", job: "job-1", duration: 1854 });

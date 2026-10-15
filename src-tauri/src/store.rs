@@ -15,6 +15,7 @@ pub struct Settings {
     pub threads: i32,
     pub language: String,
     pub itn: bool,
+    pub subtitle_max_lines: u8,
     pub download_source: DownloadSource,
     pub input_device: Option<String>,
     pub save_recordings: bool,
@@ -33,6 +34,7 @@ impl Default for Settings {
             threads: default_threads(),
             language: "auto".into(),
             itn: true,
+            subtitle_max_lines: default_subtitle_max_lines(),
             download_source: DownloadSource::Auto,
             input_device: None,
             save_recordings: true,
@@ -43,6 +45,10 @@ impl Default for Settings {
             api_port: crate::api::DEFAULT_PORT,
         }
     }
+}
+
+fn default_subtitle_max_lines() -> u8 {
+    1
 }
 
 fn default_backend() -> &'static str {
@@ -71,6 +77,11 @@ pub struct Transcript {
     pub model: String,
     pub audio_path: Option<String>,
     pub segments: Vec<Segment>,
+    /// Derived on read/export, so existing records benefit without a migration.
+    #[serde(default, skip_deserializing)]
+    pub subtitles: Vec<crate::subtitles::Cue>,
+    #[serde(default = "default_subtitle_max_lines")]
+    pub subtitle_max_lines: u8,
     #[serde(default)]
     pub elapsed_ms: u64,
 }
@@ -87,6 +98,12 @@ pub struct TranscriptSummary {
 }
 
 impl Transcript {
+    pub fn refresh_subtitles(&mut self, max_lines: u8) {
+        self.subtitle_max_lines = max_lines.clamp(1, 2);
+        self.subtitles =
+            crate::subtitles::compose(&self.segments, self.duration, self.subtitle_max_lines);
+    }
+
     pub fn summary(&self) -> TranscriptSummary {
         let preview: String = self
             .segments
@@ -161,13 +178,17 @@ impl Store {
         let path = self
             .transcript_path(&transcript.id)
             .ok_or_else(|| std::io::Error::other("invalid transcript id"))?;
-        let bytes = serde_json::to_vec(transcript).map_err(std::io::Error::other)?;
+        let mut transcript = transcript.clone();
+        transcript.refresh_subtitles(self.load_settings().subtitle_max_lines);
+        let bytes = serde_json::to_vec(&transcript).map_err(std::io::Error::other)?;
         write_atomic(&path, &bytes)
     }
 
     pub fn load_transcript(&self, id: &str) -> Option<Transcript> {
         let bytes = std::fs::read(self.transcript_path(id)?).ok()?;
-        serde_json::from_slice(&bytes).ok()
+        let mut transcript: Transcript = serde_json::from_slice(&bytes).ok()?;
+        transcript.refresh_subtitles(self.load_settings().subtitle_max_lines);
+        Some(transcript)
     }
 
     pub fn delete_transcript(&self, id: &str) -> std::io::Result<()> {
@@ -200,7 +221,7 @@ impl Store {
             .filter_map(|b| serde_json::from_slice::<Transcript>(&b).ok())
             .map(|t| t.summary())
             .collect();
-        items.sort_by(|a, b| b.created_at.cmp(&a.created_at));
+        items.sort_by_key(|t| std::cmp::Reverse(t.created_at));
         items
     }
 }
@@ -306,7 +327,14 @@ pub fn export(transcript: &Transcript, format: ExportFormat) -> String {
         }
         ExportFormat::Srt => {
             let mut out = String::new();
-            for (i, s) in segments.iter().enumerate() {
+            for (i, s) in crate::subtitles::compose(
+                segments,
+                transcript.duration,
+                transcript.subtitle_max_lines,
+            )
+            .iter()
+            .enumerate()
+            {
                 out.push_str(&format!(
                     "{}\n{} --> {}\n{}\n\n",
                     i + 1,
@@ -319,7 +347,11 @@ pub fn export(transcript: &Transcript, format: ExportFormat) -> String {
         }
         ExportFormat::Vtt => {
             let mut out = String::from("WEBVTT\n\n");
-            for s in segments {
+            for s in crate::subtitles::compose(
+                segments,
+                transcript.duration,
+                transcript.subtitle_max_lines,
+            ) {
                 out.push_str(&format!(
                     "{} --> {}\n{}\n\n",
                     timestamp(s.start, '.'),
@@ -329,7 +361,11 @@ pub fn export(transcript: &Transcript, format: ExportFormat) -> String {
             }
             out
         }
-        ExportFormat::Json => serde_json::to_string_pretty(transcript).unwrap_or_default(),
+        ExportFormat::Json => {
+            let mut transcript = transcript.clone();
+            transcript.refresh_subtitles(transcript.subtitle_max_lines);
+            serde_json::to_string_pretty(&transcript).unwrap_or_default()
+        }
         ExportFormat::Md => {
             let mut out = format!("# {}\n\n", transcript.title);
             for s in segments {
@@ -354,11 +390,13 @@ mod tests {
             title: "Demo".into(),
             source: "file".into(),
             created_at: 0,
-            duration: 5.0,
+            duration: 3663.0,
             language: "en".into(),
             model: "m".into(),
             audio_path: None,
             elapsed_ms: 0,
+            subtitles: Vec::new(),
+            subtitle_max_lines: 2,
             segments: vec![
                 Segment {
                     index: 0,
@@ -397,6 +435,79 @@ mod tests {
         t.segments[0].text = "你好".into();
         t.segments[1].text = "世界".into();
         assert_eq!(export(&t, ExportFormat::Txt), "你好世界\n");
+    }
+
+    #[test]
+    fn legacy_records_and_exports_share_reflowed_cues() {
+        let mut value = serde_json::to_value(sample()).unwrap();
+        value.as_object_mut().unwrap().remove("subtitles");
+        let mut transcript: Transcript = serde_json::from_value(value).unwrap();
+        transcript.segments = vec![Segment {
+            index: 0,
+            start: 0.0,
+            end: 7.0,
+            text: "Hello there. Welcome back.".into(),
+            words: vec![
+                crate::engine::ffi::Word {
+                    text: "Hello".into(),
+                    start: 0.2,
+                    end: 0.7,
+                },
+                crate::engine::ffi::Word {
+                    text: "there".into(),
+                    start: 0.8,
+                    end: 1.4,
+                },
+                crate::engine::ffi::Word {
+                    text: "Welcome".into(),
+                    start: 4.0,
+                    end: 4.7,
+                },
+                crate::engine::ffi::Word {
+                    text: "back".into(),
+                    start: 4.8,
+                    end: 5.4,
+                },
+            ],
+        }];
+        transcript.refresh_subtitles(2);
+        assert_eq!(transcript.subtitles.len(), 2);
+        let json: serde_json::Value =
+            serde_json::from_str(&export(&transcript, ExportFormat::Json)).unwrap();
+        assert_eq!(json["segments"].as_array().unwrap().len(), 1);
+        assert_eq!(
+            json["subtitles"],
+            serde_json::to_value(&transcript.subtitles).unwrap()
+        );
+        let srt = export(&transcript, ExportFormat::Srt);
+        let vtt = export(&transcript, ExportFormat::Vtt);
+        for cue in &transcript.subtitles {
+            assert!(srt.contains(&format!(
+                "{} --> {}\n{}",
+                timestamp(cue.start, ','),
+                timestamp(cue.end, ','),
+                cue.text
+            )));
+            assert!(vtt.contains(&format!(
+                "{} --> {}\n{}",
+                timestamp(cue.start, '.'),
+                timestamp(cue.end, '.'),
+                cue.text
+            )));
+        }
+        assert_eq!(
+            export(&transcript, ExportFormat::Txt).trim(),
+            "Hello there. Welcome back."
+        );
+
+        // Editing invalidates the old alignment; stale derived cues cannot leak into exports.
+        transcript.segments[0].text = "Edited text.".into();
+        transcript.segments[0].words.clear();
+        let json: serde_json::Value =
+            serde_json::from_str(&export(&transcript, ExportFormat::Json)).unwrap();
+        assert_eq!(json["subtitles"][0]["text"], "Edited text.");
+        assert_eq!(json["subtitles"][0]["timing"], "segment");
+        assert!(export(&transcript, ExportFormat::Srt).contains("Edited text."));
     }
 
     #[test]
@@ -444,6 +555,62 @@ mod tests {
         };
         store.save_settings(&s).unwrap();
         assert_eq!(store.load_settings().language, "zh");
+        std::fs::remove_dir_all(dir).unwrap();
+    }
+
+    #[test]
+    fn line_preference_defaults_to_one_and_reflows_old_records_on_read() {
+        let settings: Settings = serde_json::from_str("{\"language\":\"en\"}").unwrap();
+        assert_eq!(settings.subtitle_max_lines, 1);
+        let dir = std::env::temp_dir().join(format!("murmur-lines-{}", uuid::Uuid::new_v4()));
+        let store = Store::new(dir.clone()).unwrap();
+        let mut t = sample();
+        t.segments[0].text =
+            "These are longer words that should fit comfortably across two subtitle lines.".into();
+        t.segments[0].words = t.segments[0]
+            .text
+            .split_whitespace()
+            .enumerate()
+            .map(|(i, text)| crate::engine::ffi::Word {
+                text: text.into(),
+                start: i as f64 * 0.3,
+                end: (i as f64 + 0.9) * 0.3,
+            })
+            .collect();
+        t.segments[0].end = 5.0;
+        store.save_transcript(&t).unwrap();
+        let before = std::fs::read(store.transcript_path("abc").unwrap()).unwrap();
+        let one = store.load_transcript("abc").unwrap();
+        assert_eq!(one.subtitle_max_lines, 1);
+        assert!(one.subtitles.iter().all(|c| !c.text.contains('\n')));
+        store
+            .save_settings(&Settings {
+                subtitle_max_lines: 2,
+                ..settings
+            })
+            .unwrap();
+        assert_eq!(store.load_settings().subtitle_max_lines, 2);
+        let two = store.load_transcript("abc").unwrap();
+        assert_eq!(two.subtitle_max_lines, 2);
+        assert!(two.subtitles.iter().any(|c| c.text.contains('\n')));
+        assert!(one.subtitles.len() > two.subtitles.len());
+        for t in [&one, &two] {
+            let json: serde_json::Value =
+                serde_json::from_str(&export(t, ExportFormat::Json)).unwrap();
+            assert_eq!(json["subtitleMaxLines"], t.subtitle_max_lines);
+            assert_eq!(
+                json["subtitles"],
+                serde_json::to_value(&t.subtitles).unwrap()
+            );
+            for cue in &t.subtitles {
+                assert!(export(t, ExportFormat::Srt).contains(&cue.text));
+                assert!(export(t, ExportFormat::Vtt).contains(&cue.text));
+            }
+        }
+        assert_eq!(
+            before,
+            std::fs::read(store.transcript_path("abc").unwrap()).unwrap()
+        );
         std::fs::remove_dir_all(dir).unwrap();
     }
 }

@@ -4,6 +4,7 @@ mod commands;
 pub mod engine;
 pub mod models;
 mod store;
+pub mod subtitles;
 
 use std::path::PathBuf;
 

@@ -63,6 +63,7 @@ export interface Settings {
   threads: number;
   language: string;
   itn: boolean;
+  subtitleMaxLines: 1 | 2;
   downloadSource: DownloadSource;
   inputDevice: string | null;
   saveRecordings: boolean;
@@ -116,7 +117,14 @@ export interface Transcript {
   model: string;
   audioPath: string | null;
   segments: Segment[];
+  subtitles: SubtitleCue[];
+  subtitleMaxLines: 1 | 2;
   elapsedMs: number;
+}
+
+export interface SubtitleCue extends Segment {
+  timing: "word" | "segment";
+  issues: string[];
 }
 
 export interface TranscriptSummary {

@@ -9,7 +9,7 @@ Base URL: `http://127.0.0.1:7895` on the Murmur machine, or `http://<LAN-IP>:789
 | Linux | `~/.local/share/app.murmur.asr/api.json` |
 
 ```json
-{ "baseUrl": "http://127.0.0.1:7895", "lanUrl": "http://192.168.1.23:7895", "port": 7895, "pid": 12345, "version": "0.1.8" }
+{ "baseUrl": "http://127.0.0.1:7895", "lanUrl": "http://192.168.1.23:7895", "port": 7895, "pid": 12345, "version": "0.1.9" }
 ```
 
 `lanUrl` is `null` when LAN access is off. The file is removed when the API is turned off or the app quits; it may be stale after a crash, so always confirm with `GET /health`.
@@ -28,7 +28,7 @@ Errors are JSON: `{ "error": "message" }`.
 {
   "ok": true,
   "app": "murmur",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "engine": { "version": "0.9.1", "error": null },
   "model": {
     "id": "qwen3-asr-0.6b-q8",
@@ -99,6 +99,12 @@ With `wait=true` and `format=json`, the response is the saved transcript:
 ```
 
 `words` is present only when the model produces word timestamps (`model.wordTimestamps`). Other formats return `text/plain` with an `X-Murmur-Transcript-Id` header.
+
+JSON responses also include `subtitles`, derived from the original `segments` on read. Each subtitle has `index`, `start`, `end`, `text` (including explicit line breaks), `words`, `timing` (`word` or `segment`), and `issues`. SRT and VTT export these same subtitle cues; TXT and Markdown continue to use the original transcript. Existing records are reflowed without another ASR run.
+
+Subtitle layout follows the app's global subtitle line preference: one line by default, or at most two lines. Change it in Settings or the transcript preview. JSON includes `subtitleMaxLines` (`1` or `2`) to identify the preference used for its derived cues. Changing this preference reflows existing records and subsequent API/export results without rewriting the original recognition data.
+
+`issues` can include `segment_timing` (missing or unreliable word alignment; original segment time retained), `reading_speed`, `line_length`, `short_duration`, or `long_duration`. These are review hints, not transcription failures. No text is removed to meet readability targets, and missing word timings are not fabricated.
 
 With `wait=false`:
 

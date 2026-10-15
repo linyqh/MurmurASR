@@ -5,6 +5,7 @@ import { writeText } from "@tauri-apps/plugin-clipboard-manager";
 import { revealItemInDir } from "@tauri-apps/plugin-opener";
 import { api, type ExportFormat, type Segment, type Transcript } from "../lib/api";
 import { useStore } from "../lib/store";
+import { Segmented } from "../components/controls";
 import {
   activeWord,
   alignWords,
@@ -34,13 +35,14 @@ const EXPORTS: { format: ExportFormat; label: string; ext: string; hint: string 
 ];
 
 export function TranscriptView({ id }: { id: string }) {
-  const { setView, toast } = useStore();
+  const { setView, toast, settings, saveSettings } = useStore();
   const [t, setT] = useState<Transcript | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [current, setCurrent] = useState(-1);
   const [playing, setPlaying] = useState(false);
   const [position, setPosition] = useState(0);
   const [editing, setEditing] = useState<number | null>(null);
+  const [display, setDisplay] = useState<"subtitles" | "original">("subtitles");
   const [menu, setMenu] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [renaming, setRenaming] = useState(false);
@@ -48,21 +50,27 @@ export function TranscriptView({ id }: { id: string }) {
   const segRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
-    api.getTranscript(id).then(setT, (e) => setError(String(e)));
-  }, [id]);
+    let active = true;
+    api.getTranscript(id).then(
+      (transcript) => { if (active) { setT(transcript); setError(null); } },
+      (e) => { if (active) setError(String(e)); },
+    );
+    return () => { active = false; };
+  }, [id, settings?.subtitleMaxLines]);
 
   const audioSrc = useMemo(() => (t?.audioPath ? convertFileSrc(t.audioPath) : null), [t?.audioPath]);
+  const visibleSegments = useMemo(() => t ? (display === "subtitles" ? t.subtitles : t.segments) : [], [t, display]);
 
   useEffect(() => {
     if (!t) return;
-    const idx = t.segments.findIndex((s) => position >= s.start && position < s.end);
+    const idx = visibleSegments.findIndex((s) => position >= s.start && position < s.end);
     if (idx !== current) {
       setCurrent(idx);
       if (idx >= 0 && playing && editing === null) {
         segRefs.current[idx]?.scrollIntoView({ block: "nearest", behavior: "smooth" });
       }
     }
-  }, [position, t, current, playing, editing]);
+  }, [position, t, visibleSegments, current, playing, editing]);
 
   useEffect(() => {
     const close = () => setMenu(false);
@@ -230,13 +238,46 @@ export function TranscriptView({ id }: { id: string }) {
           )}
         </div>
 
-        {t.segments.length === 0 ? (
+        <div className="transcript-view-controls">
+          <div className="transcript-view-switch" role="group" aria-label="转写显示方式">
+            <button
+              className={`btn${display === "subtitles" ? " primary" : ""}`}
+              aria-pressed={display === "subtitles"}
+              onClick={() => { setEditing(null); setDisplay("subtitles"); }}
+            >
+              字幕预览
+            </button>
+            <button
+              className={`btn${display === "original" ? " primary" : ""}`}
+              aria-pressed={display === "original"}
+              onClick={() => { setEditing(null); setDisplay("original"); }}
+            >
+              原始转写 · 编辑
+            </button>
+          </div>
+          {display === "subtitles" && settings && (
+            <div className="subtitle-line-setting">
+              <span className="muted">字幕行数</span>
+              <Segmented
+                label="字幕行数"
+                value={String(settings.subtitleMaxLines)}
+                options={[{ value: "1", label: "一行" }, { value: "2", label: "两行" }]}
+                onChange={(value) => void saveSettings({ subtitleMaxLines: value === "2" ? 2 : 1 })}
+              />
+            </div>
+          )}
+          <p className="muted">
+            {display === "subtitles" ? `${t.subtitles.length} 条字幕 · 换行与 SRT / VTT 导出一致` : "编辑原文后会重新编排字幕；修改段落的词级时间戳会清除。"}
+          </p>
+        </div>
+
+        {visibleSegments.length === 0 ? (
           <div className="empty compact">
             <p>没有识别到语音内容。</p>
           </div>
         ) : (
           <div className="segments">
-            {t.segments.map((s, i) => (
+            {visibleSegments.map((s, i) => (
               <div
                 key={i}
                 ref={(el) => {
@@ -268,7 +309,7 @@ export function TranscriptView({ id }: { id: string }) {
                     }}
                   />
                 ) : (
-                  <div className="segment-text selectable" onDoubleClick={() => setEditing(i)}>
+                  <div className={`segment-text selectable${display === "subtitles" ? " subtitle-text" : ""}`} onDoubleClick={display === "original" ? () => setEditing(i) : undefined}>
                     {s.words?.length ? (
                       <SegmentText
                         segment={s}
@@ -278,9 +319,12 @@ export function TranscriptView({ id }: { id: string }) {
                     ) : (
                       s.text
                     )}
+                    {display === "subtitles" && t.subtitles[i].issues.length > 0 && (
+                      <div className="subtitle-issues">{t.subtitles[i].issues.map(subtitleIssue).join(" · ")}</div>
+                    )}
                   </div>
                 )}
-                {editing !== i && (
+                {display === "original" && editing !== i && (
                   <button className="icon-btn segment-edit-btn" aria-label="编辑" onClick={() => setEditing(i)}>
                     <IconPencil size={13} />
                   </button>
@@ -334,6 +378,17 @@ export function TranscriptView({ id }: { id: string }) {
       )}
     </>
   );
+}
+
+function subtitleIssue(issue: string): string {
+  const labels: Record<string, string> = {
+    segment_timing: "缺少可靠词级时间，保留原段时间",
+    reading_speed: "语速较快，建议检查阅读时间",
+    line_length: "文字较长，建议检查换行",
+    short_duration: "显示时间较短",
+    long_duration: "显示时间较长",
+  };
+  return labels[issue] ?? issue;
 }
 
 function SegmentText({

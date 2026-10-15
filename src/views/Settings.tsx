@@ -66,6 +66,22 @@ export function SettingsView() {
           </div>
         </div>
 
+        <h3 className="form-group-title">字幕</h3>
+        <div className="form-group">
+          <div className="form-row">
+            <div className="label">
+              字幕行数
+              <div className="hint">每条字幕最多显示的行数，应用于已有记录的预览与导出</div>
+            </div>
+            <Segmented
+              label="字幕行数"
+              value={String(settings.subtitleMaxLines)}
+              options={[{ value: "1", label: "一行" }, { value: "2", label: "两行" }]}
+              onChange={(value) => void saveSettings({ subtitleMaxLines: value === "2" ? 2 : 1 })}
+            />
+          </div>
+        </div>
+
         <h3 className="form-group-title">录音</h3>
         <div className="form-group">
           <div className="form-row">
