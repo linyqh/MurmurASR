@@ -528,6 +528,22 @@ pub fn export_transcript(
     Ok(content)
 }
 
+#[tauri::command]
+pub fn export_files(
+    state: State<'_, AppState>,
+    id: String,
+    dir: String,
+    formats: Vec<ExportFormat>,
+) -> CmdResult<Vec<String>> {
+    let t = state.store.load_transcript(&id).ok_or("记录不存在")?;
+    let paths =
+        store::export_to_dir(&t, &PathBuf::from(dir), &formats).map_err(|e| e.to_string())?;
+    Ok(paths
+        .into_iter()
+        .map(|p| p.to_string_lossy().into_owned())
+        .collect())
+}
+
 pub fn forward_engine_event(app: &AppHandle, event: EngineEvent) {
     let state = app.state::<AppState>();
     let history_changed = state.observe(&event);

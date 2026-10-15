@@ -56,7 +56,11 @@ pub struct Segment {
 }
 
 #[derive(Debug, Clone, Serialize)]
-#[serde(rename_all = "camelCase", tag = "kind")]
+#[serde(
+    rename_all = "camelCase",
+    rename_all_fields = "camelCase",
+    tag = "kind"
+)]
 pub enum EngineEvent {
     ModelLoading {
         id: String,
@@ -996,7 +1000,28 @@ fn ends_cjk(text: &str) -> bool {
 
 #[cfg(test)]
 mod tests {
-    use super::{clean_text, merge_tokens, offset_words, Word};
+    use super::{clean_text, merge_tokens, offset_words, EngineEvent, Word};
+
+    #[test]
+    fn events_use_camel_case_fields() {
+        let done = serde_json::to_value(EngineEvent::JobDone {
+            job: "j".into(),
+            language: "en".into(),
+            elapsed_ms: 1500,
+            audio_seconds: 30.0,
+        })
+        .unwrap();
+        assert_eq!(done["kind"], "jobDone");
+        assert_eq!(done["elapsedMs"], 1500);
+        assert_eq!(done["audioSeconds"], 30.0);
+        let stopped = serde_json::to_value(EngineEvent::LiveStopped {
+            session: "s".into(),
+            duration: 1.0,
+            audio_path: Some("/a.wav".into()),
+        })
+        .unwrap();
+        assert_eq!(stopped["audioPath"], "/a.wav");
+    }
 
     fn w(text: &str, start: f64, end: f64) -> Word {
         Word {

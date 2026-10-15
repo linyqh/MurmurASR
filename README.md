@@ -110,6 +110,11 @@ MURMUR_TEST_DOWNLOAD=1 cargo test --release --test download
 ./scripts/package-macos.sh   # 生成 .app 和 .dmg
 ```
 
+DMG 包含冰蓝安装引导背景、固定的拖拽图标位置，以及首次下载模型的说明。
+脚本首次运行会用 Python 3 在 `src-tauri/target/dmg-tools` 创建隔离环境，安装锁定版本的
+`dmgbuild` 依赖；直接生成 Finder 布局，无需 AppleScript 或自动化权限。
+背景素材与生成提示词位于 `assets/dmg/`，布局配置位于 `scripts/dmg-settings.py`。
+
 macOS 本机签名：复制 `.env.macos.local.example` 为 `.env.macos.local`，将
 `APPLE_SIGNING_IDENTITY` 设置为 `security find-identity -v -p codesigning` 中的
 Developer ID Application 身份。打包脚本会加载此本机配置，对应用和 DMG 签名并验证；

@@ -100,6 +100,7 @@ pub fn run() {
             commands::update_transcript,
             commands::delete_transcript,
             commands::export_transcript,
+            commands::export_files,
         ])
         .build(tauri::generate_context!())
         .expect("error while building Murmur")

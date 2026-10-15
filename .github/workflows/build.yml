@@ -64,7 +64,12 @@ jobs:
         working-directory: src-tauri
         run: cargo test
 
+      - name: Bundle macOS installer
+        if: runner.os == 'macOS'
+        run: bash scripts/package-macos.sh
+
       - name: Bundle
+        if: runner.os != 'macOS'
         run: npx tauri build
 
       - uses: actions/upload-artifact@v4

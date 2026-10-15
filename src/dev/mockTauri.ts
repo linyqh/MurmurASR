@@ -105,8 +105,9 @@ const handlers: Record<string, Handler> = {
     { id: "coreaudio:builtin", name: "MacBook Pro 麦克风", isDefault: true },
     { id: "coreaudio:airpods", name: "AirPods Pro", isDefault: false },
   ],
+  export_files: (a) => (a.formats as string[]).map((f) => `${a.dir}/AI 播客第 43 期.${f}`),
   get_transcript: (a) => ({
-    ...history.find((h) => h.id === a.id),
+    ...(history.find((h) => h.id === a.id) ?? { id: a.id, title: "AI 播客第 43 期", source: "file", createdAt: now, duration: 1854 }),
     language: "Chinese",
     model: "Qwen3-ASR 0.6B",
     audioPath: "/tmp/demo.m4a",
@@ -206,7 +207,14 @@ export function installMock() {
       });
     }
     // Drive the real UI so the store registers job/session ids as in the app.
-    if (s === "jobs") (document.querySelector(".dropzone") as HTMLElement | null)?.click();
+    if (s === "jobs" || s === "result") (document.querySelector(".uploader") as HTMLElement | null)?.click();
+    if (s === "result") {
+      setTimeout(() => {
+        emit("engine://event", { kind: "jobSegment", job: "job-1", segment: segments[2], progress: 0.9 });
+        emit("engine://event", { kind: "jobSegment", job: "job-1", segment: segments[3], progress: 1 });
+        emit("engine://event", { kind: "jobDone", job: "job-1", language: "Chinese", elapsedMs: 92_000, audioSeconds: 1854 });
+      }, 300);
+    }
     if (s === "live") (document.querySelector(".record-btn") as HTMLElement | null)?.click();
   }, 400);
 }

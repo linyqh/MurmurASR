@@ -183,6 +183,8 @@ export const api = {
   deleteTranscript: (id: string) => invoke<void>("delete_transcript", { id }),
   exportTranscript: (id: string, format: ExportFormat, path?: string) =>
     invoke<string>("export_transcript", { id, format, path: path ?? null }),
+  exportFiles: (id: string, dir: string, formats: ExportFormat[]) =>
+    invoke<string[]>("export_files", { id, dir, formats }),
 };
 
 export const onEngineEvent = (cb: (e: EngineEvent) => void): Promise<UnlistenFn> =>

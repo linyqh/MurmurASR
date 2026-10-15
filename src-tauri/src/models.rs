@@ -155,7 +155,11 @@ pub fn remove(models_root: &Path, model: &CatalogModel) -> std::io::Result<()> {
 }
 
 #[derive(Debug, Clone, Serialize)]
-#[serde(rename_all = "camelCase", tag = "state")]
+#[serde(
+    rename_all = "camelCase",
+    rename_all_fields = "camelCase",
+    tag = "state"
+)]
 pub enum DownloadEvent {
     Progress {
         id: String,

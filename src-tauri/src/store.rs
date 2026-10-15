@@ -215,6 +215,66 @@ pub enum ExportFormat {
     Md,
 }
 
+impl ExportFormat {
+    pub fn extension(self) -> &'static str {
+        match self {
+            Self::Txt => "txt",
+            Self::Srt => "srt",
+            Self::Vtt => "vtt",
+            Self::Json => "json",
+            Self::Md => "md",
+        }
+    }
+}
+
+/// A file name derived from a transcript title, safe on every platform.
+fn file_stem(title: &str) -> String {
+    let cleaned: String = title
+        .chars()
+        .map(|c| match c {
+            '/' | '\\' | ':' | '*' | '?' | '"' | '<' | '>' | '|' => '_',
+            c if c.is_control() => '_',
+            c => c,
+        })
+        .collect();
+    let trimmed = cleaned.trim().trim_matches('.').trim();
+    if trimmed.is_empty() {
+        "转写".into()
+    } else {
+        trimmed.chars().take(120).collect()
+    }
+}
+
+/// Writes `transcript` into `dir` once per format, all sharing one base name
+/// that collides with no existing file ("name", "name (2)", …).
+pub fn export_to_dir(
+    transcript: &Transcript,
+    dir: &Path,
+    formats: &[ExportFormat],
+) -> std::io::Result<Vec<PathBuf>> {
+    let stem = file_stem(&transcript.title);
+    let paths_for = |name: &str| -> Vec<PathBuf> {
+        formats
+            .iter()
+            .map(|f| dir.join(format!("{name}.{}", f.extension())))
+            .collect()
+    };
+    let paths = (1..)
+        .map(|n| {
+            if n == 1 {
+                paths_for(&stem)
+            } else {
+                paths_for(&format!("{stem} ({n})"))
+            }
+        })
+        .find(|paths| paths.iter().all(|p| !p.exists()))
+        .expect("an unused name exists");
+    for (path, format) in paths.iter().zip(formats) {
+        write_atomic(path, export(transcript, *format).as_bytes())?;
+    }
+    Ok(paths)
+}
+
 fn timestamp(seconds: f64, separator: char) -> String {
     let total_ms = (seconds.max(0.0) * 1000.0).round() as u64;
     let (h, m, s, ms) = (
@@ -337,6 +397,28 @@ mod tests {
         t.segments[0].text = "你好".into();
         t.segments[1].text = "世界".into();
         assert_eq!(export(&t, ExportFormat::Txt), "你好世界\n");
+    }
+
+    #[test]
+    fn export_to_dir_never_overwrites() {
+        let dir = std::env::temp_dir().join(format!("murmur-export-{}", uuid::Uuid::new_v4()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let mut t = sample();
+        t.title = "a/b: c?".into();
+        let formats = [ExportFormat::Srt, ExportFormat::Json];
+        let first = export_to_dir(&t, &dir, &formats).unwrap();
+        assert_eq!(first[0].file_name().unwrap(), "a_b_ c_.srt");
+        assert_eq!(first[1].file_name().unwrap(), "a_b_ c_.json");
+        // A clash on either file moves both to the next free name.
+        std::fs::remove_file(&first[0]).unwrap();
+        let second = export_to_dir(&t, &dir, &formats).unwrap();
+        assert_eq!(second[0].file_name().unwrap(), "a_b_ c_ (2).srt");
+        assert_eq!(second[1].file_name().unwrap(), "a_b_ c_ (2).json");
+        assert!(std::fs::read_to_string(&second[1])
+            .unwrap()
+            .contains("\"segments\""));
+        assert_eq!(file_stem("  .. "), "转写");
+        std::fs::remove_dir_all(dir).unwrap();
     }
 
     #[test]

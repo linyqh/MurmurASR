@@ -43,11 +43,16 @@ export interface DownloadProgress {
 export interface Job {
   id: string;
   title: string;
-  phase: "queued" | "decoding" | "detecting" | "transcribing";
+  phase: "queued" | "decoding" | "detecting" | "transcribing" | "done" | "failed";
   progress: number;
   duration: number;
   segments: Segment[];
+  error?: string;
+  /** Audio seconds per wall-clock second, once done. */
+  speed?: number;
 }
+
+export const isRunning = (job: Job) => job.phase !== "done" && job.phase !== "failed";
 
 export interface LiveState {
   id: string | null;
@@ -83,6 +88,8 @@ interface Store {
   transcribeFiles: (paths: string[]) => Promise<void>;
   startLive: (title: string) => Promise<void>;
   stopLive: () => Promise<void>;
+  /** Removes a finished job's card from the home page; the transcript stays in history. */
+  dismissJob: (id: string) => void;
   subscribe: (fn: (e: EngineEvent) => void) => () => void;
 }
 
@@ -120,8 +127,6 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [view, setView] = useState<View>(initialView);
   const [toasts, setToasts] = useState<Toast[]>([]);
   const listeners = useRef(new Set<(e: EngineEvent) => void>());
-  const jobsRef = useRef(jobs);
-  jobsRef.current = jobs;
   const modelsRef = useRef(models);
   modelsRef.current = models;
 
@@ -209,19 +214,19 @@ export function StoreProvider({ children }: { children: ReactNode }) {
               : j,
           );
           break;
+        // Finished jobs stay on the home page with their result until dismissed.
         case "jobDone": {
-          const title = jobsRef.current[e.job]?.title ?? "";
-          setJobs(({ [e.job]: _, ...rest }) => rest);
           const speed = e.audioSeconds > 0 ? e.audioSeconds / Math.max(0.001, e.elapsedMs / 1000) : 0;
-          toast(`“${title}”转写完成${speed > 0 ? `（${speed.toFixed(0)}× 实时）` : ""}`);
+          setJobs((j) =>
+            j[e.job]
+              ? { ...j, [e.job]: { ...j[e.job], phase: "done", progress: 1, duration: e.audioSeconds, speed } }
+              : j,
+          );
           break;
         }
-        case "jobFailed": {
-          const title = jobsRef.current[e.job]?.title ?? "";
-          setJobs(({ [e.job]: _, ...rest }) => rest);
-          toast(`“${title}”转写失败：${e.error}`, "error");
+        case "jobFailed":
+          setJobs((j) => (j[e.job] ? { ...j, [e.job]: { ...j[e.job], phase: "failed", error: e.error } } : j));
           break;
-        }
         case "jobCancelled":
           setJobs(({ [e.job]: _, ...rest }) => rest);
           break;
@@ -329,6 +334,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     if (live.id) await api.stopLive(live.id);
   }, [live.id]);
 
+  const dismissJob = useCallback((id: string) => {
+    setJobs(({ [id]: _, ...rest }) => rest);
+  }, []);
+
   const subscribe = useCallback((fn: (e: EngineEvent) => void) => {
     listeners.current.add(fn);
     return () => {
@@ -356,6 +365,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       transcribeFiles,
       startLive,
       stopLive,
+      dismissJob,
       subscribe,
     }),
     [
@@ -376,6 +386,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       transcribeFiles,
       startLive,
       stopLive,
+      dismissJob,
       subscribe,
     ],
   );

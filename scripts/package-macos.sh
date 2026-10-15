@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
-# Builds the engine (if needed), the .app, and a plain compressed DMG.
-# Tauri's styled DMG step drives Finder via AppleScript, which fails in headless/CI
-# sessions; hdiutil alone produces a working installer image.
+# Builds the engine (if needed), the .app, and a branded compressed DMG.
+# dmgbuild writes Finder metadata without AppleScript, including in CI.
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
@@ -48,11 +47,10 @@ if [[ -n "${MURMUR_NOTARY_PROFILE:-}" ]]; then
     rm "$STAGE/Murmur.zip"
 fi
 
-cp -R "$APP" "$STAGE/"
-ln -s /Applications "$STAGE/Applications"
 mkdir -p "$(dirname "$OUT")"
-rm -f "$OUT"
-hdiutil create -volname "Murmur" -srcfolder "$STAGE" -ov -format UDZO "$OUT" >/dev/null
+FINAL_OUT="$OUT"
+OUT="$STAGE/$(basename "$FINAL_OUT")"
+bash scripts/create-dmg.sh "$APP" "$OUT"
 if [[ -n "${APPLE_SIGNING_IDENTITY:-}" ]]; then
     codesign --force --sign "$APPLE_SIGNING_IDENTITY" --timestamp "$OUT"
     codesign --verify --strict --verbose=2 "$OUT"
@@ -64,4 +62,8 @@ if [[ -n "${MURMUR_NOTARY_PROFILE:-}" ]]; then
 else
     echo "No MURMUR_NOTARY_PROFILE configured; DMG has not been notarized by this script."
 fi
+hdiutil verify "$OUT"
+mv -f "$OUT" "$FINAL_OUT"
+OUT="$FINAL_OUT"
+(cd "$(dirname "$OUT")" && shasum -a 256 "$(basename "$OUT")" > "$(basename "$OUT").sha256")
 echo "Built $OUT ($(du -h "$OUT" | cut -f1))"

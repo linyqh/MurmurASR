@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { useStore } from "../lib/store";
+import { isRunning, useStore } from "../lib/store";
 import { formatDuration, formatRelativeDate } from "../lib/format";
 import { IconCube, IconGear, IconGlobe, IconMic, IconSearch, IconWaveform, IconDoc } from "../components/icons";
 
@@ -19,7 +19,7 @@ export function Sidebar() {
   const loadingName = models?.loading
     ? models.catalog.models.find((m) => m.id === models.loading)?.name
     : null;
-  const activeJobs = Object.keys(jobs).length;
+  const activeJobs = Object.values(jobs).filter(isRunning).length;
 
   return (
     <aside className="sidebar">
