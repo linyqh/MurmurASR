@@ -17,6 +17,8 @@ pub enum AudioError {
     Unsupported(String),
     #[error("音频解码失败：{0}")]
     Decode(String),
+    #[error("无法准备 ffmpeg 解码器：{0}")]
+    Decoder(String),
     #[error("文件中没有音频数据")]
     Empty,
     #[error("麦克风不可用：{0}")]
@@ -25,6 +27,7 @@ pub enum AudioError {
 
 /// Decodes any container/codec symphonia supports into mono f32 at `TARGET_RATE`.
 /// `on_progress` receives a 0..1 fraction when the track length is known.
+/// Formats symphonia lacks are reported as `AudioError::Unsupported`.
 pub fn decode_file_mono_16k(
     path: &Path,
     cancel: &AtomicBool,
@@ -83,6 +86,7 @@ pub fn decode_file_mono_16k(
             Ok(None) => break,
             Err(Error::ResetRequired) => break,
             Err(Error::IoError(e)) if e.kind() == std::io::ErrorKind::UnexpectedEof => break,
+            Err(Error::Unsupported(feature)) => return Err(AudioError::Unsupported(feature.into())),
             Err(e) => return Err(AudioError::Decode(e.to_string())),
         };
         if packet.track_id != track_id {
@@ -94,6 +98,7 @@ pub fn decode_file_mono_16k(
                 log::debug!("skipping corrupt packet: {e}");
                 continue;
             }
+            Err(Error::Unsupported(feature)) => return Err(AudioError::Unsupported(feature.into())),
             Err(e) => return Err(AudioError::Decode(e.to_string())),
         };
         let spec = buffer.spec();

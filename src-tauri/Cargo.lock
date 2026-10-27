@@ -2659,6 +2659,7 @@ dependencies = [
  "axum",
  "cpal",
  "crossbeam-channel",
+ "flate2",
  "futures-util",
  "hound",
  "libloading 0.9.0",

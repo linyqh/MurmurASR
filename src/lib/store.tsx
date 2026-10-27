@@ -43,7 +43,14 @@ export interface DownloadProgress {
 export interface Job {
   id: string;
   title: string;
-  phase: "queued" | "decoding" | "detecting" | "transcribing" | "done" | "failed";
+  phase:
+    | "queued"
+    | "fetchingDecoder"
+    | "decoding"
+    | "detecting"
+    | "transcribing"
+    | "done"
+    | "failed";
   progress: number;
   duration: number;
   segments: Segment[];

@@ -1,6 +1,7 @@
 mod api;
 mod audio;
 mod commands;
+mod ffmpeg;
 pub mod engine;
 pub mod models;
 mod store;

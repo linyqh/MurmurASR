@@ -21,6 +21,7 @@ import { LanguagePicker } from "./LanguagePicker";
 
 const PHASE_LABEL: Record<Job["phase"], string> = {
   queued: "排队中",
+  fetchingDecoder: "下载解码器",
   decoding: "解码音频",
   detecting: "检测语音",
   transcribing: "识别中",

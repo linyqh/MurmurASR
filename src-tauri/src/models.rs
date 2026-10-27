@@ -220,7 +220,7 @@ impl Downloads {
 }
 
 #[derive(Debug, thiserror::Error)]
-enum FetchError {
+pub(crate) enum FetchError {
     #[error("已取消")]
     Cancelled,
     #[error("{0}")]
@@ -265,12 +265,7 @@ async fn run_download(
             error: format!("无法创建模型目录：{e}"),
         };
     }
-    let client = match reqwest::Client::builder()
-        .user_agent(concat!("Murmur/", env!("CARGO_PKG_VERSION")))
-        .connect_timeout(Duration::from_secs(15))
-        .read_timeout(Duration::from_secs(60))
-        .build()
-    {
+    let client = match http_client() {
         Ok(c) => c,
         Err(e) => {
             return DownloadEvent::Failed {
@@ -283,7 +278,7 @@ async fn run_download(
     let partial = partial_path(models_root, model);
     let mut errors = Vec::new();
     for (label, url) in source_urls(model, source) {
-        match fetch(&client, &url, &label, &partial, model, cancel, emit).await {
+        match fetch(&client, &url, &label, &partial, &model.id, model.size, cancel, emit).await {
             Ok(()) => {
                 errors.clear();
                 break;
@@ -328,24 +323,36 @@ async fn run_download(
     }
 }
 
-async fn fetch(
+pub(crate) fn http_client() -> reqwest::Result<reqwest::Client> {
+    reqwest::Client::builder()
+        .user_agent(concat!("Murmur/", env!("CARGO_PKG_VERSION")))
+        .connect_timeout(Duration::from_secs(15))
+        .read_timeout(Duration::from_secs(60))
+        .build()
+}
+
+/// Downloads `url` into `partial`, resuming from its current length, and
+/// reports progress for `id` through `emit`.
+#[allow(clippy::too_many_arguments)]
+pub(crate) async fn fetch(
     client: &reqwest::Client,
     url: &str,
     label: &str,
     partial: &Path,
-    model: &CatalogModel,
+    id: &str,
+    size: u64,
     cancel: &AtomicBool,
-    emit: &(impl Fn(DownloadEvent) + Send + Sync),
+    emit: &impl Fn(DownloadEvent),
 ) -> Result<(), FetchError> {
     let mut have = tokio::fs::metadata(partial)
         .await
         .map(|m| m.len())
         .unwrap_or(0);
-    if have > model.size {
+    if have > size {
         tokio::fs::remove_file(partial).await?;
         have = 0;
     }
-    if have == model.size {
+    if have == size {
         return Ok(());
     }
     let mut request = client.get(url);
@@ -402,9 +409,9 @@ async fn fetch(
         if last_emit.elapsed() >= Duration::from_millis(200) {
             last_emit = Instant::now();
             emit(DownloadEvent::Progress {
-                id: model.id.clone(),
+                id: id.to_string(),
                 downloaded,
-                total: model.size,
+                total: size,
                 bytes_per_sec: rate,
                 source: label.to_string(),
             });
@@ -413,20 +420,18 @@ async fn fetch(
     file.flush().await?;
     drop(file);
     log::info!(
-        "downloaded {} from {label} in {:.1}s",
-        model.id,
+        "downloaded {id} from {label} in {:.1}s",
         started.elapsed().as_secs_f64()
     );
-    if downloaded != model.size {
+    if downloaded != size {
         return Err(FetchError::Other(format!(
-            "下载不完整（{downloaded}/{} 字节）",
-            model.size
+            "下载不完整（{downloaded}/{size} 字节）"
         )));
     }
     Ok(())
 }
 
-async fn sha256_file(path: &Path, cancel: &AtomicBool) -> Result<String, FetchError> {
+pub(crate) async fn sha256_file(path: &Path, cancel: &AtomicBool) -> Result<String, FetchError> {
     let mut file = tokio::fs::File::open(path).await?;
     let mut hasher = Sha256::new();
     let mut buf = vec![0u8; 4 << 20];

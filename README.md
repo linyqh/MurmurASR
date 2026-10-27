@@ -2,7 +2,7 @@
 
 本地语音转文字桌面客户端。推理核心是 [audio.cpp](https://github.com/0xShug0/audio.cpp)（基于 ggml），界面用 [Tauri 2](https://tauri.app) 构建，风格贴近 macOS 26/27 原生应用（Liquid Glass）。所有识别都在本机完成，音频不会离开设备。
 
-- **文件转写**：拖入音频或视频文件（MP3、M4A、WAV、FLAC、OGG、MP4、MOV 等）即可转写，进度实时显示
+- **文件转写**：拖入音频或视频文件（MP3、M4A、WAV、FLAC、OGG、MP4、MOV 等）即可转写，进度实时显示。内置解码器不支持的编码（如 HE-AAC、AC-3、WMA）会在首次遇到时自动下载 ffmpeg（约 20–30 MB，SHA-256 校验，存放在数据目录 `tools/` 下）来解码；下载源跟随模型下载源设置，在 GitHub 与 npmmirror 之间切换
 - **实时听写**：用麦克风实时转文字，说话过程中显示中间结果，可选择保存录音
 - **记录**：可搜索、编辑、跟随播放定位，支持导出 TXT / SRT / VTT / Markdown / JSON
 - **API 接口**：App 运行时在 7895 端口提供 HTTP 接口，本机和局域网内的其他设备、Agent 都可以调用转写（附带 Agent Skill）
@@ -75,6 +75,7 @@ React UI ──invoke/events──▶ Rust (Tauri)
                               ├─ api.rs        本地 HTTP 接口（axum）
                               ├─ models.rs     模型目录、下载（续传 / 校验 / 多源）
                               ├─ audio.rs      symphonia 解码、重采样、cpal 麦克风采集
+                              ├─ ffmpeg.rs     symphonia 不支持时的 ffmpeg 解码（按需下载）
                               └─ engine/       专用推理线程
                                    ├─ ffi.rs   audiocpp.h 的安全封装（运行时 dlopen）
                                    └─ vad.rs   Silero VAD 分段 / 实时断句

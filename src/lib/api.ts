@@ -157,7 +157,12 @@ export type EngineEvent =
   | { kind: "modelError"; id: string; error: string }
   | { kind: "modelUnloaded" }
   | { kind: "jobStarted"; job: string; duration: number }
-  | { kind: "jobPhase"; job: string; phase: "decoding" | "detecting"; progress: number }
+  | {
+      kind: "jobPhase";
+      job: string;
+      phase: "fetchingDecoder" | "decoding" | "detecting";
+      progress: number;
+    }
   | { kind: "jobSegment"; job: string; segment: Segment; progress: number }
   | { kind: "jobDone"; job: string; language: string; elapsedMs: number; audioSeconds: number }
   | { kind: "jobFailed"; job: string; error: string }

@@ -13,6 +13,7 @@ use tauri::{AppHandle, Emitter, Manager, State};
 use crate::api::{self, Api, ApiStatus};
 use crate::audio::{self, InputDevice};
 use crate::engine::{EngineEvent, EngineHandle, LoadedModelInfo, Segment, TranscribeOptions};
+use crate::ffmpeg::Ffmpeg;
 use crate::models::{
     self, Catalog, CatalogModel, DownloadEvent, Downloads, InstalledModel, ModelKind,
 };
@@ -426,9 +427,10 @@ pub fn queue_file(
     let audio_path = file.to_string_lossy().into_owned();
     let (id, cancel) = state.new_pending("file", title, Some(audio_path));
     state.api.track(&id, upload);
+    let ffmpeg = Ffmpeg::new(&state.store.tools_dir(), state.settings.lock().download_source);
     if let Err(e) = state
         .engine
-        .transcribe_file(id.clone(), file, options, cancel)
+        .transcribe_file(id.clone(), file, options, ffmpeg, cancel)
     {
         state.pending.lock().remove(&id);
         state.api.forget(&id);

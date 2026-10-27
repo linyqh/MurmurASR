@@ -154,6 +154,10 @@ impl Store {
         self.root.join("models")
     }
 
+    pub fn tools_dir(&self) -> PathBuf {
+        self.root.join("tools")
+    }
+
     pub fn recordings_dir(&self) -> PathBuf {
         self.root.join("recordings")
     }

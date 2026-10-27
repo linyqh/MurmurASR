@@ -13,7 +13,8 @@ use std::time::{Duration, Instant};
 use crossbeam_channel::{select, Receiver, Sender};
 use serde::{Deserialize, Serialize};
 
-use crate::audio::{self, StreamResampler, TARGET_RATE};
+use crate::audio::{self, AudioError, StreamResampler, TARGET_RATE};
+use crate::ffmpeg::Ffmpeg;
 use ffi::{AudioInput, Engine, EngineLayout, Model, Registry, RunMode, Session, Word};
 use vad::{EndpointEvent, Endpointer, Span};
 
@@ -148,6 +149,7 @@ enum Command {
         job: String,
         path: PathBuf,
         options: TranscribeOptions,
+        ffmpeg: Ffmpeg,
         cancel: Arc<AtomicBool>,
     },
     StartLive {
@@ -270,12 +272,14 @@ impl EngineHandle {
         job: String,
         path: PathBuf,
         options: TranscribeOptions,
+        ffmpeg: Ffmpeg,
         cancel: Arc<AtomicBool>,
     ) -> Result<(), WorkerError> {
         self.send(Command::TranscribeFile {
             job,
             path,
             options,
+            ffmpeg,
             cancel,
         })
     }
@@ -360,11 +364,12 @@ impl<F: Fn(EngineEvent)> Worker<F> {
                     job,
                     path,
                     options,
+                    ffmpeg,
                     cancel,
                 } => {
                     let started = Instant::now();
                     *active.lock() = Some(cancel.clone());
-                    let result = self.transcribe_file(&job, &path, &options, &cancel);
+                    let result = self.transcribe_file(&job, &path, &options, &ffmpeg, &cancel);
                     *active.lock() = None;
                     match result {
                         Ok((language, audio_seconds)) => (self.emit)(EngineEvent::JobDone {
@@ -583,24 +588,32 @@ impl<F: Fn(EngineEvent)> Worker<F> {
         job: &str,
         path: &Path,
         options: &TranscribeOptions,
+        ffmpeg: &Ffmpeg,
         cancel: &AtomicBool,
     ) -> Result<(String, f64), String> {
         if self.loaded.is_none() {
             return Err("请先在“模型”中下载并加载一个模型".into());
         }
-        let emit = &self.emit;
-        emit(EngineEvent::JobPhase {
-            job: job.into(),
-            phase: "decoding".into(),
-            progress: 0.0,
-        });
-        let samples = audio::decode_file_mono_16k(path, cancel, |p| {
-            emit(EngineEvent::JobPhase {
+        let phase = |phase: &str, progress: f32| {
+            (self.emit)(EngineEvent::JobPhase {
                 job: job.into(),
-                phase: "decoding".into(),
-                progress: p,
+                phase: phase.into(),
+                progress,
             })
-        })
+        };
+        phase("decoding", 0.0);
+        let samples = match audio::decode_file_mono_16k(path, cancel, |p| phase("decoding", p)) {
+            Err(AudioError::Unsupported(reason)) => {
+                log::info!("symphonia cannot decode {}: {reason}; using ffmpeg", path.display());
+                ffmpeg
+                    .ensure(cancel, |p| phase("fetchingDecoder", p))
+                    .and_then(|bin| {
+                        phase("decoding", 0.0);
+                        crate::ffmpeg::decode(&bin, path, cancel, |p| phase("decoding", p))
+                    })
+            }
+            other => other,
+        }
         .map_err(|e| e.to_string())?;
         let rate = TARGET_RATE as f64;
         let duration = samples.len() as f64 / rate;
@@ -906,7 +919,12 @@ pub mod testing {
             language,
             itn: true,
         };
-        let result = worker.transcribe_file("job", audio, &options, &AtomicBool::new(false));
+        let ffmpeg = Ffmpeg::new(
+            &std::env::temp_dir().join("murmur-tools"),
+            crate::models::DownloadSource::Auto,
+        );
+        let result =
+            worker.transcribe_file("job", audio, &options, &ffmpeg, &AtomicBool::new(false));
         drop(worker);
         result?;
         let out = events.borrow().clone();
