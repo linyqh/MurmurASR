@@ -1,4 +1,4 @@
-import { api } from "../lib/api";
+import { api, modelSize } from "../lib/api";
 import { useStore } from "../lib/store";
 import { formatBytes, formatEta } from "../lib/format";
 import { Progress } from "../components/controls";
@@ -35,7 +35,7 @@ export function Onboarding() {
               </div>
               <div className="muted small">{recommended.languages}</div>
             </div>
-            <div className="muted tabular">{formatBytes(recommended.size)}</div>
+            <div className="muted tabular">{formatBytes(modelSize(recommended))}</div>
           </div>
           <ul className="onboarding-points">
             <li>

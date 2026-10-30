@@ -1,26 +1,59 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { revealItemInDir } from "@tauri-apps/plugin-opener";
 import { ask } from "@tauri-apps/plugin-dialog";
-import { api, type CatalogModel } from "../lib/api";
+import { api, modelSize, type CatalogModel } from "../lib/api";
 import { useStore, type DownloadProgress } from "../lib/store";
 import { formatBytes, formatEta } from "../lib/format";
 import { Meter, Progress, Segmented } from "../components/controls";
-import { IconCheck, IconCheckCircle, IconDownload, IconFolder, IconSparkle, IconTrash, IconX } from "../components/icons";
+import {
+  IconCheck,
+  IconCheckCircle,
+  IconDownload,
+  IconFolder,
+  IconSearch,
+  IconSparkle,
+  IconTrash,
+  IconX,
+} from "../components/icons";
 
 type Filter = "all" | "installed";
+
+/** Whether every whitespace-separated term of `query` appears in the model's text. */
+function matches(model: CatalogModel, query: string): boolean {
+  const text = [model.name, model.family, model.languages, model.summary, model.description, model.license, ...model.tags]
+    .join(" ")
+    .toLowerCase();
+  return query
+    .toLowerCase()
+    .split(/\s+/)
+    .filter(Boolean)
+    .every((term) => text.includes(term));
+}
 
 export function ModelsView() {
   const { models, downloads, settings, saveSettings } = useStore();
   const [filter, setFilter] = useState<Filter>("all");
+  const [query, setQuery] = useState("");
+  const installed = useMemo(() => new Set(models?.installed.map((m) => m.id)), [models?.installed]);
+  const visible = useMemo(
+    () =>
+      (models?.catalog.models ?? []).filter(
+        (m) => m.kind !== "aligner" && (filter === "all" || installed.has(m.id)) && matches(m, query),
+      ),
+    [models?.catalog.models, filter, installed, query],
+  );
   if (!models || !settings) return null;
 
-  const installed = new Set(models.installed.map((m) => m.id));
   const recommended = models.catalog.models.find((m) => m.id === models.catalog.recommended);
-  const others = models.catalog.models.filter(
-    (m) =>
-      m.kind !== "aligner" && m.id !== models.catalog.recommended && (filter === "all" || installed.has(m.id)),
-  );
-  const showRecommended = recommended && (filter === "all" || installed.has(recommended.id));
+  // The recommended model is featured on top of the unfiltered list only.
+  const featured = !query && recommended && visible.includes(recommended) ? recommended : undefined;
+  const groups: { name: string; items: CatalogModel[] }[] = [];
+  for (const m of visible) {
+    if (m === featured) continue;
+    const group = groups.find((g) => g.name === m.group);
+    if (group) group.items.push(m);
+    else groups.push({ name: m.group, items: [m] });
+  }
   const totalInstalled = models.installed.reduce((sum, m) => sum + m.size, 0);
 
   return (
@@ -33,6 +66,15 @@ export function ModelsView() {
           </div>
         )}
         <div className="toolbar-spacer" />
+        <div className="search-field model-search no-drag">
+          <IconSearch size={13} />
+          <input
+            placeholder="搜索名称、语言或特点"
+            aria-label="搜索模型"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+        </div>
         <div className="no-drag">
           <Segmented
             label="筛选"
@@ -47,35 +89,42 @@ export function ModelsView() {
       </header>
       <div className="page">
         <p className="page-intro muted">
-          模型下载后保存在本机，识别过程完全离线。首次使用推荐下载
-          <strong> {recommended?.name}</strong>，它在速度、准确率和语言覆盖之间取得了很好的平衡。
+          共 {models.catalog.models.filter((m) => m.kind !== "aligner").length} 个模型，按需下载，保存在本机，识别过程完全离线。首次使用推荐下载
+          <strong> {recommended?.name}</strong>，它在速度、准确率和语言覆盖之间取得了很好的平衡。可以搜索“中文”“粤语”“时间戳”等关键词快速找到合适的模型。
         </p>
 
-        {showRecommended && recommended && (
+        {featured && (
           <ModelCard
-            model={recommended}
+            model={featured}
             featured
-            installed={installed.has(recommended.id)}
-            download={downloads[recommended.id]}
-            queued={models.downloading.includes(recommended.id)}
+            installed={installed.has(featured.id)}
+            download={downloads[featured.id]}
+            queued={models.downloading.includes(featured.id)}
           />
         )}
 
-        <div className="model-grid">
-          {others.map((m) => (
-            <ModelCard
-              key={m.id}
-              model={m}
-              installed={installed.has(m.id)}
-              download={downloads[m.id]}
-              queued={models.downloading.includes(m.id)}
-            />
-          ))}
-        </div>
+        {groups.map((g) => (
+          <section key={g.name}>
+            <h2 className="section-title">
+              {g.name} <span className="muted">{g.items.length}</span>
+            </h2>
+            <div className="model-grid">
+              {g.items.map((m) => (
+                <ModelCard
+                  key={m.id}
+                  model={m}
+                  installed={installed.has(m.id)}
+                  download={downloads[m.id]}
+                  queued={models.downloading.includes(m.id)}
+                />
+              ))}
+            </div>
+          </section>
+        ))}
 
-        {filter === "installed" && models.installed.length === 0 && (
+        {visible.length === 0 && (
           <div className="empty compact">
-            <p>还没有安装任何模型。</p>
+            <p>{query ? `没有找到与“${query}”相关的模型。` : "还没有安装任何模型。"}</p>
           </div>
         )}
 
@@ -128,7 +177,7 @@ function ModelCard({
   };
 
   const remove = async () => {
-    const ok = await ask(`删除“${model.name}”将释放 ${formatBytes(model.size)} 空间，之后可重新下载。`, {
+    const ok = await ask(`删除“${model.name}”将释放 ${formatBytes(modelSize(model))} 空间，之后可重新下载。`, {
       title: "删除模型？",
       kind: "warning",
       okLabel: "删除",
@@ -161,9 +210,10 @@ function ModelCard({
           <span className="badge">{model.precision}</span>
           {loaded && <span className="badge green">使用中</span>}
         </div>
-        <div className="model-size muted tabular">{formatBytes(model.size)}</div>
+        <div className="model-size muted tabular">{formatBytes(modelSize(model))}</div>
       </div>
       <p className="model-summary">{model.summary}</p>
+      <p className="model-description">{model.description}</p>
       <div className="model-facts">
         <div>
           <span className="muted">语言</span>
@@ -273,7 +323,7 @@ function AlignerAddon({ aligner, owner }: { aligner: CatalogModel; owner: Catalo
       <div className="aligner-line">
         <span>
           <strong>{aligner.name}</strong>
-          <span className="muted"> · {formatBytes(aligner.size)} · {aligner.summary}</span>
+          <span className="muted"> · {formatBytes(modelSize(aligner))} · {aligner.summary}</span>
         </span>
         <div className="toolbar-spacer" />
         {downloading ? null : installed ? (

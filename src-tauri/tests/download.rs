@@ -49,9 +49,10 @@ async fn download_resume_and_verify() {
         matches!(last, Some(DownloadEvent::Cancelled { .. })),
         "expected cancel, got {last:?}"
     );
-    let partial = models::model_dir(&root, &model).join(format!("{}.part", model.file));
+    let file = &model.files[0];
+    let partial = models::model_dir(&root, &model).join(format!("{}.part", file.name));
     let kept = std::fs::metadata(&partial).unwrap().len();
-    assert!(kept > 0 && kept < model.size, "partial size {kept}");
+    assert!(kept > 0 && kept < file.size, "partial size {kept}");
     eprintln!("cancelled with {kept} bytes kept");
 
     // Second attempt resumes from the partial file.

@@ -14,6 +14,16 @@ use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
 const CATALOG_JSON: &str = include_str!("../catalog.json");
 
+/// One downloadable file of a model package.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ModelFile {
+    pub name: String,
+    pub size: u64,
+    pub sha256: String,
+    pub sources: HashMap<String, String>,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CatalogModel {
@@ -22,13 +32,16 @@ pub struct CatalogModel {
     pub kind: ModelKind,
     pub name: String,
     pub family: String,
+    /// Section of the model list the model is shown in.
+    pub group: String,
     pub precision: String,
-    pub file: String,
-    pub size: u64,
-    pub sha256: String,
+    /// Package contents. A single file is loaded directly; a package of
+    /// several files is loaded as its directory.
+    pub files: Vec<ModelFile>,
     pub license: String,
     pub languages: String,
     pub summary: String,
+    pub description: String,
     pub speed: u8,
     pub accuracy: u8,
     pub tags: Vec<String>,
@@ -37,7 +50,13 @@ pub struct CatalogModel {
     /// Companion aligner model that adds word timestamps once installed.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub aligner: Option<String>,
-    pub sources: HashMap<String, String>,
+}
+
+impl CatalogModel {
+    /// Total download size of the package.
+    pub fn size(&self) -> u64 {
+        self.files.iter().map(|f| f.size).sum()
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
@@ -75,10 +94,10 @@ pub enum DownloadSource {
     Modelscope,
 }
 
-/// Candidate URLs in the order they should be tried for `source`.
-pub fn source_urls(model: &CatalogModel, source: DownloadSource) -> Vec<(String, String)> {
-    let hf = model.sources.get("huggingface").cloned();
-    let ms = model.sources.get("modelscope").cloned();
+/// Candidate URLs for `file` in the order they should be tried for `source`.
+pub fn source_urls(file: &ModelFile, source: DownloadSource) -> Vec<(String, String)> {
+    let hf = file.sources.get("huggingface").cloned();
+    let ms = file.sources.get("modelscope").cloned();
     let mirror = hf
         .as_ref()
         .map(|u| u.replacen("https://huggingface.co/", "https://hf-mirror.com/", 1));
@@ -110,12 +129,32 @@ pub fn model_dir(models_root: &Path, model: &CatalogModel) -> PathBuf {
     models_root.join(&model.id)
 }
 
-pub fn model_path(models_root: &Path, model: &CatalogModel) -> PathBuf {
-    model_dir(models_root, model).join(&model.file)
+fn file_path(models_root: &Path, model: &CatalogModel, file: &ModelFile) -> PathBuf {
+    model_dir(models_root, model).join(&file.name)
 }
 
-fn partial_path(models_root: &Path, model: &CatalogModel) -> PathBuf {
-    model_dir(models_root, model).join(format!("{}.part", model.file))
+fn partial_path(models_root: &Path, model: &CatalogModel, file: &ModelFile) -> PathBuf {
+    model_dir(models_root, model).join(format!("{}.part", file.name))
+}
+
+/// Path handed to the engine: the file itself for single-file models, the
+/// package directory otherwise.
+pub fn load_path(models_root: &Path, model: &CatalogModel) -> PathBuf {
+    match model.files.as_slice() {
+        [file] => file_path(models_root, model, file),
+        _ => model_dir(models_root, model),
+    }
+}
+
+fn file_complete(models_root: &Path, model: &CatalogModel, file: &ModelFile) -> bool {
+    std::fs::metadata(file_path(models_root, model, file)).is_ok_and(|m| m.len() == file.size)
+}
+
+pub fn is_installed(models_root: &Path, model: &CatalogModel) -> bool {
+    model
+        .files
+        .iter()
+        .all(|f| file_complete(models_root, model, f))
 }
 
 /// Path of `model`'s companion aligner when it is fully downloaded.
@@ -125,23 +164,18 @@ pub fn installed_aligner(
     model: &CatalogModel,
 ) -> Option<PathBuf> {
     let aligner = catalog.get(model.aligner.as_deref()?)?;
-    let path = model_path(models_root, aligner);
-    let len = std::fs::metadata(&path).ok()?.len();
-    (len == aligner.size).then_some(path)
+    is_installed(models_root, aligner).then(|| load_path(models_root, aligner))
 }
 
 pub fn installed(models_root: &Path, catalog: &Catalog) -> Vec<InstalledModel> {
     catalog
         .models
         .iter()
-        .filter_map(|model| {
-            let path = model_path(models_root, model);
-            let meta = std::fs::metadata(&path).ok()?;
-            (meta.len() == model.size).then(|| InstalledModel {
-                id: model.id.clone(),
-                path: path.to_string_lossy().into_owned(),
-                size: meta.len(),
-            })
+        .filter(|model| is_installed(models_root, model))
+        .map(|model| InstalledModel {
+            id: model.id.clone(),
+            path: load_path(models_root, model).to_string_lossy().into_owned(),
+            size: model.size(),
         })
         .collect()
 }
@@ -275,52 +309,83 @@ async fn run_download(
         }
     };
 
-    let partial = partial_path(models_root, model);
-    let mut errors = Vec::new();
-    for (label, url) in source_urls(model, source) {
-        match fetch(&client, &url, &label, &partial, &model.id, model.size, cancel, emit).await {
-            Ok(()) => {
-                errors.clear();
-                break;
-            }
-            Err(FetchError::Cancelled) => return DownloadEvent::Cancelled { id },
-            Err(FetchError::Other(e)) => {
-                log::warn!("download {} from {label} failed: {e}", model.id);
-                errors.push(format!("{label}：{e}"));
+    let total = model.size();
+    let mut offset = 0;
+    for file in &model.files {
+        if !file_complete(models_root, model, file) {
+            if let Err(event) =
+                download_file(&client, models_root, model, file, source, offset, total, cancel, emit).await
+            {
+                return event;
             }
         }
-    }
-    if !errors.is_empty() {
-        return DownloadEvent::Failed {
-            id,
-            error: errors.join("；"),
-        };
-    }
-
-    emit(DownloadEvent::Verifying { id: id.clone() });
-    match sha256_file(&partial, cancel).await {
-        Ok(digest) if digest.eq_ignore_ascii_case(&model.sha256) => {}
-        Ok(_) => {
-            let _ = tokio::fs::remove_file(&partial).await;
-            return DownloadEvent::Failed {
-                id,
-                error: "文件校验失败（SHA-256 不匹配），已删除损坏的文件，请重试".into(),
-            };
-        }
-        Err(FetchError::Cancelled) => return DownloadEvent::Cancelled { id },
-        Err(FetchError::Other(e)) => return DownloadEvent::Failed { id, error: e },
-    }
-    let final_path = model_path(models_root, model);
-    if let Err(e) = tokio::fs::rename(&partial, &final_path).await {
-        return DownloadEvent::Failed {
-            id,
-            error: e.to_string(),
-        };
+        offset += file.size;
     }
     DownloadEvent::Done {
         id,
-        path: final_path.to_string_lossy().into_owned(),
+        path: load_path(models_root, model).to_string_lossy().into_owned(),
     }
+}
+
+/// Downloads and verifies one package file, trying each source in turn. A
+/// source serving different bytes (failed checksum) is skipped like a failed one.
+#[allow(clippy::too_many_arguments)]
+async fn download_file(
+    client: &reqwest::Client,
+    models_root: &Path,
+    model: &CatalogModel,
+    file: &ModelFile,
+    source: DownloadSource,
+    offset: u64,
+    total: u64,
+    cancel: &AtomicBool,
+    emit: &(impl Fn(DownloadEvent) + Send + Sync),
+) -> Result<(), DownloadEvent> {
+    let id = &model.id;
+    let partial = partial_path(models_root, model, file);
+    let mut errors = Vec::new();
+    for (label, url) in source_urls(file, source) {
+        let fetched = fetch(
+            client, &url, &label, &partial, id, file.size, offset, total, cancel, emit,
+        )
+        .await;
+        match fetched {
+            Ok(()) => {}
+            Err(FetchError::Cancelled) => return Err(DownloadEvent::Cancelled { id: id.clone() }),
+            Err(FetchError::Other(e)) => {
+                log::warn!("download {} from {label} failed: {e}", file.name);
+                errors.push(format!("{label}：{e}"));
+                continue;
+            }
+        }
+        emit(DownloadEvent::Verifying { id: id.clone() });
+        match sha256_file(&partial, cancel).await {
+            Ok(digest) if digest.eq_ignore_ascii_case(&file.sha256) => {}
+            Ok(_) => {
+                let _ = tokio::fs::remove_file(&partial).await;
+                log::warn!("download {} from {label} failed its checksum", file.name);
+                errors.push(format!("{label}：文件校验失败（SHA-256 不匹配）"));
+                continue;
+            }
+            Err(FetchError::Cancelled) => return Err(DownloadEvent::Cancelled { id: id.clone() }),
+            Err(FetchError::Other(error)) => {
+                return Err(DownloadEvent::Failed {
+                    id: id.clone(),
+                    error,
+                })
+            }
+        }
+        return tokio::fs::rename(&partial, file_path(models_root, model, file))
+            .await
+            .map_err(|e| DownloadEvent::Failed {
+                id: id.clone(),
+                error: e.to_string(),
+            });
+    }
+    Err(DownloadEvent::Failed {
+        id: id.clone(),
+        error: errors.join("；"),
+    })
 }
 
 pub(crate) fn http_client() -> reqwest::Result<reqwest::Client> {
@@ -332,7 +397,8 @@ pub(crate) fn http_client() -> reqwest::Result<reqwest::Client> {
 }
 
 /// Downloads `url` into `partial`, resuming from its current length, and
-/// reports progress for `id` through `emit`.
+/// reports progress for `id` through `emit`. `size` is this file's length;
+/// progress is reported as `offset` bytes already done out of `total`.
 #[allow(clippy::too_many_arguments)]
 pub(crate) async fn fetch(
     client: &reqwest::Client,
@@ -341,6 +407,8 @@ pub(crate) async fn fetch(
     partial: &Path,
     id: &str,
     size: u64,
+    offset: u64,
+    total: u64,
     cancel: &AtomicBool,
     emit: &impl Fn(DownloadEvent),
 ) -> Result<(), FetchError> {
@@ -410,8 +478,8 @@ pub(crate) async fn fetch(
             last_emit = Instant::now();
             emit(DownloadEvent::Progress {
                 id: id.to_string(),
-                downloaded,
-                total: size,
+                downloaded: offset + downloaded,
+                total,
                 bytes_per_sec: rate,
                 source: label.to_string(),
             });
@@ -463,10 +531,16 @@ mod tests {
         let mut ids = std::collections::HashSet::new();
         for model in &catalog.models {
             assert!(ids.insert(&model.id), "duplicate id {}", model.id);
-            assert_eq!(model.sha256.len(), 64);
-            assert!(model.size > 0);
-            assert!(model.sources.contains_key("huggingface"));
-            assert!(model.file.ends_with(".gguf"));
+            assert!(!model.files.is_empty(), "{} has no files", model.id);
+            let mut names = std::collections::HashSet::new();
+            for file in &model.files {
+                assert!(names.insert(&file.name), "{} lists {} twice", model.id, file.name);
+                assert_eq!(file.sha256.len(), 64, "{}", file.name);
+                assert!(file.size > 0);
+                let hf = &file.sources["huggingface"];
+                // A branch name lets the bytes change under a fixed checksum.
+                assert!(!hf.contains("/resolve/main/"), "{} is not pinned", file.name);
+            }
             if let Some(aligner) = &model.aligner {
                 let aligner = catalog.get(aligner).expect("aligner is in the catalog");
                 assert_eq!(aligner.kind, ModelKind::Aligner);
@@ -477,15 +551,36 @@ mod tests {
     }
 
     #[test]
+    fn every_catalog_family_is_built_into_the_engine() {
+        let lock = include_str!("../../engine/audiocpp.lock");
+        let built: Vec<&str> = lock
+            .lines()
+            .find_map(|l| l.strip_prefix("AUDIOCPP_MODELS="))
+            .expect("lock lists models")
+            .split(',')
+            .collect();
+        for model in &Catalog::builtin().models {
+            // Build targets that bring in more than one loader family.
+            let target = match model.family.as_str() {
+                "vibevoice_asr_streaming" => "vibevoice_asr",
+                "qwen3_forced_aligner" => "qwen3_asr",
+                family => family,
+            };
+            assert!(built.contains(&target), "{} is not built", model.family);
+        }
+    }
+
+    #[test]
     fn source_order_follows_preference() {
         let catalog = Catalog::builtin();
         let model = catalog.get("qwen3-asr-0.6b-q8").unwrap();
-        let auto = source_urls(model, DownloadSource::Auto);
+        let file = &model.files[0];
+        let auto = source_urls(file, DownloadSource::Auto);
         assert_eq!(auto[0].0, "Hugging Face");
         assert_eq!(auto.len(), 3);
-        let ms = source_urls(model, DownloadSource::Modelscope);
+        let ms = source_urls(file, DownloadSource::Modelscope);
         assert_eq!(ms[0].0, "ModelScope");
-        let mirror = source_urls(model, DownloadSource::Hfmirror);
+        let mirror = source_urls(file, DownloadSource::Hfmirror);
         assert!(mirror[0].1.starts_with("https://hf-mirror.com/"));
     }
 
@@ -493,7 +588,7 @@ mod tests {
     fn models_without_modelscope_fall_back_to_mirror() {
         let catalog = Catalog::builtin();
         let model = catalog.get("sensevoice-small-q8").unwrap();
-        let ms = source_urls(model, DownloadSource::Modelscope);
+        let ms = source_urls(&model.files[0], DownloadSource::Modelscope);
         assert_eq!(ms.len(), 1);
         assert_eq!(ms[0].0, "HF Mirror");
     }

@@ -121,7 +121,7 @@ impl Ffmpeg {
         let mut errors = Vec::new();
         for (label, url) in source_urls(asset.name, self.source) {
             match models::fetch(
-                &client, &url, label, &partial, "ffmpeg", asset.size, cancel, &emit,
+                &client, &url, label, &partial, "ffmpeg", asset.size, 0, asset.size, cancel, &emit,
             )
             .await
             {

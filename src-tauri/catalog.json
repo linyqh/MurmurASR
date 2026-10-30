@@ -1,239 +1,1694 @@
 {
-  "version": 1,
+  "version": 2,
   "recommended": "qwen3-asr-0.6b-q8",
   "models": [
     {
       "id": "qwen3-asr-0.6b-q8",
       "name": "Qwen3-ASR 0.6B",
       "family": "qwen3_asr",
+      "group": "通用多语种（含中文）",
       "precision": "Q8_0",
-      "file": "qwen3-asr-0.6b-q8_0.gguf",
-      "size": 1151272416,
-      "sha256": "6c44ec2fb4cee513892d7863c1fcc3ea6b699ffa4d899b0ef4ab19956d9544f7",
+      "files": [
+        {
+          "name": "qwen3-asr-0.6b-q8_0.gguf",
+          "size": 1151279968,
+          "sha256": "5c53bbb9a6b2ade85c16c290c560658ca18b78a23c323378528f1f945683fcbe",
+          "sources": {
+            "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/874fcb41ececda20bcbc0782d6b4ea7f7d069ea8/Qwen3-ASR-0.6B-GGUF/qwen3-asr-0.6b-q8_0.gguf",
+            "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/Qwen3-ASR-0.6B-GGUF/qwen3-asr-0.6b-q8_0.gguf"
+          }
+        }
+      ],
       "license": "Apache-2.0",
       "languages": "中英日韩等 30 种语言 + 22 种中文方言",
       "summary": "均衡之选：多语种、抗噪声，自动识别语言，适合大多数场景。",
+      "description": "阿里通义千问团队的语音识别模型，支持 30 种语言、22 种中文方言和多种英语口音，对噪声、长音频和歌声都比较稳健。体积适中，普通笔记本也能流畅运行。另外下载 Qwen3 强制对齐模型后可以输出词级时间戳（中文为字级）。",
       "speed": 3,
       "accuracy": 4,
-      "tags": ["多语种", "自动识别语言", "方言"],
-      "wordTimestamps": true,
+      "tags": [
+        "多语种",
+        "自动识别语言",
+        "方言"
+      ],
+      "wordTimestamps": false,
       "speakerDiarization": false,
-      "aligner": "qwen3-forced-aligner-0.6b-q8",
-      "sources": {
-        "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/main/Qwen3-ASR-0.6B-GGUF/qwen3-asr-0.6b-q8_0.gguf",
-        "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/Qwen3-ASR-0.6B-GGUF/qwen3-asr-0.6b-q8_0.gguf"
-      }
+      "aligner": "qwen3-forced-aligner-0.6b-q8"
     },
     {
       "id": "sensevoice-small-q8",
       "name": "SenseVoice Small",
       "family": "sense_asr",
+      "group": "通用多语种（含中文）",
       "precision": "Q8_0",
-      "file": "sensevoice-small-q8-audiocpp-v1.gguf",
-      "size": 254211200,
-      "sha256": "4dedf169f625437fb336f2959674f399819729a765e184128c0e25a6e16ff0ec",
+      "files": [
+        {
+          "name": "sensevoice-small-q8-audiocpp-v1.gguf",
+          "size": 254211200,
+          "sha256": "4dedf169f625437fb336f2959674f399819729a765e184128c0e25a6e16ff0ec",
+          "sources": {
+            "huggingface": "https://huggingface.co/FunAudioLLM/SenseVoiceSmall-GGUF-audiocpp/resolve/5c3fcfe748a8714216bc135476d5863084fddb72/sensevoice-small-q8-audiocpp-v1.gguf"
+          }
+        }
+      ],
       "license": "FunASR Model License v1.1",
       "languages": "中文、粤语、英语、日语、韩语等",
       "summary": "极速轻量：体积小、速度快，中文与粤语表现出色，适合低配设备。",
+      "description": "阿里 FunAudioLLM 团队的非自回归识别模型（SAN-M 编码器 + CTC），速度极快，几十秒的音频通常不到一秒就能转完。中文、粤语效果好，支持数字与标点规整。不输出词级时间戳。",
       "speed": 5,
       "accuracy": 3,
-      "tags": ["轻量", "粤语"],
+      "tags": [
+        "轻量",
+        "粤语"
+      ],
       "wordTimestamps": false,
-      "speakerDiarization": false,
-      "sources": {
-        "huggingface": "https://huggingface.co/FunAudioLLM/SenseVoiceSmall-GGUF-audiocpp/resolve/5c3fcfe748a8714216bc135476d5863084fddb72/sensevoice-small-q8-audiocpp-v1.gguf"
-      }
+      "speakerDiarization": false
     },
     {
       "id": "fun-asr-nano-q8",
       "name": "Fun-ASR Nano",
       "family": "fun_asr_nano",
+      "group": "通用多语种（含中文）",
       "precision": "Q8_0",
-      "file": "fun-asr-nano-2512-q8_0.gguf",
-      "size": 1045334432,
-      "sha256": "4d727357574b079b7f43336b2930f39da086ca02f5d8d50872090b4c1c3d5e0a",
+      "files": [
+        {
+          "name": "fun-asr-nano-2512-q8_0.gguf",
+          "size": 1045334432,
+          "sha256": "4d727357574b079b7f43336b2930f39da086ca02f5d8d50872090b4c1c3d5e0a",
+          "sources": {
+            "huggingface": "https://huggingface.co/FunAudioLLM/Fun-ASR-Nano-2512-GGUF/resolve/ce72677f84900f0dc57f498ace253bfb3c9155b6/fun-asr-nano-2512-q8_0.gguf",
+            "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/Fun-ASR-Nano-2512-GGUF/fun-asr-nano-2512-q8_0.gguf"
+          }
+        }
+      ],
       "license": "FunASR Model License v1.1",
       "languages": "中文、英语、日语",
       "summary": "中文专精：通义实验室出品，中文识别与数字规整效果好。",
+      "description": "阿里通义实验室的端到端语音大模型（Fun-ASR-Nano-2512），以中文为主，兼顾英语和日语，能自动判断语言。支持数字与标点规整（把“一百二十三”写成“123”）。不输出词级时间戳。",
       "speed": 3,
       "accuracy": 4,
-      "tags": ["中文优化"],
+      "tags": [
+        "中文优化"
+      ],
       "wordTimestamps": false,
-      "speakerDiarization": false,
-      "sources": {
-        "huggingface": "https://huggingface.co/FunAudioLLM/Fun-ASR-Nano-2512-GGUF/resolve/ce72677f84900f0dc57f498ace253bfb3c9155b6/fun-asr-nano-2512-q8_0.gguf",
-        "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/Fun-ASR-Nano-2512-GGUF/fun-asr-nano-2512-q8_0.gguf"
-      }
+      "speakerDiarization": false
     },
     {
       "id": "qwen3-asr-1.7b-q8",
       "name": "Qwen3-ASR 1.7B",
       "family": "qwen3_asr",
+      "group": "通用多语种（含中文）",
       "precision": "Q8_0",
-      "file": "qwen3-asr-1.7b-q8_0.gguf",
-      "size": 2473010048,
-      "sha256": "da4fc2ac7f24dee784d1684eb1f35836cdbf559519452ae11777670734c0a4f8",
+      "files": [
+        {
+          "name": "qwen3-asr-1.7b-q8_0.gguf",
+          "size": 2473017600,
+          "sha256": "3bc2462eca3a3a8f56abcd860d0943ffdc0546547dde55a9d08589607d6f3936",
+          "sources": {
+            "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/874fcb41ececda20bcbc0782d6b4ea7f7d069ea8/Qwen3-ASR-1.7B-GGUF/qwen3-asr-1.7b-q8_0.gguf",
+            "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/Qwen3-ASR-1.7B-GGUF/qwen3-asr-1.7b-q8_0.gguf"
+          }
+        }
+      ],
       "license": "Apache-2.0",
       "languages": "中英日韩等 30 种语言 + 22 种中文方言",
       "summary": "高精度：更大的 Qwen3-ASR，准确率更高，需要更多内存。",
+      "description": "Qwen3-ASR 的大号版本，语言覆盖与 0.6B 相同，在口音、噪声和专业词汇上更准，速度约为 0.6B 的一半，建议 16 GB 以上内存。同样可以搭配 Qwen3 强制对齐模型输出词级时间戳。",
       "speed": 2,
       "accuracy": 5,
-      "tags": ["高精度", "多语种"],
-      "wordTimestamps": true,
+      "tags": [
+        "高精度",
+        "多语种"
+      ],
+      "wordTimestamps": false,
       "speakerDiarization": false,
-      "aligner": "qwen3-forced-aligner-0.6b-q8",
-      "sources": {
-        "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/main/Qwen3-ASR-1.7B-GGUF/qwen3-asr-1.7b-q8_0.gguf",
-        "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/Qwen3-ASR-1.7B-GGUF/qwen3-asr-1.7b-q8_0.gguf"
-      }
+      "aligner": "qwen3-forced-aligner-0.6b-q8"
     },
     {
-      "id": "parakeet-tdt-0.6b-v3-q8",
-      "name": "Parakeet TDT 0.6B v3",
-      "family": "parakeet_tdt",
+      "id": "confucius4-r2t2-q8",
+      "name": "Confucius4-R2T2",
+      "family": "confucius4_r2t2",
+      "group": "通用多语种（含中文）",
       "precision": "Q8_0",
-      "file": "parakeet-tdt-0.6b-v3-q8_0.gguf",
-      "size": 915733744,
-      "sha256": "074e61ac1abd3d3efcfc10798d17bf9a975b31768b466fc2578364d206dde64c",
-      "license": "CC-BY-4.0",
-      "languages": "英语及 24 种欧洲语言",
-      "summary": "欧洲语言：NVIDIA 出品，速度快，自带逐词时间戳。",
-      "speed": 4,
-      "accuracy": 4,
-      "tags": ["欧洲语言", "逐词时间戳"],
-      "wordTimestamps": true,
-      "speakerDiarization": false,
-      "sources": {
-        "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/main/Parakeet-TDT-0.6B-v3-GGUF/parakeet-tdt-0.6b-v3-q8_0.gguf",
-        "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/Parakeet-TDT-0.6B-v3-GGUF/parakeet-tdt-0.6b-v3-q8_0.gguf"
-      }
+      "files": [
+        {
+          "name": "r2t2-q8_0.gguf",
+          "size": 2477512064,
+          "sha256": "19f5ccd624484bcb5d44301437de41560b0ecc40c430e8850dfeefefbe82ccf5",
+          "sources": {
+            "huggingface": "https://huggingface.co/davidxifeng/Confucius4-R2T2-gguf/resolve/a8e6b385d7df7eae9519363e07034a209004797a/r2t2-q8_0.gguf"
+          }
+        }
+      ],
+      "license": "网易有道模型使用许可",
+      "languages": "中英粤等 30 种语言",
+      "summary": "低延迟流式：网易有道基于 Qwen3-ASR 1.7B 微调，适合实时听写。",
+      "description": "网易有道在 Qwen3-ASR 1.7B 上微调的实时识别模型，采用“最长稳定前缀”解码，已输出的文字不会被回改，最低 80 毫秒一个分块。离线转写效果接近 Qwen3-ASR 1.7B。社区转换的 GGUF，使用前请阅读网易有道的模型许可。",
+      "speed": 2,
+      "accuracy": 5,
+      "tags": [
+        "流式",
+        "低延迟",
+        "社区"
+      ],
+      "wordTimestamps": false,
+      "speakerDiarization": false
     },
     {
       "id": "nemotron-asr-0.6b-q8",
       "name": "Nemotron 3.5 ASR 0.6B",
       "family": "nemotron_asr",
+      "group": "通用多语种（含中文）",
       "precision": "Q8_0",
-      "file": "nemotron-3.5-asr-streaming-0.6b-q8_0.gguf",
-      "size": 930625888,
-      "sha256": "c58b62c1bdd6c5d7b14b08126c5bd16c1289fee6e0d6ac0761dbd3aa6d714935",
+      "files": [
+        {
+          "name": "nemotron-3.5-asr-streaming-0.6b-q8_0.gguf",
+          "size": 930625888,
+          "sha256": "c58b62c1bdd6c5d7b14b08126c5bd16c1289fee6e0d6ac0761dbd3aa6d714935",
+          "sources": {
+            "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/874fcb41ececda20bcbc0782d6b4ea7f7d069ea8/Nemotron-3.5-ASR-Streaming-0.6B-GGUF/nemotron-3.5-asr-streaming-0.6b-q8_0.gguf",
+            "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/Nemotron-3.5-ASR-Streaming-0.6B-GGUF/nemotron-3.5-asr-streaming-0.6b-q8_0.gguf"
+          }
+        }
+      ],
       "license": "OpenMDW-1.1",
       "languages": "40 种语言（含中文）",
       "summary": "多语种流式：NVIDIA Nemotron，覆盖 40 种语言，会议场景表现稳定，自带逐词时间戳。",
+      "description": "NVIDIA 的 6 亿参数流式识别模型（RNN-T），覆盖 40 种语言和地区变体，自带标点和大小写，能自动识别语言。原生输出词级时间戳，低延迟与批量转写都适用。",
       "speed": 4,
       "accuracy": 4,
-      "tags": ["多语种", "逐词时间戳"],
+      "tags": [
+        "多语种",
+        "逐词时间戳"
+      ],
       "wordTimestamps": true,
-      "speakerDiarization": false,
-      "sources": {
-        "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/main/Nemotron-3.5-ASR-Streaming-0.6B-GGUF/nemotron-3.5-asr-streaming-0.6b-q8_0.gguf",
-        "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/Nemotron-3.5-ASR-Streaming-0.6B-GGUF/nemotron-3.5-asr-streaming-0.6b-q8_0.gguf"
-      }
+      "speakerDiarization": false
     },
     {
-      "id": "moonshine-small-q8",
-      "name": "Moonshine Small",
-      "family": "moonshine_asr",
+      "id": "cohere-transcribe-q8",
+      "name": "Cohere Transcribe",
+      "family": "cohere_asr",
+      "group": "通用多语种（含中文）",
       "precision": "Q8_0",
-      "file": "moonshine-streaming-small-q8_0.gguf",
-      "size": 300621792,
-      "sha256": "4d03fd9debad978240f522de238dba0b1a10fb0c9539e608701418682838a892",
-      "license": "MIT",
-      "languages": "仅英语",
-      "summary": "英语轻量：体积小、延迟低，适合英文听写。",
-      "speed": 5,
-      "accuracy": 3,
-      "tags": ["轻量", "英语"],
+      "files": [
+        {
+          "name": "cohere-transcribe-03-2026-q8_0.gguf",
+          "size": 2438863616,
+          "sha256": "b892857b820f0f937500ebd0bc4dc73f57e69a7ca548b63132e688b316193813",
+          "sources": {
+            "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/874fcb41ececda20bcbc0782d6b4ea7f7d069ea8/Cohere-Transcribe-GGUF/cohere-transcribe-03-2026-q8_0.gguf",
+            "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/Cohere-Transcribe-GGUF/cohere-transcribe-03-2026-q8_0.gguf"
+          }
+        }
+      ],
+      "license": "Apache-2.0",
+      "languages": "中、英、日、韩、法、德、西、意、葡、荷、波、希、阿、越 14 种语言",
+      "summary": "高精度多语种：Cohere 出品，14 种主流语言，标点自然。",
+      "description": "Cohere 发布的 Conformer 编码器-解码器识别模型（03-2026 版），覆盖中英日韩及主要欧洲语言，可控制是否输出标点。需要手动选择语言效果最好。不输出词级时间戳。",
+      "speed": 3,
+      "accuracy": 4,
+      "tags": [
+        "多语种",
+        "高精度"
+      ],
       "wordTimestamps": false,
-      "speakerDiarization": false,
-      "sources": {
-        "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/main/Moonshine-Streaming-GGUF/moonshine-streaming-small-q8_0.gguf",
-        "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/Moonshine-Streaming-GGUF/moonshine-streaming-small-q8_0.gguf"
-      }
+      "speakerDiarization": false
     },
     {
-      "id": "gigaam-asr-v3-ctc-f16",
-      "name": "GigaAM ASR v3 CTC",
-      "family": "gigaam_asr",
-      "precision": "F16",
-      "file": "gigaam-v3-ctc-f16.gguf",
-      "size": 441594240,
-      "sha256": "da89e41a9bd7dbc06097dda4478db7de1a999bd8bb937341ed5b2f13461a0b84",
-      "license": "MIT",
-      "languages": "俄语、哈萨克语、吉尔吉斯语、乌兹别克语、英语",
-      "summary": "俄语专精：Sber 出品，俄语及中亚语言识别效果好，自带逐词时间戳。",
-      "speed": 4,
-      "accuracy": 4,
-      "tags": ["俄语", "逐词时间戳"],
-      "wordTimestamps": true,
-      "speakerDiarization": false,
-      "sources": {
-        "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/main/GigaAM-ASR-GGUF/gigaam-v3-ctc-f16.gguf",
-        "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/GigaAM-ASR-GGUF/gigaam-v3-ctc-f16.gguf"
-      }
-    },
-    {
-      "id": "kroko-asr-en-community-q8",
-      "name": "Kroko Community ASR (英语)",
-      "family": "kroko_asr",
+      "id": "voxtral-realtime-4b-q8",
+      "name": "Voxtral Mini 4B Realtime",
+      "family": "voxtral_realtime",
+      "group": "通用多语种（含中文）",
       "precision": "Q8_0",
-      "file": "kroko-en-community-64-l-q8_0.gguf",
-      "size": 167756928,
-      "sha256": "596c749fcb6c582f2d7aaa9aefcff2929e405867a4d04864a55b2c9c2963baa5",
-      "license": "CC-BY-SA-4.0",
-      "languages": "英语（社区模型另支持德法意荷等欧洲语言）",
-      "summary": "极速欧洲语言：Zipformer2/RNN-T 架构，体积小、速度快，自带逐词时间戳。",
-      "speed": 5,
-      "accuracy": 3,
-      "tags": ["轻量", "欧洲语言", "逐词时间戳"],
-      "wordTimestamps": true,
-      "speakerDiarization": false,
-      "sources": {
-        "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/main/Kroko-ASR-GGUF/kroko-en-community-64-l-q8_0.gguf",
-        "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/Kroko-ASR-GGUF/kroko-en-community-64-l-q8_0.gguf"
-      }
+      "files": [
+        {
+          "name": "voxtral-mini-4b-realtime-2602-q8_0.gguf",
+          "size": 5104571904,
+          "sha256": "d246cf359a34e365440e7af5064ff01fa54d8a9848d2127907d1864d1131fef3",
+          "sources": {
+            "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/874fcb41ececda20bcbc0782d6b4ea7f7d069ea8/Voxtral-Mini-4B-Realtime-2602-GGUF/voxtral-mini-4b-realtime-2602-q8_0.gguf",
+            "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/Voxtral-Mini-4B-Realtime-2602-GGUF/voxtral-mini-4b-realtime-2602-q8_0.gguf"
+          }
+        }
+      ],
+      "license": "Apache-2.0",
+      "languages": "中、英、日、韩、法、德、西、葡、意、荷、俄、阿、印地 13 种语言",
+      "summary": "实时大模型：Mistral 出品，原生流式编码器，准确率接近离线模型。",
+      "description": "Mistral 的 40 亿参数实时识别模型，采用因果音频编码器，可以边听边转写，延迟可调，准确率与主流离线开源模型相当。体积较大（约 5 GB），建议 16 GB 以上内存并使用 GPU。",
+      "speed": 2,
+      "accuracy": 5,
+      "tags": [
+        "流式",
+        "高精度",
+        "大模型"
+      ],
+      "wordTimestamps": false,
+      "speakerDiarization": false
     },
     {
       "id": "crisperwhisper-2-large-q8",
       "name": "CrisperWhisper 2.0 Large",
       "family": "crisperwhisper",
+      "group": "通用多语种（含中文）",
       "precision": "Q8_0",
-      "file": "crisperwhisper-2-large-q8_0.gguf",
-      "size": 1716306528,
-      "sha256": "392e636876d6d5ae8716f0f98b78480b61bb8c199d63f20523e95308b3425c2e",
+      "files": [
+        {
+          "name": "crisperwhisper-2-large-q8_0.gguf",
+          "size": 1716306528,
+          "sha256": "392e636876d6d5ae8716f0f98b78480b61bb8c199d63f20523e95308b3425c2e",
+          "sources": {
+            "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/874fcb41ececda20bcbc0782d6b4ea7f7d069ea8/CrisperWhisper2.0-GGUF/crisperwhisper-2-large-q8_0.gguf",
+            "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/CrisperWhisper2.0-GGUF/crisperwhisper-2-large-q8_0.gguf"
+          }
+        }
+      ],
       "license": "Nyra Health 非商业研究许可",
       "languages": "近百种语言（Whisper 系多语种覆盖）",
       "summary": "高精度时间戳：业界领先的词级时间戳精度，仅限非商业用途。",
+      "description": "基于 Whisper Large 的逐字转写模型，会保留“嗯、呃”等口语填充词，词级时间戳非常精确，适合做字幕和语音分析。语言覆盖与 Whisper 相同。许可证仅允许非商业研究用途。",
       "speed": 2,
       "accuracy": 5,
-      "tags": ["多语种", "逐词时间戳", "非商业用途"],
+      "tags": [
+        "多语种",
+        "逐词时间戳",
+        "非商业用途"
+      ],
       "wordTimestamps": true,
-      "speakerDiarization": false,
-      "sources": {
-        "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/main/CrisperWhisper2.0-GGUF/crisperwhisper-2-large-q8_0.gguf",
-        "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/CrisperWhisper2.0-GGUF/crisperwhisper-2-large-q8_0.gguf"
-      }
+      "speakerDiarization": false
+    },
+    {
+      "id": "owsm-v4-base-102m-q8",
+      "name": "OWSM v4 Base 102M",
+      "family": "owsm",
+      "group": "通用多语种（含中文）",
+      "precision": "Q8_0",
+      "files": [
+        {
+          "name": "owsm-v4-base-102m-q8_0.gguf",
+          "size": 118204672,
+          "sha256": "6596d9705936f7792b2fd9e1b518368adf0dca547334d5c5536899c989883bb8",
+          "sources": {
+            "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/874fcb41ececda20bcbc0782d6b4ea7f7d069ea8/OWSM-GGUF/owsm-v4-base-102m-q8_0.gguf",
+            "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/OWSM-GGUF/owsm-v4-base-102m-q8_0.gguf"
+          }
+        }
+      ],
+      "license": "CC-BY-4.0",
+      "languages": "151 种语言",
+      "summary": "超广语种：卡内基梅隆大学开源的 Whisper 式模型，体积最小，适合快速试用。",
+      "description": "卡内基梅隆大学 ESPnet 团队完全开放训练数据的 Whisper 式编码器-解码器模型（Open Whisper-style Speech Model v4），覆盖 151 种语言，体积最小，适合快速试用。需要在设置中指定语言（使用三字母代码，如 cmn、eng）效果最好。不输出词级时间戳。",
+      "speed": 4,
+      "accuracy": 2,
+      "tags": [
+        "多语种",
+        "开放数据"
+      ],
+      "wordTimestamps": false,
+      "speakerDiarization": false
+    },
+    {
+      "id": "owsm-v4-small-370m-q8",
+      "name": "OWSM v4 Small 370M",
+      "family": "owsm",
+      "group": "通用多语种（含中文）",
+      "precision": "Q8_0",
+      "files": [
+        {
+          "name": "owsm-v4-small-370m-q8_0.gguf",
+          "size": 432323584,
+          "sha256": "d8a168dff3f5dd867bb2c935734cd38d1eed4833679e07033fa4dea1e1f3e69f",
+          "sources": {
+            "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/874fcb41ececda20bcbc0782d6b4ea7f7d069ea8/OWSM-GGUF/owsm-v4-small-370m-q8_0.gguf",
+            "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/OWSM-GGUF/owsm-v4-small-370m-q8_0.gguf"
+          }
+        }
+      ],
+      "license": "CC-BY-4.0",
+      "languages": "151 种语言",
+      "summary": "超广语种：卡内基梅隆大学开源的 Whisper 式模型，体积与准确率较均衡。",
+      "description": "卡内基梅隆大学 ESPnet 团队完全开放训练数据的 Whisper 式编码器-解码器模型（Open Whisper-style Speech Model v4），覆盖 151 种语言，体积与准确率较均衡。需要在设置中指定语言（使用三字母代码，如 cmn、eng）效果最好。不输出词级时间戳。",
+      "speed": 3,
+      "accuracy": 3,
+      "tags": [
+        "多语种",
+        "开放数据"
+      ],
+      "wordTimestamps": false,
+      "speakerDiarization": false
+    },
+    {
+      "id": "owsm-v4-medium-1b-q8",
+      "name": "OWSM v4 Medium 1B",
+      "family": "owsm",
+      "group": "通用多语种（含中文）",
+      "precision": "Q8_0",
+      "files": [
+        {
+          "name": "owsm-v4-medium-1b-q8_0.gguf",
+          "size": 1160963936,
+          "sha256": "5e421901cd07ea9c76e3e8c05aa3298f8256e661b31684243030a1154485c042",
+          "sources": {
+            "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/874fcb41ececda20bcbc0782d6b4ea7f7d069ea8/OWSM-GGUF/owsm-v4-medium-1b-q8_0.gguf",
+            "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/OWSM-GGUF/owsm-v4-medium-1b-q8_0.gguf"
+          }
+        }
+      ],
+      "license": "CC-BY-4.0",
+      "languages": "151 种语言",
+      "summary": "超广语种：卡内基梅隆大学开源的 Whisper 式模型，该系列最准，速度较慢。",
+      "description": "卡内基梅隆大学 ESPnet 团队完全开放训练数据的 Whisper 式编码器-解码器模型（Open Whisper-style Speech Model v4），覆盖 151 种语言，该系列最准，速度较慢。需要在设置中指定语言（使用三字母代码，如 cmn、eng）效果最好。不输出词级时间戳。",
+      "speed": 2,
+      "accuracy": 4,
+      "tags": [
+        "多语种",
+        "开放数据"
+      ],
+      "wordTimestamps": false,
+      "speakerDiarization": false
+    },
+    {
+      "id": "owsm-ctc-v4-1b-q8",
+      "name": "OWSM-CTC v4 1B",
+      "family": "owsm_ctc",
+      "group": "通用多语种（含中文）",
+      "precision": "Q8_0",
+      "files": [
+        {
+          "name": "owsm-ctc-v4-1b-q8_0.gguf",
+          "size": 1296685184,
+          "sha256": "836d27af7220b3815ebca378a193d3af6ef1cd6787724fa2ecdc0b3226b7c38b",
+          "sources": {
+            "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/874fcb41ececda20bcbc0782d6b4ea7f7d069ea8/OWSM-CTC-GGUF/owsm-ctc-v4-1b-q8_0.gguf",
+            "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/OWSM-CTC-GGUF/owsm-ctc-v4-1b-q8_0.gguf"
+          }
+        }
+      ],
+      "license": "CC-BY-4.0",
+      "languages": "151 种语言",
+      "summary": "超广语种 CTC：OWSM 的非自回归版本，比同尺寸 OWSM 更快。",
+      "description": "ESPnet 团队的 10 亿参数非自回归模型（自条件 CTC），语言覆盖与 OWSM v4 相同，一次前向即可得到结果，速度明显快于自回归版本，也不容易出现重复或幻觉。",
+      "speed": 3,
+      "accuracy": 4,
+      "tags": [
+        "多语种",
+        "开放数据"
+      ],
+      "wordTimestamps": false,
+      "speakerDiarization": false
+    },
+    {
+      "id": "moonshine-tiny-q8",
+      "name": "Moonshine Tiny",
+      "family": "moonshine_asr",
+      "group": "英语",
+      "precision": "Q8_0",
+      "files": [
+        {
+          "name": "moonshine-streaming-tiny-q8_0.gguf",
+          "size": 60409088,
+          "sha256": "0f795f14924dbfe40d2ee0e220382c9b23cd9e89064c6ffb97e236d81f1d7020",
+          "sources": {
+            "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/874fcb41ececda20bcbc0782d6b4ea7f7d069ea8/Moonshine-Streaming-GGUF/moonshine-streaming-tiny-q8_0.gguf",
+            "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/Moonshine-Streaming-GGUF/moonshine-streaming-tiny-q8_0.gguf"
+          }
+        }
+      ],
+      "license": "MIT",
+      "languages": "仅英语",
+      "summary": "英语轻量：仅约 60 MB，几乎在任何设备上都能实时运行，适合英文听写。",
+      "description": "Moonshine AI 专为端侧设计的英语流式识别模型，计算量随音频长度伸缩，短句延迟极低。Tiny 版仅约 60 MB，几乎在任何设备上都能实时运行。只支持英语，不输出词级时间戳。",
+      "speed": 5,
+      "accuracy": 2,
+      "tags": [
+        "轻量",
+        "英语"
+      ],
+      "wordTimestamps": false,
+      "speakerDiarization": false
+    },
+    {
+      "id": "moonshine-small-q8",
+      "name": "Moonshine Small",
+      "family": "moonshine_asr",
+      "group": "英语",
+      "precision": "Q8_0",
+      "files": [
+        {
+          "name": "moonshine-streaming-small-q8_0.gguf",
+          "size": 300622464,
+          "sha256": "98731a08788a6dacc5dc56f32f36153f3373629adc7163ac83498a2702f210a9",
+          "sources": {
+            "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/874fcb41ececda20bcbc0782d6b4ea7f7d069ea8/Moonshine-Streaming-GGUF/moonshine-streaming-small-q8_0.gguf",
+            "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/Moonshine-Streaming-GGUF/moonshine-streaming-small-q8_0.gguf"
+          }
+        }
+      ],
+      "license": "MIT",
+      "languages": "仅英语",
+      "summary": "英语轻量：约 300 MB，速度与准确率兼顾，适合英文听写。",
+      "description": "Moonshine AI 专为端侧设计的英语流式识别模型，计算量随音频长度伸缩，短句延迟极低。Small 版约 300 MB，速度与准确率兼顾。只支持英语，不输出词级时间戳。",
+      "speed": 5,
+      "accuracy": 3,
+      "tags": [
+        "轻量",
+        "英语"
+      ],
+      "wordTimestamps": false,
+      "speakerDiarization": false
+    },
+    {
+      "id": "moonshine-medium-q8",
+      "name": "Moonshine Medium",
+      "family": "moonshine_asr",
+      "group": "英语",
+      "precision": "Q8_0",
+      "files": [
+        {
+          "name": "moonshine-streaming-medium-q8_0.gguf",
+          "size": 315584864,
+          "sha256": "65922c50b8e66eeb70423a989b282959340088777498e15d12ffcba821335e37",
+          "sources": {
+            "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/874fcb41ececda20bcbc0782d6b4ea7f7d069ea8/Moonshine-Streaming-GGUF/moonshine-streaming-medium-q8_0.gguf",
+            "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/Moonshine-Streaming-GGUF/moonshine-streaming-medium-q8_0.gguf"
+          }
+        }
+      ],
+      "license": "MIT",
+      "languages": "仅英语",
+      "summary": "英语轻量：该系列最准的版本，适合英文听写。",
+      "description": "Moonshine AI 专为端侧设计的英语流式识别模型，计算量随音频长度伸缩，短句延迟极低。Medium 版该系列最准的版本。只支持英语，不输出词级时间戳。",
+      "speed": 4,
+      "accuracy": 3,
+      "tags": [
+        "轻量",
+        "英语"
+      ],
+      "wordTimestamps": false,
+      "speakerDiarization": false
+    },
+    {
+      "id": "kroko-asr-en-community-q8",
+      "name": "Kroko Community ASR（英语）",
+      "family": "kroko_asr",
+      "group": "英语",
+      "precision": "Q8_0",
+      "files": [
+        {
+          "name": "kroko-en-community-64-l-q8_0.gguf",
+          "size": 167756928,
+          "sha256": "596c749fcb6c582f2d7aaa9aefcff2929e405867a4d04864a55b2c9c2963baa5",
+          "sources": {
+            "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/874fcb41ececda20bcbc0782d6b4ea7f7d069ea8/Kroko-ASR-GGUF/kroko-en-community-64-l-q8_0.gguf",
+            "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/Kroko-ASR-GGUF/kroko-en-community-64-l-q8_0.gguf"
+          }
+        }
+      ],
+      "license": "CC-BY-SA-4.0",
+      "languages": "英语",
+      "summary": "极速英语：Zipformer2/RNN-T 架构，体积小、速度快，自带逐词时间戳。",
+      "description": "Kroko 社区版英语模型（Zipformer2 + RNN-T），约 170 MB，在 CPU 上也能远超实时，原生输出词级时间戳，支持热词。其他语言的 Kroko 模型见“欧洲语言”。",
+      "speed": 5,
+      "accuracy": 3,
+      "tags": [
+        "轻量",
+        "逐词时间戳"
+      ],
+      "wordTimestamps": true,
+      "speakerDiarization": false
+    },
+    {
+      "id": "niagara-19m-f32",
+      "name": "Niagara 19M",
+      "family": "niagara_asr",
+      "group": "英语",
+      "precision": "F32",
+      "files": [
+        {
+          "name": "niagara-19m-batch.en-f32.gguf",
+          "size": 255372352,
+          "sha256": "5c4b0b66e1f9bbe8270d378671d4cc71b1c4ce4b7d045cc787607b5b10f2e1a7",
+          "sources": {
+            "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/874fcb41ececda20bcbc0782d6b4ea7f7d069ea8/Niagara-ASR-GGUF/niagara-19m-batch.en-f32.gguf",
+            "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/Niagara-ASR-GGUF/niagara-19m-batch.en-f32.gguf"
+          }
+        }
+      ],
+      "license": "ABR Open License v1.1",
+      "languages": "仅英语",
+      "summary": "超小英语：Applied Brain Research 的 19M 参数状态空间模型，速度极快。",
+      "description": "Applied Brain Research 的英语批量识别模型，采用状态空间模型加注意力的结构和 CTC 解码，参数只有 19m，适合配置很低的设备。只支持英语，不输出词级时间戳。",
+      "speed": 5,
+      "accuracy": 2,
+      "tags": [
+        "轻量",
+        "英语"
+      ],
+      "wordTimestamps": false,
+      "speakerDiarization": false
+    },
+    {
+      "id": "niagara-38m-f32",
+      "name": "Niagara 38M",
+      "family": "niagara_asr",
+      "group": "英语",
+      "precision": "F32",
+      "files": [
+        {
+          "name": "niagara-38m-batch.en-f32.gguf",
+          "size": 427067840,
+          "sha256": "0ffe882781d26574d735350270f6ed7f42ecc7de051aaa4bcb15c53b20a5a1c0",
+          "sources": {
+            "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/874fcb41ececda20bcbc0782d6b4ea7f7d069ea8/Niagara-ASR-GGUF/niagara-38m-batch.en-f32.gguf",
+            "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/Niagara-ASR-GGUF/niagara-38m-batch.en-f32.gguf"
+          }
+        }
+      ],
+      "license": "ABR Open License v1.1",
+      "languages": "仅英语",
+      "summary": "超小英语：Applied Brain Research 的 38M 参数状态空间模型，速度极快。",
+      "description": "Applied Brain Research 的英语批量识别模型，采用状态空间模型加注意力的结构和 CTC 解码，参数只有 38m，适合配置很低的设备。只支持英语，不输出词级时间戳。",
+      "speed": 5,
+      "accuracy": 3,
+      "tags": [
+        "轻量",
+        "英语"
+      ],
+      "wordTimestamps": false,
+      "speakerDiarization": false
+    },
+    {
+      "id": "citrinet-q8",
+      "name": "Citrinet 256",
+      "family": "citrinet_asr",
+      "group": "英语",
+      "precision": "Q8_0",
+      "files": [
+        {
+          "name": "citrinet-asr-q8_0.gguf",
+          "size": 40575520,
+          "sha256": "a32cd178dcc6c52a999d56d33db9dd54f1b932ee0b3d4ac1d2a2d2623bcc36ff",
+          "sources": {
+            "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/874fcb41ececda20bcbc0782d6b4ea7f7d069ea8/Citrinet-ASR-GGUF/citrinet-asr-q8_0.gguf",
+            "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/Citrinet-ASR-GGUF/citrinet-asr-q8_0.gguf"
+          }
+        }
+      ],
+      "license": "CC-BY-4.0",
+      "languages": "仅英语",
+      "summary": "最小英语：NVIDIA 经典卷积 CTC 模型，仅约 40 MB。",
+      "description": "NVIDIA NeMo 的 Citrinet-256 卷积 CTC 模型，体积只有约 40 MB，速度极快，但准确率明显低于新一代模型，适合配置很低或只需粗略转写的场景。只支持英语。",
+      "speed": 5,
+      "accuracy": 2,
+      "tags": [
+        "轻量",
+        "英语"
+      ],
+      "wordTimestamps": false,
+      "speakerDiarization": false
+    },
+    {
+      "id": "higgs-audio-v3-stt-q8",
+      "name": "Higgs Audio v3 STT",
+      "family": "higgs_audio_stt",
+      "group": "英语",
+      "precision": "Q8_0",
+      "files": [
+        {
+          "name": "higgs-audio-v3-stt-q8_0.gguf",
+          "size": 3158310848,
+          "sha256": "4149e682017512daa2ef6d3e63ea3e1e4d1ddc650f5e0a8a922adb3d873bd849",
+          "sources": {
+            "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/874fcb41ececda20bcbc0782d6b4ea7f7d069ea8/Higgs-Audio-v3-STT-GGUF/higgs-audio-v3-stt-q8_0.gguf",
+            "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/Higgs-Audio-v3-STT-GGUF/higgs-audio-v3-stt-q8_0.gguf"
+          }
+        }
+      ],
+      "license": "Apache-2.0",
+      "languages": "仅英语",
+      "summary": "高精度英语：Boson AI 出品，Whisper Large v3 编码器 + Qwen 解码器。",
+      "description": "Boson AI 的英语识别模型，用 Whisper Large v3 编码器和 Qwen 语言模型解码器组合，对口音和噪声很稳健，英语准确率高。体积约 3 GB，只支持英语。",
+      "speed": 2,
+      "accuracy": 5,
+      "tags": [
+        "高精度",
+        "英语"
+      ],
+      "wordTimestamps": false,
+      "speakerDiarization": false
+    },
+    {
+      "id": "parakeet-tdt-0.6b-v3-q8",
+      "name": "Parakeet TDT 0.6B v3",
+      "family": "parakeet_tdt",
+      "group": "欧洲语言",
+      "precision": "Q8_0",
+      "files": [
+        {
+          "name": "parakeet-tdt-0.6b-v3-q8_0.gguf",
+          "size": 915735760,
+          "sha256": "6fa498f10f8cb606f041aa9512733cfee842a932359b00b0c45b9b723c4f4f4b",
+          "sources": {
+            "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/874fcb41ececda20bcbc0782d6b4ea7f7d069ea8/Parakeet-TDT-0.6B-v3-GGUF/parakeet-tdt-0.6b-v3-q8_0.gguf",
+            "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/Parakeet-TDT-0.6B-v3-GGUF/parakeet-tdt-0.6b-v3-q8_0.gguf"
+          }
+        }
+      ],
+      "license": "CC-BY-4.0",
+      "languages": "英语及 24 种欧洲语言",
+      "summary": "欧洲语言：NVIDIA 出品，速度快，自带逐词时间戳。",
+      "description": "NVIDIA 的 FastConformer-TDT 模型，覆盖英语和 24 种欧洲语言，能自动识别语言，速度快且准确。原生输出词级时间戳，适合做字幕。不支持中文。",
+      "speed": 4,
+      "accuracy": 4,
+      "tags": [
+        "欧洲语言",
+        "逐词时间戳"
+      ],
+      "wordTimestamps": true,
+      "speakerDiarization": false
+    },
+    {
+      "id": "canary-180m-flash-q8",
+      "name": "Canary 180M Flash",
+      "family": "canary_asr",
+      "group": "欧洲语言",
+      "precision": "Q8_0",
+      "files": [
+        {
+          "name": "canary-180m-flash-q8_0.gguf",
+          "size": 249496928,
+          "sha256": "fa751a543aa0db02ce6f0487ed836f95255f09a34db021cd4c280ed301089517",
+          "sources": {
+            "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/874fcb41ececda20bcbc0782d6b4ea7f7d069ea8/Canary-180M-Flash-GGUF/canary-180m-flash-q8_0.gguf",
+            "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/Canary-180M-Flash-GGUF/canary-180m-flash-q8_0.gguf"
+          }
+        }
+      ],
+      "license": "CC-BY-4.0",
+      "languages": "英语、德语、西班牙语、法语",
+      "summary": "轻量欧洲语言：NVIDIA Canary 的小型版，约 250 MB。",
+      "description": "NVIDIA Canary 系列的 1.8 亿参数版本，支持英、德、西、法四种语言的识别，体积小、速度快，准确率在同尺寸模型中很高。不输出词级时间戳。",
+      "speed": 4,
+      "accuracy": 3,
+      "tags": [
+        "轻量",
+        "欧洲语言"
+      ],
+      "wordTimestamps": false,
+      "speakerDiarization": false
+    },
+    {
+      "id": "granite-speech-5-turboctc-q8",
+      "name": "Granite Speech 5.0 TurboCTC",
+      "family": "granite5asr",
+      "group": "欧洲语言",
+      "precision": "Q8_0",
+      "files": [
+        {
+          "name": "granite-speech-5.0-470m-turboctc-q8_0.gguf",
+          "size": 504717376,
+          "sha256": "f23ebc82c208f40e1defc65a28f34e7ac96241ad387589ff6055068e87c80cc6",
+          "sources": {
+            "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/874fcb41ececda20bcbc0782d6b4ea7f7d069ea8/Granite-Speech-5.0-470M-TurboCTC-GGUF/granite-speech-5.0-470m-turboctc-q8_0.gguf",
+            "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/Granite-Speech-5.0-470M-TurboCTC-GGUF/granite-speech-5.0-470m-turboctc-q8_0.gguf"
+          }
+        }
+      ],
+      "license": "Apache-2.0",
+      "languages": "英、法、德、西、葡、意、日 7 种语言",
+      "summary": "极速 CTC：IBM 出品，4.7 亿参数，自带标点与大小写。",
+      "description": "IBM Granite Speech 5.0 的 Conformer CTC 版本，非自回归解码，速度极快，自带标点和大小写，支持英、法、德、西、葡、意、日 7 种语言，并输出词级时间戳。",
+      "speed": 5,
+      "accuracy": 4,
+      "tags": [
+        "欧洲语言",
+        "逐词时间戳"
+      ],
+      "wordTimestamps": true,
+      "speakerDiarization": false
+    },
+    {
+      "id": "whistle-f32",
+      "name": "Whistle",
+      "family": "whistle_asr",
+      "group": "欧洲语言",
+      "precision": "F32",
+      "files": [
+        {
+          "name": "whistle-f32.gguf",
+          "size": 220833184,
+          "sha256": "7e63a44b77d5e4a347f3b15a6d098037cc91f4225fe48b4ed820e072e04d3ff3",
+          "sources": {
+            "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/874fcb41ececda20bcbc0782d6b4ea7f7d069ea8/Whistle-GGUF/whistle-f32.gguf",
+            "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/Whistle-GGUF/whistle-f32.gguf"
+          }
+        }
+      ],
+      "license": "Apache-2.0",
+      "languages": "英、德、法、西、意、荷、波 7 种语言",
+      "summary": "实验性：轻量多语种模型，约 220 MB。",
+      "description": "Whistle 离线识别模型，编码器在 GPU 上运行、解码器在 CPU 上运行，支持 7 种欧洲语言。audio.cpp 将其标为实验性，单段音频最长约 30 秒（Murmur 会自动分段）。",
+      "speed": 4,
+      "accuracy": 2,
+      "tags": [
+        "欧洲语言",
+        "实验性"
+      ],
+      "wordTimestamps": false,
+      "speakerDiarization": false
+    },
+    {
+      "id": "kroko-asr-de-community-q8",
+      "name": "Kroko Community ASR（德语）",
+      "family": "kroko_asr",
+      "group": "欧洲语言",
+      "precision": "Q8_0",
+      "files": [
+        {
+          "name": "Kroko-DE-Community-64-L-Q8.gguf",
+          "size": 167754688,
+          "sha256": "6496a4d1220b1f61c95e5fd6c932001e3849a837c71028dae474c1dab10e8e13",
+          "sources": {
+            "huggingface": "https://huggingface.co/mirek190/audio.cpp/resolve/94bbade143c5f62c0c842ef5b2119f7880fa9ee4/Audio%20to%20text%20%28ASR%29/Kroko/Kroko-DE-Community-64-L-Q8.gguf"
+          }
+        }
+      ],
+      "license": "CC-BY-SA-4.0",
+      "languages": "德语",
+      "summary": "极速德语：Kroko 社区单语模型，约 170 MB，自带逐词时间戳。",
+      "description": "Kroko 社区版德语模型（Zipformer2 + RNN-T），体积小，在 CPU 上也能远超实时，原生输出词级时间戳。只识别德语。GGUF 由 audio.cpp 的 Kroko 移植作者转换发布。",
+      "speed": 5,
+      "accuracy": 3,
+      "tags": [
+        "轻量",
+        "逐词时间戳",
+        "社区"
+      ],
+      "wordTimestamps": true,
+      "speakerDiarization": false
+    },
+    {
+      "id": "kroko-asr-es-community-q8",
+      "name": "Kroko Community ASR（西班牙语）",
+      "family": "kroko_asr",
+      "group": "欧洲语言",
+      "precision": "Q8_0",
+      "files": [
+        {
+          "name": "Kroko-ES-Community-64-L-Q8.gguf",
+          "size": 167754848,
+          "sha256": "81dcb7b967d28217d611357eead32cd6472cf5314799f562d376d28df9d93b4d",
+          "sources": {
+            "huggingface": "https://huggingface.co/mirek190/audio.cpp/resolve/94bbade143c5f62c0c842ef5b2119f7880fa9ee4/Audio%20to%20text%20%28ASR%29/Kroko/Kroko-ES-Community-64-L-Q8.gguf"
+          }
+        }
+      ],
+      "license": "CC-BY-SA-4.0",
+      "languages": "西班牙语",
+      "summary": "极速西班牙语：Kroko 社区单语模型，约 170 MB，自带逐词时间戳。",
+      "description": "Kroko 社区版西班牙语模型（Zipformer2 + RNN-T），体积小，在 CPU 上也能远超实时，原生输出词级时间戳。只识别西班牙语。GGUF 由 audio.cpp 的 Kroko 移植作者转换发布。",
+      "speed": 5,
+      "accuracy": 3,
+      "tags": [
+        "轻量",
+        "逐词时间戳",
+        "社区"
+      ],
+      "wordTimestamps": true,
+      "speakerDiarization": false
+    },
+    {
+      "id": "kroko-asr-fr-community-q8",
+      "name": "Kroko Community ASR（法语）",
+      "family": "kroko_asr",
+      "group": "欧洲语言",
+      "precision": "Q8_0",
+      "files": [
+        {
+          "name": "Kroko-FR-Community-64-L-Q8.gguf",
+          "size": 167754656,
+          "sha256": "db24ae90058f7e299c0bda2b971389591268ba430825c77dcc37809dec096297",
+          "sources": {
+            "huggingface": "https://huggingface.co/mirek190/audio.cpp/resolve/94bbade143c5f62c0c842ef5b2119f7880fa9ee4/Audio%20to%20text%20%28ASR%29/Kroko/Kroko-FR-Community-64-L-Q8.gguf"
+          }
+        }
+      ],
+      "license": "CC-BY-SA-4.0",
+      "languages": "法语",
+      "summary": "极速法语：Kroko 社区单语模型，约 170 MB，自带逐词时间戳。",
+      "description": "Kroko 社区版法语模型（Zipformer2 + RNN-T），体积小，在 CPU 上也能远超实时，原生输出词级时间戳。只识别法语。GGUF 由 audio.cpp 的 Kroko 移植作者转换发布。",
+      "speed": 5,
+      "accuracy": 3,
+      "tags": [
+        "轻量",
+        "逐词时间戳",
+        "社区"
+      ],
+      "wordTimestamps": true,
+      "speakerDiarization": false
+    },
+    {
+      "id": "kroko-asr-it-community-q8",
+      "name": "Kroko Community ASR（意大利语）",
+      "family": "kroko_asr",
+      "group": "欧洲语言",
+      "precision": "Q8_0",
+      "files": [
+        {
+          "name": "Kroko-IT-Community-64-L-Q8.gguf",
+          "size": 167754592,
+          "sha256": "5d5040636a4bead6329fa530b39ad9df7b8348e5fc1a55313faadaefe17d649b",
+          "sources": {
+            "huggingface": "https://huggingface.co/mirek190/audio.cpp/resolve/94bbade143c5f62c0c842ef5b2119f7880fa9ee4/Audio%20to%20text%20%28ASR%29/Kroko/Kroko-IT-Community-64-L-Q8.gguf"
+          }
+        }
+      ],
+      "license": "CC-BY-SA-4.0",
+      "languages": "意大利语",
+      "summary": "极速意大利语：Kroko 社区单语模型，约 170 MB，自带逐词时间戳。",
+      "description": "Kroko 社区版意大利语模型（Zipformer2 + RNN-T），体积小，在 CPU 上也能远超实时，原生输出词级时间戳。只识别意大利语。GGUF 由 audio.cpp 的 Kroko 移植作者转换发布。",
+      "speed": 5,
+      "accuracy": 3,
+      "tags": [
+        "轻量",
+        "逐词时间戳",
+        "社区"
+      ],
+      "wordTimestamps": true,
+      "speakerDiarization": false
+    },
+    {
+      "id": "kroko-asr-nl-community-q8",
+      "name": "Kroko Community ASR（荷兰语）",
+      "family": "kroko_asr",
+      "group": "欧洲语言",
+      "precision": "Q8_0",
+      "files": [
+        {
+          "name": "Kroko-NL-Community-64-L-Q8.gguf",
+          "size": 167754720,
+          "sha256": "99324bbb5d951625a164245b0919ae2a69034a17199c87be8daf74053ab5e805",
+          "sources": {
+            "huggingface": "https://huggingface.co/mirek190/audio.cpp/resolve/94bbade143c5f62c0c842ef5b2119f7880fa9ee4/Audio%20to%20text%20%28ASR%29/Kroko/Kroko-NL-Community-64-L-Q8.gguf"
+          }
+        }
+      ],
+      "license": "CC-BY-SA-4.0",
+      "languages": "荷兰语",
+      "summary": "极速荷兰语：Kroko 社区单语模型，约 170 MB，自带逐词时间戳。",
+      "description": "Kroko 社区版荷兰语模型（Zipformer2 + RNN-T），体积小，在 CPU 上也能远超实时，原生输出词级时间戳。只识别荷兰语。GGUF 由 audio.cpp 的 Kroko 移植作者转换发布。",
+      "speed": 5,
+      "accuracy": 3,
+      "tags": [
+        "轻量",
+        "逐词时间戳",
+        "社区"
+      ],
+      "wordTimestamps": true,
+      "speakerDiarization": false
+    },
+    {
+      "id": "kroko-asr-pt-community-q8",
+      "name": "Kroko Community ASR（葡萄牙语）",
+      "family": "kroko_asr",
+      "group": "欧洲语言",
+      "precision": "Q8_0",
+      "files": [
+        {
+          "name": "Kroko-PT-Community-64-L-Q8.gguf",
+          "size": 167754720,
+          "sha256": "45b9f7c00a9cd6fb272687fb4c8cc86104ca3825eb5ff08db45a5e9e3ecc8687",
+          "sources": {
+            "huggingface": "https://huggingface.co/mirek190/audio.cpp/resolve/94bbade143c5f62c0c842ef5b2119f7880fa9ee4/Audio%20to%20text%20%28ASR%29/Kroko/Kroko-PT-Community-64-L-Q8.gguf"
+          }
+        }
+      ],
+      "license": "CC-BY-SA-4.0",
+      "languages": "葡萄牙语",
+      "summary": "极速葡萄牙语：Kroko 社区单语模型，约 170 MB，自带逐词时间戳。",
+      "description": "Kroko 社区版葡萄牙语模型（Zipformer2 + RNN-T），体积小，在 CPU 上也能远超实时，原生输出词级时间戳。只识别葡萄牙语。GGUF 由 audio.cpp 的 Kroko 移植作者转换发布。",
+      "speed": 5,
+      "accuracy": 3,
+      "tags": [
+        "轻量",
+        "逐词时间戳",
+        "社区"
+      ],
+      "wordTimestamps": true,
+      "speakerDiarization": false
+    },
+    {
+      "id": "kroko-asr-sv-community-q8",
+      "name": "Kroko Community ASR（瑞典语）",
+      "family": "kroko_asr",
+      "group": "欧洲语言",
+      "precision": "Q8_0",
+      "files": [
+        {
+          "name": "Kroko-SV-Community-64-L-Q8.gguf",
+          "size": 167754176,
+          "sha256": "2cbc4b2c69217d44fedcd3b890ad563ba0e4fd9ddf78c105afcc003d245ebb4f",
+          "sources": {
+            "huggingface": "https://huggingface.co/mirek190/audio.cpp/resolve/94bbade143c5f62c0c842ef5b2119f7880fa9ee4/Audio%20to%20text%20%28ASR%29/Kroko/Kroko-SV-Community-64-L-Q8.gguf"
+          }
+        }
+      ],
+      "license": "CC-BY-SA-4.0",
+      "languages": "瑞典语",
+      "summary": "极速瑞典语：Kroko 社区单语模型，约 170 MB，自带逐词时间戳。",
+      "description": "Kroko 社区版瑞典语模型（Zipformer2 + RNN-T），体积小，在 CPU 上也能远超实时，原生输出词级时间戳。只识别瑞典语。GGUF 由 audio.cpp 的 Kroko 移植作者转换发布。",
+      "speed": 5,
+      "accuracy": 3,
+      "tags": [
+        "轻量",
+        "逐词时间戳",
+        "社区"
+      ],
+      "wordTimestamps": true,
+      "speakerDiarization": false
+    },
+    {
+      "id": "kroko-asr-tr-community-q8",
+      "name": "Kroko Community ASR（土耳其语）",
+      "family": "kroko_asr",
+      "group": "欧洲语言",
+      "precision": "Q8_0",
+      "files": [
+        {
+          "name": "Kroko-TR-Community-64-L-Q8.gguf",
+          "size": 167753888,
+          "sha256": "cea3e57a7ab389b99095d0413f1751e2b88faf8fd58c3377617453022b54cd65",
+          "sources": {
+            "huggingface": "https://huggingface.co/mirek190/audio.cpp/resolve/94bbade143c5f62c0c842ef5b2119f7880fa9ee4/Audio%20to%20text%20%28ASR%29/Kroko/Kroko-TR-Community-64-L-Q8.gguf"
+          }
+        }
+      ],
+      "license": "CC-BY-SA-4.0",
+      "languages": "土耳其语",
+      "summary": "极速土耳其语：Kroko 社区单语模型，约 170 MB，自带逐词时间戳。",
+      "description": "Kroko 社区版土耳其语模型（Zipformer2 + RNN-T），体积小，在 CPU 上也能远超实时，原生输出词级时间戳。只识别土耳其语。GGUF 由 audio.cpp 的 Kroko 移植作者转换发布。",
+      "speed": 5,
+      "accuracy": 3,
+      "tags": [
+        "轻量",
+        "逐词时间戳",
+        "社区"
+      ],
+      "wordTimestamps": true,
+      "speakerDiarization": false
+    },
+    {
+      "id": "kroko-asr-iw-community-q8",
+      "name": "Kroko Community ASR（希伯来语）",
+      "family": "kroko_asr",
+      "group": "特定语言优化",
+      "precision": "Q8_0",
+      "files": [
+        {
+          "name": "Kroko-IW-Community-64-L-Q8.gguf",
+          "size": 167754784,
+          "sha256": "69fe88802c782e9bb44474629220aea07a1f95ab999141ed762c18b390c9e3ac",
+          "sources": {
+            "huggingface": "https://huggingface.co/mirek190/audio.cpp/resolve/94bbade143c5f62c0c842ef5b2119f7880fa9ee4/Audio%20to%20text%20%28ASR%29/Kroko/Kroko-IW-Community-64-L-Q8.gguf"
+          }
+        }
+      ],
+      "license": "CC-BY-SA-4.0",
+      "languages": "希伯来语",
+      "summary": "极速希伯来语：Kroko 社区单语模型，约 170 MB，自带逐词时间戳。",
+      "description": "Kroko 社区版希伯来语模型（Zipformer2 + RNN-T），体积小，在 CPU 上也能远超实时，原生输出词级时间戳。只识别希伯来语。GGUF 由 audio.cpp 的 Kroko 移植作者转换发布。",
+      "speed": 5,
+      "accuracy": 3,
+      "tags": [
+        "轻量",
+        "逐词时间戳",
+        "社区"
+      ],
+      "wordTimestamps": true,
+      "speakerDiarization": false
+    },
+    {
+      "id": "gigaam-asr-v3-ctc-f16",
+      "name": "GigaAM v3 CTC",
+      "family": "gigaam_asr",
+      "group": "特定语言优化",
+      "precision": "F16",
+      "files": [
+        {
+          "name": "gigaam-v3-ctc-f16.gguf",
+          "size": 441594240,
+          "sha256": "da89e41a9bd7dbc06097dda4478db7de1a999bd8bb937341ed5b2f13461a0b84",
+          "sources": {
+            "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/874fcb41ececda20bcbc0782d6b4ea7f7d069ea8/GigaAM-ASR-GGUF/gigaam-v3-ctc-f16.gguf",
+            "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/GigaAM-ASR-GGUF/gigaam-v3-ctc-f16.gguf"
+          }
+        }
+      ],
+      "license": "MIT",
+      "languages": "俄语",
+      "summary": "俄语专精：Sber 出品，CTC 解码，速度最快。",
+      "description": "Sber 的 GigaAM v3 Conformer 模型，针对俄语训练，俄语识别效果领先。CTC 解码，速度最快，自带词级时间戳。",
+      "speed": 4,
+      "accuracy": 4,
+      "tags": [
+        "俄语",
+        "逐词时间戳"
+      ],
+      "wordTimestamps": true,
+      "speakerDiarization": false
+    },
+    {
+      "id": "gigaam-asr-v3-rnnt-f16",
+      "name": "GigaAM v3 RNN-T",
+      "family": "gigaam_asr",
+      "group": "特定语言优化",
+      "precision": "F16",
+      "files": [
+        {
+          "name": "gigaam-v3-rnnt-f16.gguf",
+          "size": 446260224,
+          "sha256": "d848bf6d70c649c8898e5cbec84494c2c7106da442f9f207aa26422f2a6a6b40",
+          "sources": {
+            "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/874fcb41ececda20bcbc0782d6b4ea7f7d069ea8/GigaAM-ASR-GGUF/gigaam-v3-rnnt-f16.gguf",
+            "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/GigaAM-ASR-GGUF/gigaam-v3-rnnt-f16.gguf"
+          }
+        }
+      ],
+      "license": "MIT",
+      "languages": "俄语",
+      "summary": "俄语专精：Sber 出品，RNN-T 解码，比 CTC 版略准。",
+      "description": "Sber 的 GigaAM v3 Conformer 模型，针对俄语训练，俄语识别效果领先。RNN-T 解码，比 CTC 版略准，自带词级时间戳。",
+      "speed": 4,
+      "accuracy": 4,
+      "tags": [
+        "俄语",
+        "逐词时间戳"
+      ],
+      "wordTimestamps": true,
+      "speakerDiarization": false
+    },
+    {
+      "id": "gigaam-asr-v3-e2e-ctc-f16",
+      "name": "GigaAM v3 E2E CTC",
+      "family": "gigaam_asr",
+      "group": "特定语言优化",
+      "precision": "F16",
+      "files": [
+        {
+          "name": "gigaam-v3-e2e-ctc-f16.gguf",
+          "size": 442520704,
+          "sha256": "3e7d33020a5c09bf30d6fb58570cd72e82b93ee2a66cbe10c838d9559d3206a6",
+          "sources": {
+            "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/874fcb41ececda20bcbc0782d6b4ea7f7d069ea8/GigaAM-ASR-GGUF/gigaam-v3-e2e-ctc-f16.gguf",
+            "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/GigaAM-ASR-GGUF/gigaam-v3-e2e-ctc-f16.gguf"
+          }
+        }
+      ],
+      "license": "MIT",
+      "languages": "俄语",
+      "summary": "俄语专精：Sber 出品，端到端版本，直接输出带标点和大小写的文本。",
+      "description": "Sber 的 GigaAM v3 Conformer 模型，针对俄语训练，俄语识别效果领先。端到端版本，直接输出带标点和大小写的文本，自带词级时间戳。",
+      "speed": 4,
+      "accuracy": 4,
+      "tags": [
+        "俄语",
+        "逐词时间戳"
+      ],
+      "wordTimestamps": true,
+      "speakerDiarization": false
+    },
+    {
+      "id": "gigaam-asr-v3-e2e-rnnt-f16",
+      "name": "GigaAM v3 E2E RNN-T",
+      "family": "gigaam_asr",
+      "group": "特定语言优化",
+      "precision": "F16",
+      "files": [
+        {
+          "name": "gigaam-v3-e2e-rnnt-f16.gguf",
+          "size": 449056064,
+          "sha256": "e226e58e8815918fe074bcaf0499b26d5f9028b1291ded192cfad0ef2eb6689a",
+          "sources": {
+            "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/874fcb41ececda20bcbc0782d6b4ea7f7d069ea8/GigaAM-ASR-GGUF/gigaam-v3-e2e-rnnt-f16.gguf",
+            "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/GigaAM-ASR-GGUF/gigaam-v3-e2e-rnnt-f16.gguf"
+          }
+        }
+      ],
+      "license": "MIT",
+      "languages": "俄语",
+      "summary": "俄语专精：Sber 出品，端到端 RNN-T 版本，带标点，该系列最准。",
+      "description": "Sber 的 GigaAM v3 Conformer 模型，针对俄语训练，俄语识别效果领先。端到端 RNN-T 版本，带标点，该系列最准，自带词级时间戳。",
+      "speed": 4,
+      "accuracy": 5,
+      "tags": [
+        "俄语",
+        "逐词时间戳"
+      ],
+      "wordTimestamps": true,
+      "speakerDiarization": false
+    },
+    {
+      "id": "gigaam-multilingual-ctc-f16",
+      "name": "GigaAM Multilingual CTC",
+      "family": "gigaam_asr",
+      "group": "特定语言优化",
+      "precision": "F16",
+      "files": [
+        {
+          "name": "gigaam-multilingual-ctc-f16.gguf",
+          "size": 442339680,
+          "sha256": "4d61a1acebd6bbb3c75356191b668bf3d2ee60722bffcda9fbb85fdd2ae3b1cd",
+          "sources": {
+            "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/874fcb41ececda20bcbc0782d6b4ea7f7d069ea8/GigaAM-ASR-GGUF/gigaam-multilingual-ctc-f16.gguf",
+            "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/GigaAM-ASR-GGUF/gigaam-multilingual-ctc-f16.gguf"
+          }
+        }
+      ],
+      "license": "MIT",
+      "languages": "俄语、哈萨克语、吉尔吉斯语、乌兹别克语、英语",
+      "summary": "俄语及中亚语言：Sber 的多语种 GigaAM，约 440 MB。",
+      "description": "Sber GigaAM 的多语种版本，在俄语之外加入哈萨克语、吉尔吉斯语、乌兹别克语和英语，CTC 解码，速度快，自带词级时间戳。",
+      "speed": 4,
+      "accuracy": 4,
+      "tags": [
+        "中亚语言",
+        "逐词时间戳"
+      ],
+      "wordTimestamps": true,
+      "speakerDiarization": false
+    },
+    {
+      "id": "gigaam-multilingual-large-ctc-f16",
+      "name": "GigaAM Multilingual Large CTC",
+      "family": "gigaam_asr",
+      "group": "特定语言优化",
+      "precision": "F16",
+      "files": [
+        {
+          "name": "gigaam-multilingual-large-ctc-f16.gguf",
+          "size": 1172282848,
+          "sha256": "39d1d2235fdd68cd25876e8e6392e93eae2f85578dae5a5aa59706c810a17c09",
+          "sources": {
+            "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/874fcb41ececda20bcbc0782d6b4ea7f7d069ea8/GigaAM-ASR-GGUF/gigaam-multilingual-large-ctc-f16.gguf",
+            "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/GigaAM-ASR-GGUF/gigaam-multilingual-large-ctc-f16.gguf"
+          }
+        }
+      ],
+      "license": "MIT",
+      "languages": "俄语、哈萨克语、吉尔吉斯语、乌兹别克语、英语",
+      "summary": "俄语及中亚语言（大）：多语种 GigaAM 的大号版本，更准。",
+      "description": "Sber GigaAM 多语种版本的大模型，语言覆盖与 Multilingual CTC 相同，准确率更高，体积约 1.2 GB，自带词级时间戳。",
+      "speed": 3,
+      "accuracy": 5,
+      "tags": [
+        "中亚语言",
+        "逐词时间戳"
+      ],
+      "wordTimestamps": true,
+      "speakerDiarization": false
+    },
+    {
+      "id": "hviske-v5.3-q8",
+      "name": "Hviske v5.3",
+      "family": "hviske_asr",
+      "group": "特定语言优化",
+      "precision": "Q8_0",
+      "files": [
+        {
+          "name": "hviske-v5.3-q8_0.gguf",
+          "size": 2438636064,
+          "sha256": "9f910b2610e6af5719718adbff94c5d526fd6feb5cd5564a40adeabb8083f0ad",
+          "sources": {
+            "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/874fcb41ececda20bcbc0782d6b4ea7f7d069ea8/Hviske-v5.3-GGUF/hviske-v5.3-q8_0.gguf",
+            "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/Hviske-v5.3-GGUF/hviske-v5.3-q8_0.gguf"
+          }
+        }
+      ],
+      "license": "CC-BY-NC-4.0",
+      "languages": "丹麦语",
+      "summary": "丹麦语专精：基于 Cohere Transcribe 微调，仅限非商业用途。",
+      "description": "syv.ai 在 Cohere Transcribe 基础上针对丹麦语微调的模型，丹麦语准确率高，可控制标点输出。许可证为 CC-BY-NC-4.0，仅限非商业用途。",
+      "speed": 3,
+      "accuracy": 4,
+      "tags": [
+        "丹麦语",
+        "非商业用途"
+      ],
+      "wordTimestamps": false,
+      "speakerDiarization": false
+    },
+    {
+      "id": "hviske-v6-q8",
+      "name": "Hviske v6",
+      "family": "hviske_asr_v6",
+      "group": "特定语言优化",
+      "precision": "Q8_0",
+      "files": [
+        {
+          "name": "hviske-v6-q8_0.gguf",
+          "size": 1650365184,
+          "sha256": "eadae78112a82cefb62daa23242f01216a6df1086487d211bbc86bf1a8d660ce",
+          "sources": {
+            "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/874fcb41ececda20bcbc0782d6b4ea7f7d069ea8/Hviske-v6-GGUF/hviske-v6-q8_0.gguf",
+            "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/Hviske-v6-GGUF/hviske-v6-q8_0.gguf"
+          }
+        }
+      ],
+      "license": "CC-BY-NC-4.0",
+      "languages": "丹麦语",
+      "summary": "丹麦语新版：Whisper 编码器 + Qwen3 解码器，仅限非商业用途。",
+      "description": "Hviske 第六代丹麦语识别模型，采用旋转位置编码的 Whisper 编码器和 Qwen3 解码器，比 v5.3 更小更快。许可证为 CC-BY-NC-4.0，仅限非商业用途。",
+      "speed": 3,
+      "accuracy": 4,
+      "tags": [
+        "丹麦语",
+        "非商业用途"
+      ],
+      "wordTimestamps": false,
+      "speakerDiarization": false
+    },
+    {
+      "id": "qwencleo-asr-q8",
+      "name": "QwenCleo-ASR",
+      "family": "qwen3_asr",
+      "group": "特定语言优化",
+      "precision": "Q8_0",
+      "files": [
+        {
+          "name": "qwencleo-asr-q8_0.gguf",
+          "size": 2477476256,
+          "sha256": "8836043dcd4d1fd0df9c253920bbbca1c0c3d6def80adb88bf31b2bf71639039",
+          "sources": {
+            "huggingface": "https://huggingface.co/mohammedaly22/QwenCleo-ASR-GGUF/resolve/6884dc2054684a2bb5e70ac8074e43f9c9fcd78a/qwencleo-asr-q8_0.gguf"
+          }
+        }
+      ],
+      "license": "Apache-2.0",
+      "languages": "埃及阿拉伯语、英语（支持混说）",
+      "summary": "埃及阿拉伯语：基于 Qwen3-ASR 1.7B 微调，擅长阿英混说。",
+      "description": "社区在 Qwen3-ASR 1.7B 上针对埃及阿拉伯语方言及阿拉伯语、英语混说微调的模型。可以搭配 Qwen3 强制对齐模型，但对齐模型不支持阿拉伯语，阿拉伯语内容不会有词级时间戳。",
+      "speed": 2,
+      "accuracy": 4,
+      "tags": [
+        "阿拉伯语",
+        "社区"
+      ],
+      "wordTimestamps": false,
+      "speakerDiarization": false
+    },
+    {
+      "id": "moss-transcribe-diarize-q8",
+      "name": "MOSS-Transcribe-Diarize",
+      "family": "moss_transcribe_diarize",
+      "group": "长音频与说话人区分",
+      "precision": "Q8_0",
+      "files": [
+        {
+          "name": "moss-transcribe-diarize-q8_0.gguf",
+          "size": 1132110560,
+          "sha256": "93eea5865615e270b827752945f2dfd0f522ed673f4f551675e9013170173679",
+          "sources": {
+            "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/874fcb41ececda20bcbc0782d6b4ea7f7d069ea8/MOSS-Transcribe-Diarize-GGUF/moss-transcribe-diarize-q8_0.gguf",
+            "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/MOSS-Transcribe-Diarize-GGUF/moss-transcribe-diarize-q8_0.gguf"
+          }
+        }
+      ],
+      "license": "Apache-2.0",
+      "languages": "50 多种语言，自动识别",
+      "summary": "转写 + 说话人：复旦 OpenMOSS 出品，同时输出文字、时间与说话人。",
+      "description": "复旦大学 OpenMOSS 团队的联合转写与说话人分离模型（Whisper 编码器 + Qwen3 解码器），支持 50 多种语言并自动识别。模型本身能区分说话人，但 Murmur 目前只使用转写文字，不显示说话人标签。",
+      "speed": 3,
+      "accuracy": 4,
+      "tags": [
+        "多语种",
+        "说话人"
+      ],
+      "wordTimestamps": false,
+      "speakerDiarization": false
+    },
+    {
+      "id": "vibevoice-asr-q8",
+      "name": "VibeVoice ASR",
+      "family": "vibevoice_asr",
+      "group": "长音频与说话人区分",
+      "precision": "Q8_0",
+      "files": [
+        {
+          "name": "vibevoice-asr-q8_0.gguf",
+          "size": 9858648480,
+          "sha256": "6cefa920277f13d102c0014397044c52b63aa02e1a54f519e1732e04217859f8",
+          "sources": {
+            "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/874fcb41ececda20bcbc0782d6b4ea7f7d069ea8/VibeVoice-ASR-GGUF/vibevoice-asr-q8_0.gguf",
+            "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/VibeVoice-ASR-GGUF/vibevoice-asr-q8_0.gguf"
+          }
+        }
+      ],
+      "license": "MIT",
+      "languages": "50 多种语言，自动识别",
+      "summary": "长音频大模型：微软出品，单次可处理 60 分钟音频，约 10 GB。",
+      "description": "微软 VibeVoice 的 70 亿参数长音频识别模型，可一次处理长达 60 分钟的音频并给出说话人、时间与内容，支持热词和 50 多种语言。体积约 10 GB，建议 32 GB 以上内存并使用 GPU。模型本身能区分说话人，但 Murmur 目前只使用转写文字，不显示说话人标签。",
+      "speed": 1,
+      "accuracy": 5,
+      "tags": [
+        "长音频",
+        "说话人",
+        "大模型"
+      ],
+      "wordTimestamps": false,
+      "speakerDiarization": false
+    },
+    {
+      "id": "vibevoice-asr-streaming-7b-q8",
+      "name": "VibeVoice ASR Streaming 7B",
+      "family": "vibevoice_asr_streaming",
+      "group": "长音频与说话人区分",
+      "precision": "Q8_0",
+      "files": [
+        {
+          "name": "vibevoice-asr-streaming-7b-q8_0.gguf",
+          "size": 9858232896,
+          "sha256": "7e4c86034c1386d51d2eecb5af12c2f9c676d2156e8e8079c2297326461bf17d",
+          "sources": {
+            "huggingface": "https://huggingface.co/audio-cpp/VibeVoice-ASR-Streaming-7B-GGUF/resolve/f1c45856434b200afc049a57d1c986e8d30052db/vibevoice-asr-streaming-7b-q8_0.gguf"
+          }
+        }
+      ],
+      "license": "MIT",
+      "languages": "中、英、日、韩、法、德、西、葡、意、俄 10 种语言",
+      "summary": "流式长音频：VibeVoice ASR 的流式版本，7B，约 10 GB。",
+      "description": "微软 VibeVoice ASR 的流式版本，解码器状态跨分块保留，适合长时间连续转写，覆盖中英日韩等 10 种语言。体积约 10 GB，建议 32 GB 以上内存并使用 GPU。模型本身能区分说话人，但 Murmur 目前只使用转写文字，不显示说话人标签。",
+      "speed": 1,
+      "accuracy": 5,
+      "tags": [
+        "流式",
+        "说话人",
+        "大模型"
+      ],
+      "wordTimestamps": false,
+      "speakerDiarization": false
+    },
+    {
+      "id": "vibevoice-asr-streaming-1.5b-q8",
+      "name": "VibeVoice ASR Streaming 1.5B",
+      "family": "vibevoice_asr_streaming",
+      "group": "长音频与说话人区分",
+      "precision": "Q8_0",
+      "files": [
+        {
+          "name": "vibevoice-asr-streaming-1.5b-q8_0.gguf",
+          "size": 3343199488,
+          "sha256": "1a92c0f6c72439d58dedaaff96bb77264802618bd577f58cc0176f47bae5180d",
+          "sources": {
+            "huggingface": "https://huggingface.co/christopherthompson81/VibeVoice-ASR-Streaming-1.5B-GGUF/resolve/ff96151102990984d6d0e951e62751bdb2ff9243/vibevoice-asr-streaming-1.5b-q8_0.gguf"
+          }
+        }
+      ],
+      "license": "MIT",
+      "languages": "中、英、日、韩、法、德、西、葡、意、俄 10 种语言",
+      "summary": "流式长音频（小）：VibeVoice 流式识别的 1.5B 版本，约 3.3 GB。",
+      "description": "VibeVoice ASR Streaming 的 15 亿参数版本，语言覆盖与 7B 相同，内存需求小很多，适合 16 GB 内存的电脑。社区转换的 GGUF。模型本身能区分说话人，但 Murmur 目前只使用转写文字，不显示说话人标签。",
+      "speed": 2,
+      "accuracy": 4,
+      "tags": [
+        "流式",
+        "说话人",
+        "社区"
+      ],
+      "wordTimestamps": false,
+      "speakerDiarization": false
+    },
+    {
+      "id": "index-echo-s2tt-2b-q8",
+      "name": "Index-Echo S2TT 2B",
+      "family": "index_echo",
+      "group": "语音翻译",
+      "precision": "Q8_0",
+      "files": [
+        {
+          "name": "index-echo-s2tt-2b-q8_0.gguf",
+          "size": 3191468640,
+          "sha256": "2a1fad49d8e1d1858e008c6dd530dd17a1baf984bbc43c0484a51128b35365cd",
+          "sources": {
+            "huggingface": "https://huggingface.co/audio-cpp/Index-Echo-S2TT-GGUF/resolve/08c2fc8e3fc87da1d848c5c75aeba1b761d2624e/index-echo-s2tt-2b-q8_0.gguf"
+          }
+        }
+      ],
+      "license": "Apache-2.0",
+      "languages": "中文语音 → 英语 / 西班牙语 / 日语文字",
+      "summary": "中文语音直译：把中文语音直接转成外文字幕，2B 版。",
+      "description": "B 站 Index 团队的语音翻译模型，输入中文语音，直接输出英语（默认）、西班牙语或日语文字，而不是中文转写。2B 版约 3.2 GB。audio.cpp 将其标为实验性。",
+      "speed": 3,
+      "accuracy": 4,
+      "tags": [
+        "语音翻译",
+        "实验性"
+      ],
+      "wordTimestamps": false,
+      "speakerDiarization": false
+    },
+    {
+      "id": "index-echo-s2tt-9b-q8",
+      "name": "Index-Echo S2TT 9B",
+      "family": "index_echo",
+      "group": "语音翻译",
+      "precision": "Q8_0",
+      "files": [
+        {
+          "name": "index-echo-s2tt-9b-q8_0.gguf",
+          "size": 11205586016,
+          "sha256": "2ee5dfbcb01e5020faca22b54d34f9f3890b7206ebd6a08538aee9063ff7fe25",
+          "sources": {
+            "huggingface": "https://huggingface.co/audio-cpp/Index-Echo-S2TT-GGUF/resolve/08c2fc8e3fc87da1d848c5c75aeba1b761d2624e/index-echo-s2tt-9b-q8_0.gguf"
+          }
+        }
+      ],
+      "license": "Apache-2.0",
+      "languages": "中文语音 → 英语 / 西班牙语 / 日语文字",
+      "summary": "中文语音直译：把中文语音直接转成外文字幕，9B 版。",
+      "description": "B 站 Index 团队的语音翻译模型，输入中文语音，直接输出英语（默认）、西班牙语或日语文字，而不是中文转写。9B 版约 11 GB，建议 32 GB 以上内存。audio.cpp 将其标为实验性。",
+      "speed": 1,
+      "accuracy": 5,
+      "tags": [
+        "语音翻译",
+        "实验性"
+      ],
+      "wordTimestamps": false,
+      "speakerDiarization": false
+    },
+    {
+      "id": "audio-flamingo-next-q8",
+      "name": "Audio Flamingo Next",
+      "family": "audio_flamingo",
+      "group": "音频理解大模型（实验性）",
+      "precision": "Q8_0",
+      "files": [
+        {
+          "name": "audio-flamingo-next-q8_0.gguf",
+          "size": 9312869120,
+          "sha256": "124969625d2bd14af1a732de58ca53c2711fdb68e02f5504d408ccf637f1eb0a",
+          "sources": {
+            "huggingface": "https://huggingface.co/audio-cpp/Audio-Flamingo-GGUF/resolve/66729357574c7bbe27667620ce23dc17b0397035/audio-flamingo-next-q8_0.gguf"
+          }
+        }
+      ],
+      "license": "NVIDIA 非商业许可",
+      "languages": "英语",
+      "summary": "音频理解：NVIDIA 音频大模型，能转写，也能描述声音和音乐，约 9.3 GB。",
+      "description": "NVIDIA 的音频语言大模型 Audio Flamingo Next，除转写语音外还能描述环境声、音乐并回答相关问题。在 Murmur 中用于英语转写。体积约 9.3 GB，建议 32 GB 以上内存。许可证仅限非商业用途。",
+      "speed": 1,
+      "accuracy": 4,
+      "tags": [
+        "大模型",
+        "非商业用途"
+      ],
+      "wordTimestamps": false,
+      "speakerDiarization": false
+    },
+    {
+      "id": "audio-flamingo-3-q8",
+      "name": "Audio Flamingo 3",
+      "family": "audio_flamingo",
+      "group": "音频理解大模型（实验性）",
+      "precision": "Q8_0",
+      "files": [
+        {
+          "name": "audio-flamingo-3-q8_0.gguf",
+          "size": 9317321984,
+          "sha256": "5325029ad5b955fb9db3d8f3fd06b4de567693c5990635c05486369d3414b464",
+          "sources": {
+            "huggingface": "https://huggingface.co/audio-cpp/Audio-Flamingo-GGUF/resolve/66729357574c7bbe27667620ce23dc17b0397035/audio-flamingo-3-q8_0.gguf"
+          }
+        }
+      ],
+      "license": "NVIDIA 非商业许可",
+      "languages": "英语",
+      "summary": "音频理解：Audio Flamingo 第三代，约 9.3 GB。",
+      "description": "NVIDIA Audio Flamingo 3，Audio Flamingo Next 的上一代，能力与体积相近。在 Murmur 中用于英语转写。建议 32 GB 以上内存。许可证仅限非商业用途。",
+      "speed": 1,
+      "accuracy": 4,
+      "tags": [
+        "大模型",
+        "非商业用途"
+      ],
+      "wordTimestamps": false,
+      "speakerDiarization": false
+    },
+    {
+      "id": "ming-3.0-audio-tiny-q8",
+      "name": "Ming 3.0 Audio Tiny",
+      "family": "ming3_audio",
+      "group": "音频理解大模型（实验性）",
+      "precision": "Q8_0",
+      "files": [
+        {
+          "name": "ming-3.0-audio-tiny-q8_0.gguf",
+          "size": 13665928416,
+          "sha256": "dd7fa9ac06bab553e28bba20074c03a7ff294dc13b364742e5c1c8f665a29a2f",
+          "sources": {
+            "huggingface": "https://huggingface.co/audio-cpp/Ming-3.0-Audio-Tiny-GGUF/resolve/f7ada3dbe5b7808a8a8a31266d26a6743b1d2512/ming-3.0-audio-tiny-q8_0.gguf"
+          }
+        }
+      ],
+      "license": "MIT",
+      "languages": "中文、英语",
+      "summary": "全能音频大模型：蚂蚁百灵出品，混合专家结构，约 13.7 GB。",
+      "description": "蚂蚁集团百灵团队的全模态音频模型，Whisper 编码器加混合专家（MoE）语言模型，支持识别、理解和语音合成。在 Murmur 中用于中英文转写。体积约 13.7 GB，建议 32 GB 以上内存，audio.cpp 将其标为实验性。",
+      "speed": 1,
+      "accuracy": 4,
+      "tags": [
+        "大模型",
+        "实验性"
+      ],
+      "wordTimestamps": false,
+      "speakerDiarization": false
+    },
+    {
+      "id": "firered-audio-q8",
+      "name": "FireRedAudio",
+      "family": "firered_audio",
+      "group": "音频理解大模型（实验性）",
+      "precision": "Q8_0",
+      "files": [
+        {
+          "name": "firered-audio-q8_0.gguf",
+          "size": 13974619296,
+          "sha256": "739171502a52fd1f1eb1ada1c0736ce453d82767190f9ebfe90cb8ecab2e028e",
+          "sources": {
+            "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/874fcb41ececda20bcbc0782d6b4ea7f7d069ea8/FireRedAudio-GGUF/firered-audio-q8_0.gguf",
+            "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/FireRedAudio-GGUF/firered-audio-q8_0.gguf"
+          }
+        }
+      ],
+      "license": "Apache-2.0",
+      "languages": "中文、英语",
+      "summary": "全能音频大模型：小红书 FireRed 出品，约 14 GB。",
+      "description": "小红书 FireRed 团队的音频大模型，基于 Qwen3.5 混合架构，覆盖识别、音频理解、语音合成与编辑。在 Murmur 中用于中英文转写。体积约 14 GB，建议 32 GB 以上内存，audio.cpp 将其标为实验性。",
+      "speed": 1,
+      "accuracy": 4,
+      "tags": [
+        "大模型",
+        "实验性"
+      ],
+      "wordTimestamps": false,
+      "speakerDiarization": false
+    },
+    {
+      "id": "lfm2.5-audio-1.5b-q8",
+      "name": "LFM2.5-Audio 1.5B",
+      "family": "lfm2_audio",
+      "group": "音频理解大模型（实验性）",
+      "precision": "Q8_0",
+      "files": [
+        {
+          "name": "LFM2.5-Audio-1.5B-Q8_0.gguf",
+          "size": 1246253280,
+          "sha256": "fce1362831bad25de69a9a83d5016adf64e9a83bb5f9f97c092256ba8236f7d0",
+          "sources": {
+            "huggingface": "https://huggingface.co/LiquidAI/LFM2.5-Audio-1.5B-GGUF/resolve/7d525f883a077e20afb782f2ff618edcae0e39e4/LFM2.5-Audio-1.5B-Q8_0.gguf"
+          }
+        },
+        {
+          "name": "mmproj-LFM2.5-Audio-1.5B-Q8_0.gguf",
+          "size": 293443936,
+          "sha256": "8f943619aa95cfb6218347ffd97edc4c485e76b6a839c899a4d9617db1939c67",
+          "sources": {
+            "huggingface": "https://huggingface.co/LiquidAI/LFM2.5-Audio-1.5B-GGUF/resolve/7d525f883a077e20afb782f2ff618edcae0e39e4/mmproj-LFM2.5-Audio-1.5B-Q8_0.gguf"
+          }
+        }
+      ],
+      "license": "LFM Open License v1.0",
+      "languages": "英语",
+      "summary": "端侧音频大模型：Liquid AI 出品，英语版，约 1.5 GB。",
+      "description": "Liquid AI 的 15 亿参数音频模型，FastConformer 编码器加 LFM2 混合架构骨干，可识别也可语音对话。在 Murmur 中用于英语转写，下载包含主模型和音频编码器两个文件。audio.cpp 将其标为实验性。",
+      "speed": 3,
+      "accuracy": 3,
+      "tags": [
+        "实验性"
+      ],
+      "wordTimestamps": false,
+      "speakerDiarization": false
+    },
+    {
+      "id": "lfm2.5-audio-1.5b-jp-q8",
+      "name": "LFM2.5-Audio 1.5B（日语）",
+      "family": "lfm2_audio",
+      "group": "音频理解大模型（实验性）",
+      "precision": "Q8_0",
+      "files": [
+        {
+          "name": "LFM2.5-Audio-1.5B-JP-Q8_0.gguf",
+          "size": 1246253248,
+          "sha256": "f7fda7dce0e7246480406ce814eb19e499fc86255f3a33ed19e6cd329b1a4c09",
+          "sources": {
+            "huggingface": "https://huggingface.co/LiquidAI/LFM2.5-Audio-1.5B-JP-GGUF/resolve/64b96718b341dbd5650f9e85627cecdcbd4ac61b/LFM2.5-Audio-1.5B-JP-Q8_0.gguf"
+          }
+        },
+        {
+          "name": "mmproj-LFM2.5-Audio-1.5B-JP-Q8_0.gguf",
+          "size": 293443840,
+          "sha256": "710b339f336488b97800761b26a843c326fba6e390c532bcb6dcd5fa34dcf521",
+          "sources": {
+            "huggingface": "https://huggingface.co/LiquidAI/LFM2.5-Audio-1.5B-JP-GGUF/resolve/64b96718b341dbd5650f9e85627cecdcbd4ac61b/mmproj-LFM2.5-Audio-1.5B-JP-Q8_0.gguf"
+          }
+        }
+      ],
+      "license": "LFM Open License v1.0",
+      "languages": "日语",
+      "summary": "端侧音频大模型：Liquid AI 出品，日语版，约 1.5 GB。",
+      "description": "Liquid AI 的 15 亿参数音频模型，FastConformer 编码器加 LFM2 混合架构骨干，可识别也可语音对话。在 Murmur 中用于日语转写，下载包含主模型和音频编码器两个文件。audio.cpp 将其标为实验性。",
+      "speed": 3,
+      "accuracy": 3,
+      "tags": [
+        "实验性"
+      ],
+      "wordTimestamps": false,
+      "speakerDiarization": false
     },
     {
       "id": "qwen3-forced-aligner-0.6b-q8",
       "kind": "aligner",
       "name": "Qwen3 强制对齐模型",
       "family": "qwen3_forced_aligner",
+      "group": "通用多语种（含中文）",
       "precision": "Q8_0",
-      "file": "qwen3-forced-aligner-0.6b-q8_0.gguf",
-      "size": 1129966496,
-      "sha256": "75209490b11cec2b0db749ca5f4ff92266f58efd30f7fd04d9eb2a3ac9cc929f",
+      "files": [
+        {
+          "name": "qwen3-forced-aligner-0.6b-q8_0.gguf",
+          "size": 1129969856,
+          "sha256": "bf4fec616f77a20d89a649cd1c97bda269644eeb3cf906d1f7488a52d71f7cb2",
+          "sources": {
+            "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/874fcb41ececda20bcbc0782d6b4ea7f7d069ea8/Qwen3-ForcedAligner-0.6B-GGUF/qwen3-forced-aligner-0.6b-q8_0.gguf",
+            "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/Qwen3-ForcedAligner-0.6B-GGUF/qwen3-forced-aligner-0.6b-q8_0.gguf"
+          }
+        }
+      ],
       "license": "Apache-2.0",
       "languages": "中、粤、英、日、韩、法、德、意、葡、俄、西",
       "summary": "为 Qwen3-ASR 生成词级时间戳（中文为字级），转写后自动对齐。",
+      "description": "Qwen3 的非自回归强制对齐模型，把转写文字与音频对齐，给出词级（中文为字级）时间戳。只作为 Qwen3-ASR 系列的附加组件使用。",
       "speed": 3,
       "accuracy": 4,
       "tags": [],
       "wordTimestamps": true,
-      "speakerDiarization": false,
-      "sources": {
-        "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/main/Qwen3-ForcedAligner-0.6B-GGUF/qwen3-forced-aligner-0.6b-q8_0.gguf",
-        "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/Qwen3-ForcedAligner-0.6B-GGUF/qwen3-forced-aligner-0.6b-q8_0.gguf"
-      }
+      "speakerDiarization": false
     }
   ]
 }

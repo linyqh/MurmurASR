@@ -467,7 +467,7 @@ async fn list_models(State(app): State<AppHandle>) -> Json<Value> {
                 "name": m.name,
                 "languages": m.languages,
                 "summary": m.summary,
-                "size": m.size,
+                "size": m.size(),
                 "wordTimestamps": m.word_timestamps,
                 "installed": installed.contains(&m.id),
                 "loaded": loaded.as_deref() == Some(m.id.as_str()),

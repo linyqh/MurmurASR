@@ -932,8 +932,17 @@ pub mod testing {
     }
 }
 
-/// Strips model control tags (e.g. SenseVoice `<|zh|>`) and tidies whitespace.
+/// Strips model control tags (e.g. SenseVoice `<|zh|>`) and a leading
+/// `Language<TAB>` label (Ming Audio), and tidies whitespace.
 pub fn clean_text(text: &str) -> String {
+    let text = match text.split_once('\t') {
+        Some((label, rest))
+            if !label.is_empty() && label.len() <= 16 && label.chars().all(|c| c.is_ascii_alphabetic()) =>
+        {
+            rest
+        }
+        _ => text,
+    };
     let mut out = String::with_capacity(text.len());
     let mut rest = text;
     while let Some(start) = rest.find("<|") {
@@ -1090,5 +1099,8 @@ mod tests {
         );
         assert_eq!(clean_text("  hello   world \n"), "hello world");
         assert_eq!(clean_text("abc <|unterminated"), "abc");
+        assert_eq!(clean_text("Chinese\t你好世界"), "你好世界");
+        // Only a leading word label is dropped, never transcript text.
+        assert_eq!(clean_text("hello world\tagain"), "hello world again");
     }
 }

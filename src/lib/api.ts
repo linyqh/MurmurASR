@@ -1,19 +1,29 @@
 import { invoke } from "@tauri-apps/api/core";
 import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 
+export interface ModelFile {
+  name: string;
+  size: number;
+  sha256: string;
+  sources: Record<string, string>;
+}
+
 export interface CatalogModel {
   id: string;
   /** Absent for ordinary ASR models. */
   kind?: "asr" | "aligner";
   name: string;
   family: string;
+  /** Section of the model list; sections follow catalog order. */
+  group: string;
   precision: string;
-  file: string;
-  size: number;
-  sha256: string;
+  files: ModelFile[];
   license: string;
   languages: string;
+  /** One-line headline. */
   summary: string;
+  /** Fuller introduction: origin, strengths, limits, requirements. */
+  description: string;
   speed: number;
   accuracy: number;
   tags: string[];
@@ -21,7 +31,11 @@ export interface CatalogModel {
   speakerDiarization: boolean;
   /** Companion aligner that adds word timestamps once installed. */
   aligner?: string;
-  sources: Record<string, string>;
+}
+
+/** Total download size of a model package. */
+export function modelSize(model: CatalogModel): number {
+  return model.files.reduce((sum, f) => sum + f.size, 0);
 }
 
 export interface Catalog {

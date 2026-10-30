@@ -374,10 +374,10 @@ pub fn start_model_load(state: &AppState, id: String) -> CmdResult<()> {
         return Err(format!("{} 是辅助模型，不能单独用于识别", model.name));
     }
     let root = state.models_dir();
-    let path = models::model_path(&root, &model);
-    if !path.exists() {
+    if !models::is_installed(&root, &model) {
         return Err("模型尚未下载".into());
     }
+    let path = models::load_path(&root, &model);
     let aligner = models::installed_aligner(&root, &state.catalog, &model);
     let (backend, threads) = {
         let mut settings = state.settings.lock();

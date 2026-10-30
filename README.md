@@ -10,23 +10,27 @@
 
 ## 模型
 
-| 模型 | 大小 | 特点 |
-|---|---|---|
-| **Qwen3-ASR 0.6B（推荐）** | 1.2 GB | 30 种语言 + 22 种中文方言，自动识别语言；装上对齐模型后输出词级时间戳 |
-| SenseVoice Small | 254 MB | 极速轻量，中文 / 粤语出色 |
-| Fun-ASR Nano | 1.0 GB | 中文专精，数字规整好 |
-| Qwen3-ASR 1.7B | 2.5 GB | 更高精度 |
-| Parakeet TDT 0.6B v3 | 916 MB | 英语和 24 种欧洲语言，逐词时间戳 |
-| Nemotron 3.5 ASR 0.6B | 931 MB | 40 种语言 |
-| Moonshine Small | 301 MB | 英语，低延迟 |
+模型页收录了 audio.cpp（v0.9.3）中可以直接下载使用的语音识别模型，共 55 个，另有 1 个对齐模型。按用途分为 7 组，可以按名称、语言或特点搜索。每张卡片都写了模型出处、擅长的场景、限制、内存需求和许可证。安装包里不带模型，需要哪个就下载哪个。
 
-模型目录在 `src-tauri/catalog.json`，后端和前端共用这一份。
+| 分组 | 代表模型 |
+|---|---|
+| 通用多语种（含中文） | **Qwen3-ASR 0.6B（推荐）**、Qwen3-ASR 1.7B、SenseVoice Small、Fun-ASR Nano、Confucius4-R2T2、Nemotron 3.5、Cohere Transcribe、Voxtral Realtime、CrisperWhisper、OWSM / OWSM-CTC |
+| 英语 | Moonshine Tiny / Small / Medium、Kroko、Niagara、Citrinet、Higgs Audio STT |
+| 欧洲语言 | Parakeet TDT、Canary 180M Flash、Granite Speech 5.0、Whistle、Kroko 各语种版 |
+| 特定语言优化 | GigaAM（俄语及中亚语言）、Hviske（丹麦语）、QwenCleo（埃及阿拉伯语）、Kroko 希伯来语 |
+| 长音频与说话人区分 | MOSS-Transcribe-Diarize、VibeVoice ASR、VibeVoice ASR Streaming 7B / 1.5B |
+| 语音翻译 | Index-Echo S2TT 2B / 9B（中文语音直接输出英 / 西 / 日文字） |
+| 音频理解大模型（实验性） | Audio Flamingo 3 / Next、Ming 3.0 Audio Tiny、FireRedAudio、LFM2.5-Audio |
+
+模型目录在 `src-tauri/catalog.json`，后端和前端共用这一份。每个模型由一个或多个文件组成。单文件模型直接加载这个文件，多文件模型（如 LFM2.5-Audio）加载所在目录。每个文件都有 SHA-256，Hugging Face 链接固定到具体 commit。某个下载源返回的文件校验不通过时，会自动换下一个源。`engine/audiocpp.lock` 的 `AUDIOCPP_MODELS` 必须包含目录中用到的每个 family，单元测试会检查这一点。
+
+未收录的模型：audio8_asr（许可证不允许公开分发 GGUF）、lfm3_audio（只在 audio.cpp main 分支上，v0.9.3 没有）、SAMSONE（音频描述模型，即使要求转写也只输出对声音的描述）、VibeASR（由两个 GGUF 组成，上游要求额外传入 model spec 才能加载）。
 
 ### 词级时间戳
 
 支持的模型会自动请求词级时间戳。记录页播放时逐词高亮，点击单词可跳转播放；导出 JSON 时每段带 `words`。
 
-- Parakeet、Kroko、GigaAM、CrisperWhisper、Nemotron 原生输出词级时间戳。Nemotron 给出的是子词 token，会合并成词。
+- Parakeet、Kroko、GigaAM、Granite Speech、CrisperWhisper、Nemotron 原生输出词级时间戳。Nemotron 给出的是子词 token，会合并成词。
 - Qwen3-ASR 需要额外下载 **Qwen3 强制对齐模型**（1.1 GB，在模型卡片里下载），支持中、粤、英、日、韩、法、德、意、葡、俄、西 11 种语言，中文按字对齐。下载后重新加载模型即可生效。对齐失败的片段会自动退回为不带时间戳的结果。
 - 实时听写只为最终结果生成时间戳，中间结果不做对齐。
 - 编辑某段文字后，该段的词级时间戳会被清除。
