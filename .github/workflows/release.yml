@@ -29,6 +29,7 @@ jobs:
     outputs:
       tag: ${{ steps.meta.outputs.tag }}
       audiocpp: ${{ steps.meta.outputs.audiocpp }}
+      build: ${{ steps.release.outputs.build }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -51,15 +52,26 @@ jobs:
           echo "audiocpp=$audiocpp" >> "$GITHUB_OUTPUT"
           echo "MurmurASR $tag, audio.cpp $audiocpp"
 
+      # Publishing a draft creates its tag, which triggers this workflow again;
+      # a release that is already published must not be rebuilt or overwritten.
       - name: Create draft release
+        id: release
         run: |
           tag=${{ steps.meta.outputs.tag }}
-          gh release view "$tag" -R "$GITHUB_REPOSITORY" >/dev/null 2>&1 ||
+          draft=$(gh release view "$tag" -R "$GITHUB_REPOSITORY" --json isDraft -q .isDraft 2>/dev/null || true)
+          if [[ "$draft" == false ]]; then
+            echo "::notice::$tag is already published; skipping the build"
+            echo "build=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          [[ "$draft" == true ]] ||
             gh release create "$tag" -R "$GITHUB_REPOSITORY" --draft --target "$GITHUB_SHA" \
               --title "MurmurASR $tag" --generate-notes
+          echo "build=true" >> "$GITHUB_OUTPUT"
 
   macos:
     needs: prepare
+    if: needs.prepare.outputs.build == 'true'
     runs-on: macos-26
     timeout-minutes: 60
     env:
@@ -97,6 +109,7 @@ jobs:
 
   windows:
     needs: prepare
+    if: needs.prepare.outputs.build == 'true'
     runs-on: windows-2022
     timeout-minutes: 75
     env:
