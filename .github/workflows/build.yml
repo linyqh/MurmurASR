@@ -46,15 +46,25 @@ jobs:
         with:
           workspaces: src-tauri
 
+      - name: Resolve audio.cpp release
+        id: audiocpp
+        shell: bash
+        run: |
+          ref=$(git ls-remote --tags --refs https://github.com/0xShug0/audio.cpp.git 'v*' |
+            sed 's#.*refs/tags/##' | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -n 1)
+          echo "ref=$ref" >> "$GITHUB_OUTPUT"
+
       - name: Cache engine build
         uses: actions/cache@v4
         with:
           path: |
             engine/vendor
             engine/build
-          key: engine-${{ matrix.os }}-${{ hashFiles('engine/audiocpp.lock') }}
+          key: engine-${{ matrix.os }}-${{ steps.audiocpp.outputs.ref }}-${{ hashFiles('engine/audiocpp.conf') }}
 
       - name: Build engine
+        env:
+          AUDIOCPP_REF: ${{ steps.audiocpp.outputs.ref }}
         run: ${{ matrix.engine }}
 
       - run: npm ci

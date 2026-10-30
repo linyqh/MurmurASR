@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
 # Builds libaudiocpp (audio.cpp C ABI) for macOS / Linux and stages it, together
 # with the bundled VAD assets, into src-tauri/resources/engine.
+#
+# Builds the latest audio.cpp release tag (vX.Y.Z). Set AUDIOCPP_REF to build a
+# specific tag instead.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 # shellcheck disable=SC1091
-source "$ROOT/engine/audiocpp.lock"
+source "$ROOT/engine/audiocpp.conf"
 
 SRC_DIR="$ROOT/engine/vendor/audio.cpp"
 BACKEND=""
@@ -49,10 +52,20 @@ esac
 if [[ ! -d "$SRC_DIR/.git" ]]; then
     git clone --filter=blob:none --no-checkout "$AUDIOCPP_REPO" "$SRC_DIR"
 fi
-if [[ "$(git -C "$SRC_DIR" rev-parse HEAD 2>/dev/null || true)" != "$AUDIOCPP_COMMIT" ]]; then
-    git -C "$SRC_DIR" fetch --depth 1 origin "$AUDIOCPP_COMMIT"
-    git -C "$SRC_DIR" checkout --detach "$AUDIOCPP_COMMIT"
+if [[ -z "${AUDIOCPP_REF:-}" ]]; then
+    AUDIOCPP_REF="$(git ls-remote --tags --refs "$AUDIOCPP_REPO" 'v*' |
+        sed 's#.*refs/tags/##' | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -n 1 || true)"
 fi
+if [[ -n "${AUDIOCPP_REF:-}" ]]; then
+    git -C "$SRC_DIR" fetch --depth 1 origin "refs/tags/$AUDIOCPP_REF:refs/tags/$AUDIOCPP_REF"
+    git -C "$SRC_DIR" checkout --detach "$AUDIOCPP_REF"
+else
+    # Offline: rebuild whatever release is already checked out.
+    AUDIOCPP_REF="$(git -C "$SRC_DIR" describe --tags --exact-match 2>/dev/null || true)"
+    [[ -n "$AUDIOCPP_REF" ]] || { echo "cannot reach $AUDIOCPP_REPO and no release is checked out" >&2; exit 1; }
+    echo "warning: cannot reach $AUDIOCPP_REPO; building the checked-out $AUDIOCPP_REF" >&2
+fi
+echo "audio.cpp $AUDIOCPP_REF"
 
 CMAKE_ARGS=(
     -DCMAKE_BUILD_TYPE="$BUILD_TYPE"

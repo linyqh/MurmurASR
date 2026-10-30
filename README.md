@@ -10,7 +10,7 @@
 
 ## 模型
 
-模型页收录了 audio.cpp（v0.9.3）中可以直接下载使用的语音识别模型，共 55 个，另有 1 个对齐模型。按用途分为 7 组，可以按名称、语言或特点搜索。每张卡片都写了模型出处、擅长的场景、限制、内存需求和许可证。安装包里不带模型，需要哪个就下载哪个。
+模型页收录了 audio.cpp 中可以直接下载使用的语音识别模型，共 55 个，另有 1 个对齐模型。按用途分为 7 组，可以按名称、语言或特点搜索。每张卡片都写了模型出处、擅长的场景、限制、内存需求和许可证。安装包里不带模型，需要哪个就下载哪个。
 
 | 分组 | 代表模型 |
 |---|---|
@@ -22,9 +22,9 @@
 | 语音翻译 | Index-Echo S2TT 2B / 9B（中文语音直接输出英 / 西 / 日文字） |
 | 音频理解大模型（实验性） | Audio Flamingo 3 / Next、Ming 3.0 Audio Tiny、FireRedAudio、LFM2.5-Audio |
 
-模型目录在 `src-tauri/catalog.json`，后端和前端共用这一份。每个模型由一个或多个文件组成。单文件模型直接加载这个文件，多文件模型（如 LFM2.5-Audio）加载所在目录。每个文件都有 SHA-256，Hugging Face 链接固定到具体 commit。某个下载源返回的文件校验不通过时，会自动换下一个源。`engine/audiocpp.lock` 的 `AUDIOCPP_MODELS` 必须包含目录中用到的每个 family，单元测试会检查这一点。
+模型目录在 `src-tauri/catalog.json`，后端和前端共用这一份。每个模型由一个或多个文件组成。单文件模型直接加载这个文件，多文件模型（如 LFM2.5-Audio）加载所在目录。每个文件都有 SHA-256，Hugging Face 链接固定到具体 commit。某个下载源返回的文件校验不通过时，会自动换下一个源。`engine/audiocpp.conf` 的 `AUDIOCPP_MODELS` 必须包含目录中用到的每个 family，单元测试会检查这一点。
 
-未收录的模型：audio8_asr（许可证不允许公开分发 GGUF）、lfm3_audio（只在 audio.cpp main 分支上，v0.9.3 没有）、SAMSONE（音频描述模型，即使要求转写也只输出对声音的描述）、VibeASR（由两个 GGUF 组成，上游要求额外传入 model spec 才能加载）。
+未收录的模型：audio8_asr（许可证不允许公开分发 GGUF）、lfm3_audio（截至 v0.9.3 只在 audio.cpp main 分支上）、SAMSONE（音频描述模型，即使要求转写也只输出对声音的描述）、VibeASR（由两个 GGUF 组成，上游要求额外传入 model spec 才能加载）。
 
 ### 词级时间戳
 
@@ -160,4 +160,4 @@ Developer ID Application 身份。打包脚本会加载此本机配置，对应�
 
 `.github/workflows/build.yml` 会在三个平台上分别编译引擎、运行测试并打包。窗口外观按平台区分：macOS 用 sidebar 材质，Windows 用 Mica，Linux 用不透明窗口（见 `tauri.*.conf.json`）。
 
-audio.cpp 的版本锁定在 `engine/audiocpp.lock`。升级时修改 commit，再重新运行引擎构建脚本。模型权重遵循各自的原始许可证（见模型卡片）。
+引擎构建脚本每次都会编译 audio.cpp 最新的正式 release（`vX.Y.Z` tag），不固定版本。要编译指定版本，设置环境变量 `AUDIOCPP_REF`（如 `AUDIOCPP_REF=v0.9.3`）。连不上 GitHub 时，脚本会沿用 `engine/vendor` 里已检出的版本，并给出警告。要编译的模型 family 列在 `engine/audiocpp.conf`。如果上游删除或改名了某个 family，CMake 会报 `Unknown AUDIOCPP_MODELS entry`，这时需要同步修改这个文件和 `catalog.json`。模型权重遵循各自的原始许可证（见模型卡片）。

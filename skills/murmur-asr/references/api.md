@@ -29,7 +29,7 @@ Errors are JSON: `{ "error": "message" }`.
   "ok": true,
   "app": "murmur",
   "version": "0.1.11",
-  "engine": { "version": "0.9.1", "error": null },
+  "engine": { "version": "0.9.3", "error": null },
   "model": {
     "id": "qwen3-asr-0.6b-q8",
     "family": "qwen3_asr",

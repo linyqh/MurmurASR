@@ -552,11 +552,11 @@ mod tests {
 
     #[test]
     fn every_catalog_family_is_built_into_the_engine() {
-        let lock = include_str!("../../engine/audiocpp.lock");
-        let built: Vec<&str> = lock
+        let conf = include_str!("../../engine/audiocpp.conf");
+        let built: Vec<&str> = conf
             .lines()
             .find_map(|l| l.strip_prefix("AUDIOCPP_MODELS="))
-            .expect("lock lists models")
+            .expect("conf lists models")
             .split(',')
             .collect();
         for model in &Catalog::builtin().models {

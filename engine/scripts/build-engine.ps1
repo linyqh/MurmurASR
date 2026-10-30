@@ -2,6 +2,9 @@
 # src-tauri/resources/engine. Requires Visual Studio 2022 (C++), CMake and Git;
 # the Vulkan backend also needs a Vulkan SDK (VULKAN_SDK).
 #
+# Builds the latest audio.cpp release tag (vX.Y.Z). Set $env:AUDIOCPP_REF to
+# build a specific tag instead.
+#
 #   pwsh engine/scripts/build-engine.ps1                 # Vulkan (default)
 #   pwsh engine/scripts/build-engine.ps1 -Backend cpu
 #   pwsh engine/scripts/build-engine.ps1 -Backend cuda   # needs the CUDA toolkit
@@ -18,20 +21,32 @@ function Invoke-Native {
 }
 
 $Root = Resolve-Path (Join-Path $PSScriptRoot "../..")
-$Lock = @{}
-Get-Content (Join-Path $Root "engine/audiocpp.lock") | ForEach-Object {
-    if ($_ -match "^(\w+)=(.*)$") { $Lock[$Matches[1]] = $Matches[2] }
+$Conf = @{}
+Get-Content (Join-Path $Root "engine/audiocpp.conf") | ForEach-Object {
+    if ($_ -match "^(\w+)=(.*)$") { $Conf[$Matches[1]] = $Matches[2] }
 }
 
 $Src = Join-Path $Root "engine/vendor/audio.cpp"
 if (-not (Test-Path (Join-Path $Src ".git"))) {
-    Invoke-Native git clone --filter=blob:none --no-checkout $Lock.AUDIOCPP_REPO $Src
+    Invoke-Native git clone --filter=blob:none --no-checkout $Conf.AUDIOCPP_REPO $Src
 }
-$Head = (git -C $Src rev-parse HEAD 2>$null)
-if ($Head -ne $Lock.AUDIOCPP_COMMIT) {
-    Invoke-Native git -C $Src fetch --depth 1 origin $Lock.AUDIOCPP_COMMIT
-    Invoke-Native git -C $Src checkout --detach $Lock.AUDIOCPP_COMMIT
+$Ref = $env:AUDIOCPP_REF
+if (-not $Ref) {
+    $Ref = git ls-remote --tags --refs $Conf.AUDIOCPP_REPO "v*" |
+        ForEach-Object { ($_ -split "refs/tags/")[1] } |
+        Where-Object { $_ -match '^v\d+\.\d+\.\d+$' } |
+        Sort-Object { [version]$_.TrimStart('v') } | Select-Object -Last 1
 }
+if ($Ref) {
+    Invoke-Native git -C $Src fetch --depth 1 origin "refs/tags/${Ref}:refs/tags/${Ref}"
+    Invoke-Native git -C $Src checkout --detach $Ref
+} else {
+    # Offline: rebuild whatever release is already checked out.
+    $Ref = git -C $Src describe --tags --exact-match 2>$null
+    if (-not $Ref) { throw "cannot reach $($Conf.AUDIOCPP_REPO) and no release is checked out" }
+    Write-Warning "cannot reach $($Conf.AUDIOCPP_REPO); building the checked-out $Ref"
+}
+Write-Host "audio.cpp $Ref"
 
 $BuildType = if ($Debug) { "RelWithDebInfo" } else { "Release" }
 $Build = Join-Path $Root "engine/build/windows-$Backend"
@@ -40,8 +55,8 @@ $CmakeArgs = @(
     "-DAUDIOCPP_BUILD_C_API=ON",
     "-DAUDIOCPP_DEPLOYMENT_BUILD=ON",
     "-DAUDIOCPP_MODEL_SET=custom",
-    "-DAUDIOCPP_MODELS=$($Lock.AUDIOCPP_MODELS)",
-    "-DAUDIOCPP_VERSION=$($Lock.AUDIOCPP_REF.TrimStart('v'))",
+    "-DAUDIOCPP_MODELS=$($Conf.AUDIOCPP_MODELS)",
+    "-DAUDIOCPP_VERSION=$($Ref.TrimStart('v'))",
     "-DENGINE_ENABLE_NATIVE_CPU=OFF",
     "-DENGINE_ENABLE_METAL=OFF",
     "-DENGINE_ENABLE_HIP=OFF",
