@@ -14,26 +14,24 @@ $ErrorActionPreference = "Stop"
 $Root = Resolve-Path (Join-Path $PSScriptRoot "..")
 Set-Location $Root
 
-if (-not (Get-Command cmake -ErrorAction SilentlyContinue)) {
-    $VsWhere = Join-Path ${env:ProgramFiles(x86)} "Microsoft Visual Studio/Installer/vswhere.exe"
-    $Vs = & $VsWhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
-    $VsCmake = Join-Path $Vs "Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/bin"
-    if (-not (Test-Path (Join-Path $VsCmake "cmake.exe"))) { throw "CMake not found on PATH or in Visual Studio ($Vs)." }
-    $env:PATH = "$VsCmake;$env:PATH"
-}
-
-if ($Backend -eq "vulkan") {
-    if (-not $env:VULKAN_SDK) {
-        $Sdk = Get-ChildItem C:\VulkanSDK -Directory -ErrorAction SilentlyContinue |
-            Sort-Object Name -Descending | Select-Object -First 1
-        if (-not $Sdk) { throw "Vulkan SDK not found. Install it from https://vulkan.lunarg.com or set VULKAN_SDK." }
-        $env:VULKAN_SDK = $Sdk.FullName
-    }
-    $env:PATH = "$(Join-Path $env:VULKAN_SDK 'Bin');$env:PATH"
-}
-
 $EngineDll = Join-Path $Root "src-tauri/resources/engine/lib/audiocpp.dll"
 if ($RebuildEngine -or -not (Test-Path $EngineDll)) {
+    if (-not (Get-Command cmake -ErrorAction SilentlyContinue)) {
+        $VsWhere = Join-Path ${env:ProgramFiles(x86)} "Microsoft Visual Studio/Installer/vswhere.exe"
+        $Vs = & $VsWhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+        $VsCmake = Join-Path $Vs "Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/bin"
+        if (-not (Test-Path (Join-Path $VsCmake "cmake.exe"))) { throw "CMake not found on PATH or in Visual Studio ($Vs)." }
+        $env:PATH = "$VsCmake;$env:PATH"
+    }
+    if ($Backend -eq "vulkan") {
+        if (-not $env:VULKAN_SDK) {
+            $Sdk = Get-ChildItem C:\VulkanSDK -Directory -ErrorAction SilentlyContinue |
+                Sort-Object Name -Descending | Select-Object -First 1
+            if (-not $Sdk) { throw "Vulkan SDK not found. Install it from https://vulkan.lunarg.com or set VULKAN_SDK." }
+            $env:VULKAN_SDK = $Sdk.FullName
+        }
+        $env:PATH = "$(Join-Path $env:VULKAN_SDK 'Bin');$env:PATH"
+    }
     & (Join-Path $Root "engine/scripts/build-engine.ps1") -Backend $Backend
 }
 

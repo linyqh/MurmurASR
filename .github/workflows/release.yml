@@ -1,0 +1,145 @@
+name: release
+
+# Builds the macOS and Windows installers and attaches them to a draft GitHub
+# Release. Runs only on demand to keep Actions usage low:
+#   - push a tag matching the app version:  git tag v0.1.11 && git push origin v0.1.11
+#   - or Actions → release → Run workflow (uses the version in tauri.conf.json)
+# The compiled audio.cpp engine is cached per upstream release, so most runs
+# skip the engine build and the Vulkan SDK install entirely.
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+env:
+  GH_TOKEN: ${{ github.token }}
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      tag: ${{ steps.meta.outputs.tag }}
+      audiocpp: ${{ steps.meta.outputs.audiocpp }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout: src-tauri/tauri.conf.json
+          sparse-checkout-cone-mode: false
+
+      - name: Resolve version, tag and audio.cpp release
+        id: meta
+        run: |
+          version=$(jq -r .version src-tauri/tauri.conf.json)
+          tag="v$version"
+          # A tag that disagrees with the app version would ship mislabelled installers.
+          if [[ "$GITHUB_REF_TYPE" == tag && "$GITHUB_REF_NAME" != "$tag" ]]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match app version $version"
+            exit 1
+          fi
+          audiocpp=$(git ls-remote --tags --refs https://github.com/0xShug0/audio.cpp.git 'v*' |
+            sed 's#.*refs/tags/##' | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -n 1)
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "audiocpp=$audiocpp" >> "$GITHUB_OUTPUT"
+          echo "MurmurASR $tag, audio.cpp $audiocpp"
+
+      - name: Create draft release
+        run: |
+          tag=${{ steps.meta.outputs.tag }}
+          gh release view "$tag" -R "$GITHUB_REPOSITORY" >/dev/null 2>&1 ||
+            gh release create "$tag" -R "$GITHUB_REPOSITORY" --draft --target "$GITHUB_SHA" \
+              --title "MurmurASR $tag" --generate-notes
+
+  macos:
+    needs: prepare
+    runs-on: macos-26
+    timeout-minutes: 60
+    env:
+      AUDIOCPP_REF: ${{ needs.prepare.outputs.audiocpp }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - name: Cache engine
+        id: engine
+        uses: actions/cache@v6
+        with:
+          path: src-tauri/resources/engine
+          key: engine-macos-metal-${{ env.AUDIOCPP_REF }}-${{ hashFiles('engine/audiocpp.conf', 'engine/scripts/build-engine.sh') }}
+
+      - run: npm ci
+
+      # Builds the engine only when the cache missed, then the .app and DMG.
+      - name: Package
+        run: bash scripts/package-macos.sh
+
+      - name: Upload to release
+        run: |
+          gh release upload "${{ needs.prepare.outputs.tag }}" --clobber \
+            src-tauri/target/release/bundle/dmg/*.dmg \
+            src-tauri/target/release/bundle/dmg/*.dmg.sha256
+
+  windows:
+    needs: prepare
+    runs-on: windows-2022
+    timeout-minutes: 75
+    env:
+      AUDIOCPP_REF: ${{ needs.prepare.outputs.audiocpp }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - name: Cache engine
+        id: engine
+        uses: actions/cache@v6
+        with:
+          path: src-tauri/resources/engine
+          key: engine-windows-vulkan-${{ env.AUDIOCPP_REF }}-${{ hashFiles('engine/audiocpp.conf', 'engine/scripts/build-engine.ps1') }}
+
+      # Only needed to compile the engine; the cached engine already bundles
+      # the Vulkan loader.
+      - name: Vulkan SDK
+        id: vulkan
+        if: steps.engine.outputs.cache-hit != 'true'
+        uses: jakoch/install-vulkan-sdk-action@v1
+        with:
+          install_runtime: true
+
+      - run: npm ci
+
+      - name: Package
+        shell: pwsh
+        env:
+          VULKAN_SDK: ${{ steps.vulkan.outputs.VULKAN_SDK }}
+        run: ./scripts/package-windows.ps1
+
+      - name: Upload to release
+        shell: bash
+        run: |
+          gh release upload "${{ needs.prepare.outputs.tag }}" --clobber \
+            src-tauri/target/release/bundle/nsis/*-setup.exe \
+            src-tauri/target/release/bundle/nsis/*-setup.exe.sha256

@@ -9,7 +9,7 @@
 55 个开源语音识别模型按需下载，支持文件转写、实时听写、字幕导出和 HTTP API。<br>
 音频始终留在你的电脑上。
 
-[![Build](https://github.com/linyqh/MurmurASR/actions/workflows/build.yml/badge.svg)](https://github.com/linyqh/MurmurASR/actions/workflows/build.yml)
+[![Release build](https://github.com/linyqh/MurmurASR/actions/workflows/release.yml/badge.svg)](https://github.com/linyqh/MurmurASR/actions/workflows/release.yml)
 [![Release](https://img.shields.io/github/v/release/linyqh/MurmurASR?sort=semver)](https://github.com/linyqh/MurmurASR/releases)
 ![Platforms](https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-lightgrey)
 [![Tauri](https://img.shields.io/badge/Tauri-2-24C8DB?logo=tauri&logoColor=white)](https://tauri.app)
@@ -238,9 +238,9 @@ powershell -ExecutionPolicy Bypass -File scripts/package-windows.ps1 -Backend cp
 |---|---|---|
 | macOS（Apple 芯片） | Metal | ✅ 已在真机验证 |
 | Windows x64 | Vulkan / CUDA / CPU | ✅ 已在真机验证 |
-| Linux x64 | Vulkan / CPU | 🚧 已有构建脚本和 CI，尚未在真机验证 |
+| Linux x64 | Vulkan / CPU | 🚧 已有构建脚本，CI 暂不打包，尚未在真机验证 |
 
-`.github/workflows/build.yml` 会在三个平台上分别编译引擎、运行测试并打包。
+`.github/workflows/release.yml` 只在推送版本 tag（如 `v0.1.11`，必须和 `tauri.conf.json` 里的版本一致）或手动运行时才会触发。它打包 macOS（Apple 芯片）和 Windows 两个安装包，并上传到一个 GitHub Release 草稿。编译好的引擎按 audio.cpp 版本缓存，上游没有发新版时，不会重新编译引擎，也不会安装 Vulkan SDK。
 
 ## 致谢
 
