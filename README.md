@@ -240,7 +240,9 @@ powershell -ExecutionPolicy Bypass -File scripts/package-windows.ps1 -Backend cp
 | Windows x64 | Vulkan / CUDA / CPU | ✅ 已在真机验证 |
 | Linux x64 | Vulkan / CPU | 🚧 已有构建脚本，CI 暂不打包，尚未在真机验证 |
 
-`.github/workflows/release.yml` 只在推送版本 tag（如 `v0.1.11`，必须和 `tauri.conf.json` 里的版本一致）或手动运行时才会触发。它打包 macOS（Apple 芯片）和 Windows 两个安装包，并上传到一个 GitHub Release 草稿。编译好的引擎按 audio.cpp 版本缓存，上游没有发新版时，不会重新编译引擎，也不会安装 Vulkan SDK。
+`.github/workflows/release.yml` 只在推送版本 tag（如 `v0.1.11`，必须和 `tauri.conf.json` 里的版本一致）或手动运行时才会触发。它只在云端打包 Windows 安装包，并上传到一个 GitHub Release 草稿。编译好的引擎按 audio.cpp 版本缓存，上游没有发新版时，不会重新编译引擎，也不会安装 Vulkan SDK。
+
+macOS 安装包在本机构建：确认 `.env.macos.local` 已配置签名与公证，在要发布的提交上运行 `./scripts/release-macos.sh`。脚本会打包、签名、公证 DMG，再上传到同一个版本的 Release 草稿（草稿不存在时自动创建；已发布的版本不会被覆盖）。两边都上传完成后，再手动发布草稿。
 
 ## 致谢
 

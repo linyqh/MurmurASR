@@ -1,7 +1,9 @@
 name: release
 
-# Builds the macOS and Windows installers and attaches them to a draft GitHub
-# Release. Runs only on demand to keep Actions usage low:
+# Builds the Windows installer and attaches it to a draft GitHub Release.
+# The macOS DMG is built, signed and notarized locally with
+# scripts/release-macos.sh, which uploads to the same draft.
+# Runs only on demand to keep Actions usage low:
 #   - push a tag matching the app version:  git tag v0.1.11 && git push origin v0.1.11
 #   - or Actions → release → Run workflow (uses the version in tauri.conf.json)
 # The compiled audio.cpp engine is cached per upstream release, so most runs
@@ -68,44 +70,6 @@ jobs:
             gh release create "$tag" -R "$GITHUB_REPOSITORY" --draft --target "$GITHUB_SHA" \
               --title "MurmurASR $tag" --generate-notes
           echo "build=true" >> "$GITHUB_OUTPUT"
-
-  macos:
-    needs: prepare
-    if: needs.prepare.outputs.build == 'true'
-    runs-on: macos-26
-    timeout-minutes: 60
-    env:
-      AUDIOCPP_REF: ${{ needs.prepare.outputs.audiocpp }}
-    steps:
-      - uses: actions/checkout@v7
-
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 22
-          cache: npm
-
-      - uses: Swatinem/rust-cache@v2
-        with:
-          workspaces: src-tauri
-
-      - name: Cache engine
-        id: engine
-        uses: actions/cache@v6
-        with:
-          path: src-tauri/resources/engine
-          key: engine-macos-metal-${{ env.AUDIOCPP_REF }}-${{ hashFiles('engine/audiocpp.conf', 'engine/scripts/build-engine.sh') }}
-
-      - run: npm ci
-
-      # Builds the engine only when the cache missed, then the .app and DMG.
-      - name: Package
-        run: bash scripts/package-macos.sh
-
-      - name: Upload to release
-        run: |
-          gh release upload "${{ needs.prepare.outputs.tag }}" --clobber \
-            src-tauri/target/release/bundle/dmg/*.dmg \
-            src-tauri/target/release/bundle/dmg/*.dmg.sha256
 
   windows:
     needs: prepare
