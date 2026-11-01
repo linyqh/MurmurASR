@@ -13,6 +13,9 @@
           "name": "qwen3-asr-0.6b-q8_0.gguf",
           "size": 1151279968,
           "sha256": "5c53bbb9a6b2ade85c16c290c560658ca18b78a23c323378528f1f945683fcbe",
+          "legacy": [
+            { "size": 1151272416, "sha256": "6c44ec2fb4cee513892d7863c1fcc3ea6b699ffa4d899b0ef4ab19956d9544f7" }
+          ],
           "sources": {
             "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/874fcb41ececda20bcbc0782d6b4ea7f7d069ea8/Qwen3-ASR-0.6B-GGUF/qwen3-asr-0.6b-q8_0.gguf",
             "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/Qwen3-ASR-0.6B-GGUF/qwen3-asr-0.6b-q8_0.gguf"
@@ -103,6 +106,9 @@
           "name": "qwen3-asr-1.7b-q8_0.gguf",
           "size": 2473017600,
           "sha256": "3bc2462eca3a3a8f56abcd860d0943ffdc0546547dde55a9d08589607d6f3936",
+          "legacy": [
+            { "size": 2473010048, "sha256": "da4fc2ac7f24dee784d1684eb1f35836cdbf559519452ae11777670734c0a4f8" }
+          ],
           "sources": {
             "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/874fcb41ececda20bcbc0782d6b4ea7f7d069ea8/Qwen3-ASR-1.7B-GGUF/qwen3-asr-1.7b-q8_0.gguf",
             "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/Qwen3-ASR-1.7B-GGUF/qwen3-asr-1.7b-q8_0.gguf"
@@ -436,6 +442,9 @@
           "name": "moonshine-streaming-small-q8_0.gguf",
           "size": 300622464,
           "sha256": "98731a08788a6dacc5dc56f32f36153f3373629adc7163ac83498a2702f210a9",
+          "legacy": [
+            { "size": 300621792, "sha256": "4d03fd9debad978240f522de238dba0b1a10fb0c9539e608701418682838a892" }
+          ],
           "sources": {
             "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/874fcb41ececda20bcbc0782d6b4ea7f7d069ea8/Moonshine-Streaming-GGUF/moonshine-streaming-small-q8_0.gguf",
             "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/Moonshine-Streaming-GGUF/moonshine-streaming-small-q8_0.gguf"
@@ -646,6 +655,9 @@
           "name": "parakeet-tdt-0.6b-v3-q8_0.gguf",
           "size": 915735760,
           "sha256": "6fa498f10f8cb606f041aa9512733cfee842a932359b00b0c45b9b723c4f4f4b",
+          "legacy": [
+            { "size": 915733744, "sha256": "074e61ac1abd3d3efcfc10798d17bf9a975b31768b466fc2578364d206dde64c" }
+          ],
           "sources": {
             "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/874fcb41ececda20bcbc0782d6b4ea7f7d069ea8/Parakeet-TDT-0.6B-v3-GGUF/parakeet-tdt-0.6b-v3-q8_0.gguf",
             "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/Parakeet-TDT-0.6B-v3-GGUF/parakeet-tdt-0.6b-v3-q8_0.gguf"
@@ -1674,6 +1686,9 @@
           "name": "qwen3-forced-aligner-0.6b-q8_0.gguf",
           "size": 1129969856,
           "sha256": "bf4fec616f77a20d89a649cd1c97bda269644eeb3cf906d1f7488a52d71f7cb2",
+          "legacy": [
+            { "size": 1129966496, "sha256": "75209490b11cec2b0db749ca5f4ff92266f58efd30f7fd04d9eb2a3ac9cc929f" }
+          ],
           "sources": {
             "huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/874fcb41ececda20bcbc0782d6b4ea7f7d069ea8/Qwen3-ForcedAligner-0.6B-GGUF/qwen3-forced-aligner-0.6b-q8_0.gguf",
             "modelscope": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/Qwen3-ForcedAligner-0.6B-GGUF/qwen3-forced-aligner-0.6b-q8_0.gguf"

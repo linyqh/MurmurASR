@@ -22,6 +22,16 @@ pub struct ModelFile {
     pub size: u64,
     pub sha256: String,
     pub sources: HashMap<String, String>,
+    /// Earlier published revisions that still load in the bundled engine, so
+    /// upgrading the app never strands a model that is already on disk.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub legacy: Vec<FileRevision>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct FileRevision {
+    pub size: u64,
+    pub sha256: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -147,7 +157,10 @@ pub fn load_path(models_root: &Path, model: &CatalogModel) -> PathBuf {
 }
 
 fn file_complete(models_root: &Path, model: &CatalogModel, file: &ModelFile) -> bool {
-    std::fs::metadata(file_path(models_root, model, file)).is_ok_and(|m| m.len() == file.size)
+    std::fs::metadata(file_path(models_root, model, file)).is_ok_and(|m| {
+        let len = m.len();
+        len == file.size || file.legacy.iter().any(|r| r.size == len)
+    })
 }
 
 pub fn is_installed(models_root: &Path, model: &CatalogModel) -> bool {
@@ -537,6 +550,10 @@ mod tests {
                 assert!(names.insert(&file.name), "{} lists {} twice", model.id, file.name);
                 assert_eq!(file.sha256.len(), 64, "{}", file.name);
                 assert!(file.size > 0);
+                for rev in &file.legacy {
+                    assert_eq!(rev.sha256.len(), 64, "{} legacy", file.name);
+                    assert_ne!(rev.size, file.size, "{} legacy shares the current size", file.name);
+                }
                 let hf = &file.sources["huggingface"];
                 // A branch name lets the bytes change under a fixed checksum.
                 assert!(!hf.contains("/resolve/main/"), "{} is not pinned", file.name);
@@ -548,6 +565,26 @@ mod tests {
         }
         let recommended = catalog.get(&catalog.recommended).unwrap();
         assert_eq!(recommended.kind, ModelKind::Asr);
+    }
+
+    #[test]
+    fn earlier_published_revision_counts_as_installed() {
+        let catalog = Catalog::builtin();
+        let model = catalog.get("qwen3-asr-0.6b-q8").unwrap();
+        let file = &model.files[0];
+        let legacy = file.legacy[0].size;
+        let root = std::env::temp_dir().join(format!("murmur-legacy-{}", uuid::Uuid::new_v4()));
+        std::fs::create_dir_all(model_dir(&root, model)).unwrap();
+        let path = file_path(&root, model, file);
+        let installed_at = |len: u64| {
+            std::fs::File::create(&path).unwrap().set_len(len).unwrap();
+            is_installed(&root, model)
+        };
+        assert!(installed_at(file.size));
+        assert!(installed_at(legacy));
+        assert!(!installed_at(legacy - 1));
+        assert!(!installed_at(file.size + 1));
+        std::fs::remove_dir_all(&root).unwrap();
     }
 
     #[test]
