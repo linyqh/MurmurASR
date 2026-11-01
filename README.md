@@ -14,6 +14,7 @@
 ![Platforms](https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-lightgrey)
 [![Tauri](https://img.shields.io/badge/Tauri-2-24C8DB?logo=tauri&logoColor=white)](https://tauri.app)
 [![audio.cpp](https://img.shields.io/badge/engine-audio.cpp-blue)](https://github.com/0xShug0/audio.cpp)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 [功能](#功能) · [截图](#截图) · [模型](#模型) · [API](#api-与-agent-skill) · [开发](#开发) · [架构](#架构)
 
@@ -250,4 +251,6 @@ macOS 安装包在本机构建：确认 `.env.macos.local` 已配置签名与公
 - [Tauri](https://tauri.app)：跨平台桌面应用框架
 - Qwen、FunAudioLLM、NVIDIA、Moonshine 等团队开源的语音识别模型
 
-模型权重遵循各自的原始许可证，具体见模型卡片。
+## 许可证
+
+MurmurASR 以 [MIT 许可证](LICENSE) 开源。模型权重不包含在本项目中，遵循各自的原始许可证，具体见模型卡片。
