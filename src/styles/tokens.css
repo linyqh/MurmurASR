@@ -57,7 +57,7 @@
   --shadow-lg: 0 24px 64px rgb(0 0 0 / 0.18), 0 0 0 0.5px rgb(0 0 0 / 0.08);
 
   /* Concentric radii (macOS 26 corner language). */
-  --r-window: 26px;
+  --r-window: 16px;
   --r-xl: 22px;
   --r-lg: 16px;
   --r-md: 12px;

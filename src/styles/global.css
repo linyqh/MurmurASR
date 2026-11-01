@@ -228,8 +228,8 @@ button {
 
 :root[data-platform="macos"] .main {
   /* The detail column floats on the window like macOS 26 split views. */
-  margin: 8px 8px 8px 0;
-  border-radius: calc(var(--r-window) - 8px);
+  margin: 2px 2px 2px 0;
+  border-radius: calc(var(--r-window) - 2px);
   border: 0.5px solid var(--separator);
   box-shadow: var(--shadow-sm);
   overflow: hidden;
