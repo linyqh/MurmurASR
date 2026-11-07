@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MurmurASR — Offline speech to text</title>
+  <meta name="description" content="MurmurASR is a fully offline desktop app for speech-to-text. 55 open-source models, file transcription, live dictation, subtitle export and an HTTP API.">
+  <meta property="og:title" content="MurmurASR — Offline speech to text">
+  <meta property="og:description" content="Local, private, GPU-accelerated transcription for macOS and Windows.">
+  <meta property="og:image" content="assets/screenshots/home.png">
+  <link rel="icon" href="assets/icon/app-icon.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
+
+  <header class="nav">
+    <a class="nav-brand" href="#top" aria-label="MurmurASR">
+      <img src="assets/icon/app-icon.png" alt="" width="28" height="28">
+      <span class="wordmark"><span class="light">Murmur</span><span class="accent">ASR</span></span>
+    </a>
+    <nav class="nav-links glass">
+      <a href="#features" data-i18n="nav.features">Features</a>
+      <a href="#models" data-i18n="nav.models">Models</a>
+      <a href="#api" data-i18n="nav.api">API</a>
+      <a href="#download" data-i18n="nav.download">Download</a>
+    </nav>
+    <div class="nav-actions">
+      <button class="lang glass" id="lang" type="button" aria-label="Language">中文</button>
+      <a class="gh glass" href="https://github.com/linyqh/MurmurASR" aria-label="GitHub">
+        <svg viewBox="0 0 16 16" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 4 0c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+      </a>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <p class="eyebrow glass"><span class="dot"></span><span data-i18n="hero.eyebrow">Version 0.1.14 · macOS &amp; Windows</span></p>
+      <h1 class="hero-title">
+        <span class="light">Murmur</span><span class="accent">ASR</span>
+      </h1>
+      <p class="hero-sub" data-i18n="hero.sub">Speech to text that never leaves your computer.</p>
+      <p class="hero-lead" data-i18n="hero.lead">55 open-source recognition models on demand. Transcribe files, dictate live, export subtitles, or call it from your scripts and AI agents. No cloud, no account, no per-minute fees.</p>
+      <div class="cta">
+        <a class="btn primary" href="https://github.com/linyqh/MurmurASR/releases/latest" data-i18n="hero.download">Download for free</a>
+        <a class="btn glass" href="https://github.com/linyqh/MurmurASR" data-i18n="hero.github">View on GitHub</a>
+      </div>
+
+      <div class="stage">
+        <div class="window glass">
+          <div class="window-bar"><i class="r"></i><i class="y"></i><i class="g"></i></div>
+          <img src="assets/screenshots/home.png" alt="MurmurASR transcribing a file" width="1600" height="1000">
+        </div>
+      </div>
+    </section>
+
+    <section class="stats">
+      <div class="stat glass"><b>55</b><span data-i18n="stats.models">open-source models</span></div>
+      <div class="stat glass"><b>20×</b><span data-i18n="stats.speed">real-time on Apple silicon</span></div>
+      <div class="stat glass"><b>30+</b><span data-i18n="stats.languages">languages &amp; dialects</span></div>
+      <div class="stat glass"><b>0</b><span data-i18n="stats.upload">bytes uploaded</span></div>
+    </section>
+
+    <section id="features" class="section">
+      <h2 data-i18n="features.title">Everything you need, nothing leaves the machine</h2>
+      <div class="grid">
+        <article class="card glass">
+          <div class="ico">🔒</div>
+          <h3 data-i18n="features.offline.t">Local and offline</h3>
+          <p data-i18n="features.offline.d">Inference runs on your device. Your audio is never uploaded, and there is nothing to sign up for.</p>
+        </article>
+        <article class="card glass">
+          <div class="ico">⚡</div>
+          <h3 data-i18n="features.gpu.t">GPU accelerated</h3>
+          <p data-i18n="features.gpu.d">Built on audio.cpp. Metal on Apple silicon, Vulkan or CUDA on Windows and Linux, automatic CPU fallback.</p>
+        </article>
+        <article class="card glass">
+          <div class="ico">🎙️</div>
+          <h3 data-i18n="features.live.t">Files and live dictation</h3>
+          <p data-i18n="features.live.d">Drop in audio or video and watch text appear as it is recognized, or speak into the microphone for live results.</p>
+        </article>
+        <article class="card glass">
+          <div class="ico">🎬</div>
+          <h3 data-i18n="features.subs.t">Subtitles that read well</h3>
+          <p data-i18n="features.subs.d">Word-level timestamps, smart line breaks by pause, punctuation and reading speed. Export SRT, VTT, TXT, Markdown or JSON.</p>
+        </article>
+        <article class="card glass">
+          <div class="ico">🌍</div>
+          <h3 data-i18n="features.i18n.t">English and 简体中文</h3>
+          <p data-i18n="features.i18n.d">The interface follows your system language, and adding another language takes just a folder of JSON files.</p>
+        </article>
+        <article class="card glass">
+          <div class="ico">🤖</div>
+          <h3 data-i18n="features.agent.t">Built for agents</h3>
+          <p data-i18n="features.agent.d">A local HTTP API and a ready-made Agent Skill let scripts, other devices and AI assistants submit jobs.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="models" class="section split">
+      <div class="copy">
+        <h2 data-i18n="models.title">Pick the model that fits you</h2>
+        <p data-i18n="models.lead">From a 40 MB English model to 7B long-audio models: Qwen3-ASR, SenseVoice, Parakeet, Whisper-style OWSM, Moonshine and more. Download only what you need, with resumable downloads, SHA-256 checks and mirror sources.</p>
+        <ul class="ticks">
+          <li data-i18n="models.a">Chinese, Cantonese, English, European and low-resource languages</li>
+          <li data-i18n="models.b">Streaming, word timestamps and speaker-aware models</li>
+          <li data-i18n="models.c">Hugging Face, ModelScope and HF mirror sources</li>
+        </ul>
+      </div>
+      <div class="window glass tilt">
+        <div class="window-bar"><i class="r"></i><i class="y"></i><i class="g"></i></div>
+        <img src="assets/screenshots/models.png" alt="Model manager" loading="lazy" width="1600" height="1000">
+      </div>
+    </section>
+
+    <section id="api" class="section split reverse">
+      <div class="window glass tilt">
+        <div class="window-bar"><i class="r"></i><i class="y"></i><i class="g"></i></div>
+        <img src="assets/screenshots/api.png" alt="API page" loading="lazy" width="1600" height="1000">
+      </div>
+      <div class="copy">
+        <h2 data-i18n="api.title">One request to transcribe</h2>
+        <p data-i18n="api.lead">While the app is open it serves a local HTTP API that shares the same queue as the UI.</p>
+        <pre class="code"><code><span class="c"># SRT subtitles from a local file</span>
+curl -H 'Content-Type: application/json' \
+  -d '{"path":"/abs/talk.m4a","format":"srt"}' \
+  http://127.0.0.1:7895/transcribe</code></pre>
+      </div>
+    </section>
+
+    <section id="download" class="section final glass">
+      <img src="assets/icon/app-icon.png" alt="" width="84" height="84">
+      <h2 data-i18n="final.title">Get MurmurASR</h2>
+      <p data-i18n="final.lead">Free and open source under the MIT license. The macOS build is signed and notarized by Apple.</p>
+      <div class="cta">
+        <a class="btn primary" href="https://github.com/linyqh/MurmurASR/releases/latest" data-i18n="final.download">Download latest release</a>
+        <a class="btn glass" href="https://github.com/linyqh/MurmurASR#readme" data-i18n="final.docs">Read the docs</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>© MurmurASR · MIT</span>
+    <span><span data-i18n="footer.powered">Powered by</span> <a href="https://github.com/0xShug0/audio.cpp">audio.cpp</a> · <a href="https://tauri.app">Tauri</a></span>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
