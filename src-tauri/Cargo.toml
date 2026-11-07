@@ -1,6 +1,6 @@
 [package]
 name = "murmur"
-version = "0.1.13"
+version = "0.1.14"
 description = "Local speech-to-text desktop client powered by audio.cpp"
 authors = ["Murmur contributors"]
 license = "MIT"

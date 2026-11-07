@@ -1,0 +1,58 @@
+{
+  "toolbar": {
+    "title": "Models",
+    "installedSummary": "{{count}} installed · {{size}}"
+  },
+  "search": {
+    "placeholder": "Search by name, language, or feature",
+    "label": "Search models"
+  },
+  "filter": {
+    "label": "Filter",
+    "all": "All",
+    "installed": "Installed"
+  },
+  "intro_one": "{{count}} model available. Download only what you need; models are stored on this device and transcription runs fully offline. We recommend starting with <strong>{{name}}</strong>, which balances speed, accuracy, and language coverage. Try searching for “Chinese”, “Cantonese”, or “timestamps” to find the right model quickly.",
+  "intro_other": "{{count}} models available. Download only what you need; models are stored on this device and transcription runs fully offline. We recommend starting with <strong>{{name}}</strong>, which balances speed, accuracy, and language coverage. Try searching for “Chinese”, “Cantonese”, or “timestamps” to find the right model quickly.",
+  "empty": {
+    "noResults": "No models match “{{query}}”.",
+    "noneInstalled": "No models installed yet."
+  },
+  "source": {
+    "label": "Download source",
+    "auto": "Auto",
+    "hfMirror": "HF mirror",
+    "hint": "On networks in mainland China, choose ModelScope or the HF mirror"
+  },
+  "card": {
+    "recommended": "Recommended",
+    "inUse": "In use",
+    "languages": "Languages",
+    "speed": "Speed",
+    "accuracy": "Accuracy",
+    "wordTimestamps": "Word timestamps",
+    "speakerDiarization": "Speaker labels",
+    "loaded": "Loaded",
+    "loadTime": "{{seconds}} s",
+    "loading": "Loading…",
+    "use": "Use this model",
+    "reveal": "Show in Finder",
+    "deleteLabel": "Delete model"
+  },
+  "deleteDialog": {
+    "title": "Delete model?",
+    "message": "Deleting “{{name}}” will free up {{size}}. You can download it again later."
+  },
+  "aligner": {
+    "reloadToEnable": "Reload to enable",
+    "installed": "Installed",
+    "deleteLabel": "Delete alignment model",
+    "deleteTitle": "Delete “{{name}}”?",
+    "deleteMessage": "Without it, {{owner}} will no longer output word-level timestamps. You can download it again anytime."
+  },
+  "download": {
+    "verifying": "Verifying file…",
+    "connecting": "Connecting…",
+    "cancel": "Cancel download"
+  }
+}

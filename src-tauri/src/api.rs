@@ -175,7 +175,7 @@ impl Api {
             Ok(listener) => listener,
             Err(e) => {
                 log::warn!("API server could not bind port {port}: {e}");
-                *self.error.lock() = Some(format!("端口 {port} 不可用：{e}"));
+                *self.error.lock() = Some(format!("Port {port} is unavailable: {e}"));
                 return;
             }
         };
@@ -568,7 +568,7 @@ fn file_stem(name: &str) -> String {
         .file_stem()
         .map(|s| s.to_string_lossy().into_owned())
         .filter(|s| !s.is_empty())
-        .unwrap_or_else(|| "未命名".into())
+        .unwrap_or_else(|| "Untitled".into())
 }
 
 async fn read_multipart(

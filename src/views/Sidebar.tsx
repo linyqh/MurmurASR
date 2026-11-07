@@ -1,9 +1,11 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { isRunning, useStore } from "../lib/store";
 import { formatDuration, formatRelativeDate } from "../lib/format";
 import { IconCube, IconGear, IconGlobe, IconMic, IconSearch, IconWaveform, IconDoc } from "../components/icons";
 
 export function Sidebar() {
+  const { t } = useTranslation("sidebar");
   const { view, setView, history, models, live, jobs, settings, apiStatus } = useStore();
   const apiRunning = apiStatus?.running ?? false;
   const [query, setQuery] = useState("");
@@ -25,23 +27,31 @@ export function Sidebar() {
     <aside className="sidebar">
       <div className="sidebar-titlebar drag" data-tauri-drag-region />
 
+      <div className="brand drag" data-tauri-drag-region>
+        <div className="brand-name" aria-label="MurmurASR">
+          <span className="brand-name-light">Murmur</span>
+          <span className="brand-name-accent">ASR</span>
+        </div>
+        <div className="brand-tagline">{t("brand.tagline")}</div>
+      </div>
+
       <div className="search-field no-drag">
         <IconSearch size={13} />
         <input
-          placeholder="搜索"
+          placeholder={t("search.placeholder")}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          aria-label="搜索转写记录"
+          aria-label={t("search.label")}
         />
       </div>
 
-      <nav className="no-drag" aria-label="主导航">
+      <nav className="no-drag" aria-label={t("nav.label")}>
         <button
           className={`sidebar-item${view.name === "home" ? " active" : ""}`}
           onClick={() => setView({ name: "home" })}
         >
           <IconWaveform className="icon" />
-          转写文件
+          {t("nav.home")}
           {activeJobs > 0 && <span className="count">{activeJobs}</span>}
         </button>
         <button
@@ -49,30 +59,30 @@ export function Sidebar() {
           onClick={() => setView({ name: "live" })}
         >
           <IconMic className="icon" />
-          实时听写
-          {live.id && <span className="rec-dot" aria-label="正在录音" />}
+          {t("nav.live")}
+          {live.id && <span className="rec-dot" aria-label={t("nav.recording")} />}
         </button>
         <button
           className={`sidebar-item${view.name === "models" ? " active" : ""}`}
           onClick={() => setView({ name: "models" })}
         >
           <IconCube className="icon" />
-          模型
+          {t("nav.models")}
         </button>
         <button
           className={`sidebar-item${view.name === "api" ? " active" : ""}`}
           onClick={() => setView({ name: "api" })}
         >
           <IconGlobe className="icon" />
-          API 接口
+          {t("nav.api")}
           {settings?.apiEnabled && <span className={`status-dot ${apiRunning ? "ready" : "idle"}`} />}
         </button>
       </nav>
 
-      <div className="sidebar-section-label">记录</div>
+      <div className="sidebar-section-label">{t("history.label")}</div>
       <div className="sidebar-history no-drag">
         {filtered.length === 0 && (
-          <div className="sidebar-empty">{query ? "没有匹配的记录" : "转写记录会显示在这里"}</div>
+          <div className="sidebar-empty">{query ? t("history.noMatches") : t("history.empty")}</div>
         )}
         {filtered.map((h) => (
           <button
@@ -95,7 +105,7 @@ export function Sidebar() {
         <button className="model-chip" onClick={() => setView({ name: "models" })}>
           <span className={`status-dot ${loaded ? "ready" : loadingName ? "busy" : "idle"}`} />
           <span className="model-chip-text">
-            {loadingName ? `正在加载 ${loadingName}…` : loadedName ?? "未加载模型"}
+            {loadingName ? t("model.loading", { name: loadingName }) : (loadedName ?? t("model.none"))}
           </span>
           {loaded && <span className="badge">{loaded.backend.toUpperCase()}</span>}
         </button>
@@ -104,7 +114,7 @@ export function Sidebar() {
           onClick={() => setView({ name: "settings" })}
         >
           <IconGear className="icon" />
-          设置
+          {t("nav.settings")}
         </button>
       </div>
     </aside>

@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { convertFileSrc } from "@tauri-apps/api/core";
 import { save, ask } from "@tauri-apps/plugin-dialog";
 import { writeText } from "@tauri-apps/plugin-clipboard-manager";
 import { revealItemInDir } from "@tauri-apps/plugin-opener";
 import { api, type ExportFormat, type Segment, type Transcript } from "../lib/api";
 import { useStore } from "../lib/store";
+import { errorMessage } from "../lib/errors";
 import { Segmented } from "../components/controls";
 import {
   activeWord,
@@ -26,15 +28,25 @@ import {
   IconTrash,
 } from "../components/icons";
 
-const EXPORTS: { format: ExportFormat; label: string; ext: string; hint: string }[] = [
-  { format: "txt", label: "纯文本", ext: "txt", hint: ".txt" },
-  { format: "srt", label: "SRT 字幕", ext: "srt", hint: ".srt" },
-  { format: "vtt", label: "WebVTT 字幕", ext: "vtt", hint: ".vtt" },
-  { format: "md", label: "Markdown", ext: "md", hint: ".md" },
-  { format: "json", label: "JSON", ext: "json", hint: ".json" },
+const EXPORTS: { format: ExportFormat; ext: string; hint: string }[] = [
+  { format: "txt", ext: "txt", hint: ".txt" },
+  { format: "srt", ext: "srt", hint: ".srt" },
+  { format: "vtt", ext: "vtt", hint: ".vtt" },
+  { format: "md", ext: "md", hint: ".md" },
+  { format: "json", ext: "json", hint: ".json" },
 ];
 
+/** Issue codes reported by the backend that have a translated label. */
+const SUBTITLE_ISSUES = ["segment_timing", "reading_speed", "line_length", "short_duration", "long_duration"] as const;
+type SubtitleIssue = (typeof SUBTITLE_ISSUES)[number];
+
+function isSubtitleIssue(issue: string): issue is SubtitleIssue {
+  return (SUBTITLE_ISSUES as readonly string[]).includes(issue);
+}
+
 export function TranscriptView({ id }: { id: string }) {
+  // `t` is the transcript state below, so the translate function is `tr`.
+  const { t: tr } = useTranslation(["transcript", "common"]);
   const { setView, toast, settings, saveSettings } = useStore();
   const [t, setT] = useState<Transcript | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -53,7 +65,7 @@ export function TranscriptView({ id }: { id: string }) {
     let active = true;
     api.getTranscript(id).then(
       (transcript) => { if (active) { setT(transcript); setError(null); } },
-      (e) => { if (active) setError(String(e)); },
+      (e) => { if (active) setError(errorMessage(e)); },
     );
     return () => { active = false; };
   }, [id, settings?.subtitleMaxLines]);
@@ -81,7 +93,7 @@ export function TranscriptView({ id }: { id: string }) {
   if (error) {
     return (
       <div className="empty">
-        <h2>无法打开记录</h2>
+        <h2>{tr("transcript:error.title")}</h2>
         <p>{error}</p>
       </div>
     );
@@ -114,7 +126,7 @@ export function TranscriptView({ id }: { id: string }) {
     try {
       setT(await api.updateTranscript(t.id, { segments }));
     } catch (e) {
-      toast(String(e), "error");
+      toast(errorMessage(e), "error");
     }
   };
 
@@ -130,26 +142,26 @@ export function TranscriptView({ id }: { id: string }) {
     setExporting(true);
     try {
       const path = await save({
-        title: "导出转写",
+        title: tr("transcript:export.dialogTitle"),
         defaultPath: `${t.title}.${ext}`,
         filters: [{ name: ext.toUpperCase(), extensions: [ext] }],
       });
       if (!path) return;
       await api.exportTranscript(t.id, format, path);
-      toast(`已导出 ${ext.toUpperCase()} 文件`);
+      toast(tr("transcript:export.done", { format: ext.toUpperCase() }));
     } catch (e) {
-      toast(String(e), "error");
+      toast(errorMessage(e), "error");
     } finally {
       setExporting(false);
     }
   };
 
   const remove = async () => {
-    const ok = await ask("此操作无法撤销。", {
-      title: `删除“${t.title}”？`,
+    const ok = await ask(tr("transcript:deleteDialog.message"), {
+      title: tr("transcript:deleteDialog.title", { title: t.title }),
       kind: "warning",
-      okLabel: "删除",
-      cancelLabel: "取消",
+      okLabel: tr("common:actions.delete"),
+      cancelLabel: tr("common:actions.cancel"),
     });
     if (!ok) return;
     await api.deleteTranscript(t.id);
@@ -171,7 +183,7 @@ export function TranscriptView({ id }: { id: string }) {
             }}
           />
         ) : (
-          <div className="toolbar-title" onDoubleClick={() => setRenaming(true)} title="双击重命名">
+          <div className="toolbar-title" onDoubleClick={() => setRenaming(true)} title={tr("transcript:rename.hint")}>
             {t.title}
           </div>
         )}
@@ -179,15 +191,15 @@ export function TranscriptView({ id }: { id: string }) {
         <div className="glass glass-group no-drag">
           <button
             className="icon-btn"
-            aria-label="复制全文"
-            onClick={() => void writeText(fullText).then(() => toast("已复制到剪贴板"))}
+            aria-label={tr("transcript:toolbar.copyAll")}
+            onClick={() => void writeText(fullText).then(() => toast(tr("common:actions.copied")))}
           >
             <IconCopy size={15} />
           </button>
           <div className="menu-anchor">
             <button
               className="icon-btn"
-              aria-label="导出"
+              aria-label={tr("transcript:toolbar.export")}
               disabled={exporting}
               aria-haspopup="menu"
               onClick={(e) => {
@@ -201,14 +213,14 @@ export function TranscriptView({ id }: { id: string }) {
               <div className="menu glass" role="menu" style={{ right: 0, top: 36 }}>
                 {EXPORTS.map((x) => (
                   <button key={x.format} role="menuitem" onClick={() => void doExport(x.format, x.ext)}>
-                    导出为 {x.label}
+                    {tr("transcript:export.menuItem", { format: tr(`transcript:export.formats.${x.format}`) })}
                     <span className="shortcut">{x.hint}</span>
                   </button>
                 ))}
               </div>
             )}
           </div>
-          <button className="icon-btn" aria-label="删除" onClick={() => void remove()}>
+          <button className="icon-btn" aria-label={tr("transcript:toolbar.delete")} onClick={() => void remove()}>
             <IconTrash size={15} />
           </button>
         </div>
@@ -219,61 +231,64 @@ export function TranscriptView({ id }: { id: string }) {
           {formatRelativeDate(t.createdAt)} · {formatDuration(t.duration)}
           {t.language && ` · ${languageLabel(t.language)}`}
           {t.model && ` · ${t.model}`}
-          {t.elapsedMs > 0 && t.duration > 0 && ` · 用时 ${(t.elapsedMs / 1000).toFixed(1)} 秒`}
+          {t.elapsedMs > 0 && t.duration > 0 && ` · ${tr("transcript:meta.elapsed", { seconds: (t.elapsedMs / 1000).toFixed(1) })}`}
         </div>
 
         <div className="transcript-downloads">
           <button className="btn primary" disabled={exporting} onClick={() => void doExport("srt", "srt")}>
             <IconDownload size={14} />
-            下载 SRT 字幕文件
+            {tr("transcript:downloads.srt")}
           </button>
           <button className="btn" disabled={exporting} onClick={() => void doExport("json", "json")}>
             <IconDownload size={14} />
-            下载词级时间戳 JSON 文件
+            {tr("transcript:downloads.json")}
           </button>
           {!hasWordTimestamps && (
             <p className="transcript-download-note muted">
-              这条记录未保存词级时间戳，JSON 将包含分段时间戳和转写文本。
+              {tr("transcript:downloads.noWordTimestamps")}
             </p>
           )}
         </div>
 
         <div className="transcript-view-controls">
-          <div className="transcript-view-switch" role="group" aria-label="转写显示方式">
+          <div className="transcript-view-switch" role="group" aria-label={tr("transcript:view.label")}>
             <button
               className={`btn${display === "subtitles" ? " primary" : ""}`}
               aria-pressed={display === "subtitles"}
               onClick={() => { setEditing(null); setDisplay("subtitles"); }}
             >
-              字幕预览
+              {tr("transcript:view.subtitles")}
             </button>
             <button
               className={`btn${display === "original" ? " primary" : ""}`}
               aria-pressed={display === "original"}
               onClick={() => { setEditing(null); setDisplay("original"); }}
             >
-              原始转写 · 编辑
+              {tr("transcript:view.original")}
             </button>
           </div>
           {display === "subtitles" && settings && (
             <div className="subtitle-line-setting">
-              <span className="muted">字幕行数</span>
+              <span className="muted">{tr("transcript:view.subtitleLines")}</span>
               <Segmented
-                label="字幕行数"
+                label={tr("transcript:view.subtitleLines")}
                 value={String(settings.subtitleMaxLines)}
-                options={[{ value: "1", label: "一行" }, { value: "2", label: "两行" }]}
+                options={[
+                  { value: "1", label: tr("transcript:view.oneLine") },
+                  { value: "2", label: tr("transcript:view.twoLines") },
+                ]}
                 onChange={(value) => void saveSettings({ subtitleMaxLines: value === "2" ? 2 : 1 })}
               />
             </div>
           )}
           <p className="muted">
-            {display === "subtitles" ? `${t.subtitles.length} 条字幕 · 换行与 SRT / VTT 导出一致` : "编辑原文后会重新编排字幕；修改段落的词级时间戳会清除。"}
+            {display === "subtitles" ? tr("transcript:view.subtitlesNote", { count: t.subtitles.length }) : tr("transcript:view.originalNote")}
           </p>
         </div>
 
         {visibleSegments.length === 0 ? (
           <div className="empty compact">
-            <p>没有识别到语音内容。</p>
+            <p>{tr("transcript:empty")}</p>
           </div>
         ) : (
           <div className="segments">
@@ -289,7 +304,7 @@ export function TranscriptView({ id }: { id: string }) {
                   className="segment-time tabular"
                   onClick={() => seek(s.start)}
                   disabled={!audioSrc}
-                  title={audioSrc ? "从这里播放" : undefined}
+                  title={audioSrc ? tr("transcript:segment.playFromHere") : undefined}
                 >
                   {formatClock(s.start)}
                 </button>
@@ -320,12 +335,16 @@ export function TranscriptView({ id }: { id: string }) {
                       s.text
                     )}
                     {display === "subtitles" && t.subtitles[i].issues.length > 0 && (
-                      <div className="subtitle-issues">{t.subtitles[i].issues.map(subtitleIssue).join(" · ")}</div>
+                      <div className="subtitle-issues">
+                        {t.subtitles[i].issues
+                          .map((issue) => (isSubtitleIssue(issue) ? tr(`transcript:issues.${issue}`) : issue))
+                          .join(" · ")}
+                      </div>
                     )}
                   </div>
                 )}
                 {display === "original" && editing !== i && (
-                  <button className="icon-btn segment-edit-btn" aria-label="编辑" onClick={() => setEditing(i)}>
+                  <button className="icon-btn segment-edit-btn" aria-label={tr("transcript:segment.edit")} onClick={() => setEditing(i)}>
                     <IconPencil size={13} />
                   </button>
                 )}
@@ -337,7 +356,7 @@ export function TranscriptView({ id }: { id: string }) {
 
       {audioSrc && (
         <div className="player glass">
-          <button className="player-btn" onClick={togglePlay} aria-label={playing ? "暂停" : "播放"}>
+          <button className="player-btn" onClick={togglePlay} aria-label={playing ? tr("transcript:player.pause") : tr("transcript:player.play")}>
             {playing ? <IconPause size={16} /> : <IconPlay size={16} />}
           </button>
           <span className="tabular player-time">{formatClock(position)}</span>
@@ -348,7 +367,7 @@ export function TranscriptView({ id }: { id: string }) {
             max={Math.max(1, t.duration)}
             step={0.1}
             value={position}
-            aria-label="播放进度"
+            aria-label={tr("transcript:player.seek")}
             onChange={(e) => {
               const v = Number(e.target.value);
               setPosition(v);
@@ -359,7 +378,7 @@ export function TranscriptView({ id }: { id: string }) {
           <span className="tabular player-time muted">{formatClock(t.duration)}</span>
           <button
             className="icon-btn"
-            aria-label="在访达中显示音频"
+            aria-label={tr("transcript:player.revealAudio")}
             onClick={() => t.audioPath && void revealItemInDir(t.audioPath)}
           >
             <IconFolder size={14} />
@@ -372,23 +391,12 @@ export function TranscriptView({ id }: { id: string }) {
             onPause={() => setPlaying(false)}
             onEnded={() => setPlaying(false)}
             onTimeUpdate={(e) => setPosition(e.currentTarget.currentTime)}
-            onError={() => toast("无法播放音频文件（文件可能已移动或删除）", "error")}
+            onError={() => toast(tr("transcript:player.playbackError"), "error")}
           />
         </div>
       )}
     </>
   );
-}
-
-function subtitleIssue(issue: string): string {
-  const labels: Record<string, string> = {
-    segment_timing: "缺少可靠词级时间，保留原段时间",
-    reading_speed: "语速较快，建议检查阅读时间",
-    line_length: "文字较长，建议检查换行",
-    short_duration: "显示时间较短",
-    long_duration: "显示时间较长",
-  };
-  return labels[issue] ?? issue;
 }
 
 function SegmentText({

@@ -1,0 +1,66 @@
+{
+  "error": {
+    "title": "无法打开记录"
+  },
+  "rename": {
+    "hint": "双击重命名"
+  },
+  "toolbar": {
+    "copyAll": "复制全文",
+    "export": "导出",
+    "delete": "删除"
+  },
+  "export": {
+    "dialogTitle": "导出转写",
+    "menuItem": "导出为 {{format}}",
+    "done": "已导出 {{format}} 文件",
+    "formats": {
+      "txt": "纯文本",
+      "srt": "SRT 字幕",
+      "vtt": "WebVTT 字幕",
+      "md": "Markdown",
+      "json": "JSON"
+    }
+  },
+  "deleteDialog": {
+    "title": "删除“{{title}}”？",
+    "message": "此操作无法撤销。"
+  },
+  "meta": {
+    "elapsed": "用时 {{seconds}} 秒"
+  },
+  "downloads": {
+    "srt": "下载 SRT 字幕文件",
+    "json": "下载词级时间戳 JSON 文件",
+    "noWordTimestamps": "这条记录未保存词级时间戳，JSON 将包含分段时间戳和转写文本。"
+  },
+  "view": {
+    "label": "转写显示方式",
+    "subtitles": "字幕预览",
+    "original": "原始转写 · 编辑",
+    "subtitleLines": "字幕行数",
+    "oneLine": "一行",
+    "twoLines": "两行",
+    "subtitlesNote_other": "{{count}} 条字幕 · 换行与 SRT / VTT 导出一致",
+    "originalNote": "编辑原文后会重新编排字幕；修改段落的词级时间戳会清除。"
+  },
+  "empty": "没有识别到语音内容。",
+  "segment": {
+    "playFromHere": "从这里播放",
+    "edit": "编辑"
+  },
+  "issues": {
+    "segment_timing": "缺少可靠词级时间，保留原段时间",
+    "reading_speed": "语速较快，建议检查阅读时间",
+    "line_length": "文字较长，建议检查换行",
+    "short_duration": "显示时间较短",
+    "long_duration": "显示时间较长"
+  },
+  "player": {
+    "pause": "暂停",
+    "play": "播放",
+    "seek": "播放进度",
+    "revealAudio": "在访达中显示音频",
+    "playbackError": "无法播放音频文件（文件可能已移动或删除）"
+  }
+}

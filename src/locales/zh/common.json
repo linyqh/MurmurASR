@@ -1,0 +1,41 @@
+{
+  "meta": { "name": "简体中文" },
+  "actions": {
+    "copy": "复制",
+    "copied": "已复制到剪贴板",
+    "cancel": "取消",
+    "delete": "删除",
+    "close": "关闭",
+    "show": "显示",
+    "download": "下载"
+  },
+  "app": {
+    "unsupportedFile": "不支持的文件类型，请拖入音频或视频文件",
+    "loadModelFirst": "请先下载并加载一个模型",
+    "dropToTranscribe": "松开以转写"
+  },
+  "store": {
+    "saveSettingsFailed": "保存设置失败：{{error}}",
+    "modelLoadFailed": "模型加载失败：{{error}}",
+    "liveError": "实时转写出错：{{error}}",
+    "downloadFailed": "下载失败：{{error}}",
+    "downloadDone": "{{name}} 下载完成"
+  },
+  "duration": {
+    "seconds": "{{count}} 秒",
+    "minutesSeconds": "{{minutes}} 分 {{seconds}} 秒",
+    "hoursMinutes": "{{hours}} 小时 {{minutes}} 分",
+    "etaSeconds": "剩余约 {{count}} 秒",
+    "etaMinutes": "剩余约 {{count}} 分钟"
+  },
+  "date": {
+    "todayAt": "今天 {{time}}",
+    "yesterdayAt": "昨天 {{time}}"
+  },
+  "liveTitle": "实时转写 {{date}} {{time}}",
+  "language": {
+    "auto": "自动检测",
+    "interface": "界面语言",
+    "system": "跟随系统"
+  }
+}

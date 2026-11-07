@@ -1,0 +1,19 @@
+{
+  "title": "Welcome to Murmur",
+  "intro": "Turn speech into text offline, right on your Mac. Audio never leaves this device.",
+  "needModel": "Before you start, you need to download a speech recognition model.",
+  "recommended": "Recommended",
+  "points": {
+    "languages": "Supports 30 languages including English, Chinese, Japanese and Korean, plus many dialects",
+    "speed": "Metal acceleration on Apple silicon, up to 20× faster than realtime"
+  },
+  "progress": {
+    "verifying": "Verifying…",
+    "connecting": "Connecting…"
+  },
+  "actions": {
+    "background": "Download in background",
+    "later": "Maybe later",
+    "download": "Download recommended model"
+  }
+}

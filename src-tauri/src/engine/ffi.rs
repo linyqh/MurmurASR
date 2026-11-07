@@ -20,23 +20,23 @@ const STATUS_NOT_AVAILABLE: c_int = 7;
 
 #[derive(Debug, thiserror::Error)]
 pub enum EngineError {
-    #[error("无法加载推理引擎 {path}: {source}")]
+    #[error("Couldn't load the inference engine {path}: {source}")]
     Load {
         path: String,
         #[source]
         source: libloading::Error,
     },
-    #[error("推理引擎缺少符号 {0}")]
+    #[error("The inference engine is missing symbol {0}")]
     Symbol(&'static str),
-    #[error("推理引擎 ABI 版本不兼容（需要 {ABI_MAJOR}.{MIN_ABI_MINOR}+，实际 {0}）")]
+    #[error("Inference engine ABI version is incompatible (need {ABI_MAJOR}.{MIN_ABI_MINOR}+, found {0})")]
     Abi(String),
-    #[error("{op} 失败（{status}）：{detail}")]
+    #[error("{op} failed ({status}): {detail}")]
     Call {
         op: &'static str,
         status: String,
         detail: String,
     },
-    #[error("参数包含非法的 NUL 字符")]
+    #[error("Argument contains an illegal NUL character")]
     Nul,
 }
 

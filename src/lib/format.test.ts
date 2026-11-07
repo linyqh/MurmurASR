@@ -1,9 +1,12 @@
-import { describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
+import i18n from "../i18n";
 import {
   activeWord,
   alignWords,
   formatBytes,
   formatClock,
+  formatDuration,
+  languageLabel,
   formatRelativeDate,
   joinSegments,
   selectableLanguages,
@@ -45,11 +48,38 @@ describe("selectableLanguages", () => {
 });
 
 describe("formatRelativeDate", () => {
-  it("labels today and yesterday", () => {
-    const now = new Date(2026, 9, 15, 15, 0).getTime();
-    expect(formatRelativeDate(new Date(2026, 9, 15, 9, 5).getTime(), now)).toBe("今天 09:05");
-    expect(formatRelativeDate(new Date(2026, 9, 14, 22, 30).getTime(), now)).toBe("昨天 22:30");
+  const now = new Date(2026, 9, 15, 15, 0).getTime();
+  const cases = [
+    ["zh", "今天 09:05", "昨天 22:30"],
+    ["en", "Today 09:05", "Yesterday 22:30"],
+  ] as const;
+  it.each(cases)("labels today and yesterday in %s", async (lng, today, yesterday) => {
+    await i18n.changeLanguage(lng);
+    expect(formatRelativeDate(new Date(2026, 9, 15, 9, 5).getTime(), now)).toBe(today);
+    expect(formatRelativeDate(new Date(2026, 9, 14, 22, 30).getTime(), now)).toBe(yesterday);
+  });
+  it("uses locale date formats for older dates", async () => {
+    await i18n.changeLanguage("zh");
     expect(formatRelativeDate(new Date(2026, 2, 1).getTime(), now)).toBe("3月1日");
+    await i18n.changeLanguage("en");
+    expect(formatRelativeDate(new Date(2026, 2, 1).getTime(), now)).toBe("Mar 1");
+  });
+});
+
+describe("formatDuration and languageLabel", () => {
+  beforeAll(() => i18n.changeLanguage("en"));
+  it("localizes durations", async () => {
+    expect(formatDuration(65)).toBe("1 min 5 sec");
+    await i18n.changeLanguage("zh");
+    expect(formatDuration(65)).toBe("1 分 5 秒");
+  });
+  it("names languages in the UI language", async () => {
+    await i18n.changeLanguage("zh");
+    expect(languageLabel("Japanese")).toBe("日语");
+    expect(languageLabel("auto")).toBe("自动检测");
+    await i18n.changeLanguage("en");
+    expect(languageLabel("zh")).toBe("Chinese");
+    expect(languageLabel("???")).toBe("???");
   });
 });
 

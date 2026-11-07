@@ -167,9 +167,9 @@ enum Command {
 
 #[derive(Debug, thiserror::Error)]
 pub enum WorkerError {
-    #[error("推理引擎不可用：{0}")]
+    #[error("Inference engine unavailable: {0}")]
     Unavailable(String),
-    #[error("推理线程已退出")]
+    #[error("The inference thread has exited")]
     Gone,
 }
 
@@ -416,7 +416,7 @@ impl<F: Fn(EngineEvent)> Worker<F> {
             let model = self
                 .registry()?
                 .load_model(&path, Some("silero_vad"), &[])
-                .map_err(|e| format!("加载 VAD 失败：{e}"))?;
+                .map_err(|e| format!("Couldn't load VAD: {e}"))?;
             self.vad_model = Some(model);
         }
         self.vad_model
@@ -446,7 +446,7 @@ impl<F: Fn(EngineEvent)> Worker<F> {
                 .load_model(path, Some(family), &[])
                 .map_err(|e| e.to_string())?;
             if !model.supports("asr", RunMode::Offline) {
-                return Err(format!("模型 {family} 不支持语音识别"));
+                return Err(format!("Model {family} doesn't support speech recognition"));
             }
             // Only pass options a family declares: some validate strictly.
             let (session_names, request_names) = declared_options(&model, family);
@@ -592,7 +592,7 @@ impl<F: Fn(EngineEvent)> Worker<F> {
         cancel: &AtomicBool,
     ) -> Result<(String, f64), String> {
         if self.loaded.is_none() {
-            return Err("请先在“模型”中下载并加载一个模型".into());
+            return Err("Download and load a model in Models first".into());
         }
         let phase = |phase: &str, progress: f32| {
             (self.emit)(EngineEvent::JobPhase {
@@ -689,7 +689,7 @@ impl<F: Fn(EngineEvent)> Worker<F> {
         stop: &AtomicBool,
     ) -> Result<(), String> {
         if self.loaded.is_none() {
-            return Err("请先在“模型”中下载并加载一个模型".into());
+            return Err("Download and load a model in Models first".into());
         }
         let mut vad = self.vad_session()?;
         vad.stream_start().map_err(|e| e.to_string())?;
@@ -747,7 +747,7 @@ impl<F: Fn(EngineEvent)> Worker<F> {
             }
             select! {
                 recv(audio_rx) -> msg => {
-                    let Ok((rate, block)) = msg else { break Err("麦克风已断开".to_string()) };
+                    let Ok((rate, block)) = msg else { break Err("The microphone was disconnected".to_string()) };
                     let rs = resampler.get_or_insert_with(|| StreamResampler::new(rate, TARGET_RATE));
                     let pcm = rs.process(&block);
                     for &s in &pcm {

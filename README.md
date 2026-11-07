@@ -180,6 +180,15 @@ npm run app:dev        # 启动开发版
 
 只预览界面、不启动 Tauri：运行 `npm run dev`，然后打开 `http://localhost:1420/?mock=home`。可用场景有 `onboarding`、`onboarding-dl`、`models`、`jobs`、`live`；加上 `#transcript:t1`、`#settings` 这样的锚点可以直接打开对应页面。
 
+### 多语言（i18n）
+
+界面使用 i18next，支持英语和简体中文，默认跟随系统语言，也可以在「设置 → 通用 → 界面语言」切换。文案位于 `src/locales/<语言代码>/<命名空间>.json`，英文（`en`）是基准，键名受 TypeScript 类型检查。新增语言：
+
+1. 复制 `src/locales/en/` 为 `src/locales/<code>/`（如 `ja`），翻译全部 JSON，并在 `common.json` 的 `meta.name` 写该语言的自称；`catalog.json` 翻译模型介绍。
+2. 运行 `npm test`，测试会检查键是否齐全、占位符是否一致、模型目录是否全部翻译。
+
+不需要改动任何代码：语言列表由目录自动发现。后端错误信息为英文，由 `src/lib/errors.ts` 映射到 `errors` 命名空间翻译；新增后端错误时请同步添加映射。
+
 <details>
 <summary><b>测试</b></summary>
 

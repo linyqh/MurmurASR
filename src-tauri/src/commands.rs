@@ -255,7 +255,7 @@ pub fn update_settings(
     settings: Settings,
 ) -> CmdResult<Settings> {
     if !matches!(settings.subtitle_max_lines, 1 | 2) {
-        return Err("字幕行数只能设置为一行或两行".into());
+        return Err("Subtitle lines must be 1 or 2".into());
     }
     state
         .store
@@ -309,7 +309,7 @@ fn catalog_model(state: &AppState, id: &str) -> CmdResult<CatalogModel> {
         .catalog
         .get(id)
         .cloned()
-        .ok_or_else(|| format!("未知模型：{id}"))
+        .ok_or_else(|| format!("Unknown model: {id}"))
 }
 
 #[tauri::command]
@@ -371,11 +371,11 @@ pub fn load_model(state: State<'_, AppState>, id: String) -> CmdResult<()> {
 pub fn start_model_load(state: &AppState, id: String) -> CmdResult<()> {
     let model = catalog_model(state, &id)?;
     if model.kind != ModelKind::Asr {
-        return Err(format!("{} 是辅助模型，不能单独用于识别", model.name));
+        return Err(format!("{} is a helper model and can't be used for recognition on its own", model.name));
     }
     let root = state.models_dir();
     if !models::is_installed(&root, &model) {
-        return Err("模型尚未下载".into());
+        return Err("The model hasn't been downloaded yet".into());
     }
     let path = models::load_path(&root, &model);
     let aligner = models::installed_aligner(&root, &state.catalog, &model);
@@ -403,15 +403,15 @@ pub fn transcribe_options(settings: &Settings) -> TranscribeOptions {
 pub fn transcribe_file(state: State<'_, AppState>, path: String) -> CmdResult<String> {
     let file = PathBuf::from(&path);
     if !file.is_file() {
-        return Err("文件不存在".into());
+        return Err("File not found".into());
     }
     if state.loaded.lock().is_none() {
-        return Err("请先加载一个模型".into());
+        return Err("Load a model first".into());
     }
     let title = file
         .file_stem()
         .map(|s| s.to_string_lossy().into_owned())
-        .unwrap_or_else(|| "未命名".into());
+        .unwrap_or_else(|| "Untitled".into());
     let options = transcribe_options(&state.settings.lock());
     queue_file(&state, file, title, options, None)
 }
@@ -447,7 +447,7 @@ pub fn cancel_job(state: State<'_, AppState>, id: String) -> bool {
 #[tauri::command]
 pub fn start_live(state: State<'_, AppState>, title: String) -> CmdResult<String> {
     if state.loaded.lock().is_none() {
-        return Err("请先加载一个模型".into());
+        return Err("Load a model first".into());
     }
     let settings = state.settings.lock().clone();
     let (id, stop) = state.new_pending("live", title, None);
@@ -487,7 +487,7 @@ pub fn get_transcript(state: State<'_, AppState>, id: String) -> CmdResult<Trans
     state
         .store
         .load_transcript(&id)
-        .ok_or_else(|| "记录不存在".into())
+        .ok_or_else(|| "Transcript not found".into())
 }
 
 #[tauri::command]
@@ -498,7 +498,7 @@ pub fn update_transcript(
     title: Option<String>,
     segments: Option<Vec<Segment>>,
 ) -> CmdResult<Transcript> {
-    let mut t = state.store.load_transcript(&id).ok_or("记录不存在")?;
+    let mut t = state.store.load_transcript(&id).ok_or("Transcript not found")?;
     if let Some(title) = title.filter(|t| !t.trim().is_empty()) {
         t.title = title.trim().to_string();
     }
@@ -528,7 +528,7 @@ pub fn export_transcript(
     format: ExportFormat,
     path: Option<String>,
 ) -> CmdResult<String> {
-    let t = state.store.load_transcript(&id).ok_or("记录不存在")?;
+    let t = state.store.load_transcript(&id).ok_or("Transcript not found")?;
     let content = store::export(&t, format);
     if let Some(path) = path {
         std::fs::write(&path, &content).map_err(|e| e.to_string())?;
@@ -543,7 +543,7 @@ pub fn export_files(
     dir: String,
     formats: Vec<ExportFormat>,
 ) -> CmdResult<Vec<String>> {
-    let t = state.store.load_transcript(&id).ok_or("记录不存在")?;
+    let t = state.store.load_transcript(&id).ok_or("Transcript not found")?;
     let paths =
         store::export_to_dir(&t, &PathBuf::from(dir), &formats).map_err(|e| e.to_string())?;
     Ok(paths

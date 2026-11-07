@@ -1,0 +1,56 @@
+{
+  "toolbar": {
+    "title": "Settings"
+  },
+  "general": {
+    "title": "General",
+    "languageHint": "Takes effect immediately"
+  },
+  "recognition": {
+    "title": "Recognition",
+    "language": "Recognition language",
+    "languageHintMulti": "Auto-detect works well for mixed-language content",
+    "languageHintSingle": "The current model handles language automatically",
+    "itn": "Normalize numbers and punctuation",
+    "itnHint": "Writes “one hundred twenty-three” as “123”, etc. (supported by SenseVoice and Fun-ASR)"
+  },
+  "subtitles": {
+    "title": "Subtitles",
+    "maxLines": "Subtitle lines",
+    "maxLinesHint": "Maximum lines shown per subtitle; applies to previews and exports of existing transcripts",
+    "oneLine": "1 line",
+    "twoLines": "2 lines"
+  },
+  "recording": {
+    "title": "Recording",
+    "microphone": "Microphone",
+    "systemDefault": "System default",
+    "saveRecordings": "Save live dictation recordings",
+    "saveRecordingsHint": "Saved recordings can be played back alongside the text in history",
+    "saveRecordingsLabel": "Save recordings"
+  },
+  "performance": {
+    "title": "Performance",
+    "backend": "Compute backend",
+    "backendHintMac": "Metal uses the GPU on Apple silicon",
+    "backendHintOther": "Auto picks the fastest available device",
+    "reloadHint": " (takes effect after reloading the model)",
+    "auto": "Auto",
+    "threads": "CPU threads",
+    "threadsHint": "Only affects the CPU part of computation"
+  },
+  "storage": {
+    "title": "Storage",
+    "modelsDir": "Models folder",
+    "dataDir": "Data folder",
+    "change": "Change…",
+    "chooseModelsDir": "Choose a folder for models",
+    "modelsDirChanged": "Models folder changed. Move existing models to the new location manually."
+  },
+  "about": {
+    "title": "About",
+    "engine": "Inference engine",
+    "engineUnavailable": "Unavailable",
+    "system": "System"
+  }
+}

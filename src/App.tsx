@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { getCurrentWebview } from "@tauri-apps/api/webview";
 import { useStore, AUDIO_EXTENSIONS } from "./lib/store";
 import { Sidebar } from "./views/Sidebar";
@@ -13,6 +14,7 @@ import { IconUpload } from "./components/icons";
 
 export function App() {
   const { view, toasts, models, settings, transcribeFiles, setView, toast } = useStore();
+  const { t } = useTranslation();
   const [dragging, setDragging] = useState(false);
 
   useEffect(() => {
@@ -26,11 +28,11 @@ export function App() {
           AUDIO_EXTENSIONS.includes(p.split(".").pop()?.toLowerCase() ?? ""),
         );
         if (audio.length === 0) {
-          toast("不支持的文件类型，请拖入音频或视频文件", "error");
+          toast(t("app.unsupportedFile"), "error");
           return;
         }
         if (!models?.loaded) {
-          toast("请先下载并加载一个模型", "error");
+          toast(t("app.loadModelFirst"), "error");
           setView({ name: "models" });
           return;
         }
@@ -39,7 +41,7 @@ export function App() {
       }
     });
     return () => void unlisten.then((un) => un());
-  }, [models?.loaded, setView, toast, transcribeFiles]);
+  }, [models?.loaded, setView, toast, transcribeFiles, t]);
 
   const needsOnboarding = useMemo(
     () => !!models && !!settings && !settings.onboarded && models.installed.length === 0,
@@ -60,7 +62,7 @@ export function App() {
           <div className="drop-overlay">
             <div className="drop-card glass">
               <IconUpload size={30} />
-              <div>松开以转写</div>
+              <div>{t("app.dropToTranscribe")}</div>
             </div>
           </div>
         )}

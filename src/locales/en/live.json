@@ -1,0 +1,23 @@
+{
+  "toolbar": {
+    "title": "Live dictation",
+    "copyAll": "Copy all"
+  },
+  "empty": {
+    "title": "Load a model first",
+    "text": "Download and load a speech recognition model to start live dictation.",
+    "goToModels": "Download a model"
+  },
+  "placeholder": {
+    "listening": "Listening… start speaking.",
+    "idle": "Press the button below to start dictating. What you say appears here in real time."
+  },
+  "record": {
+    "start": "Start dictation",
+    "stop": "Stop"
+  },
+  "status": {
+    "starting": "Starting microphone…",
+    "idle": "Press to start dictation"
+  }
+}

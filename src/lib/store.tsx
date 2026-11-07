@@ -23,6 +23,8 @@ import {
   type Settings,
   type TranscriptSummary,
 } from "./api";
+import i18n from "../i18n";
+import { errorMessage } from "./errors";
 
 export type View =
   | { name: "home" }
@@ -120,8 +122,6 @@ function initialView(): View {
   return { name: "home" };
 }
 
-const errorText = (e: unknown) => (e instanceof Error ? e.message : String(e));
-
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [info, setInfo] = useState<AppInfo | null>(null);
   const [settings, setSettings] = useState<Settings | null>(null);
@@ -163,7 +163,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       try {
         setSettings(await api.updateSettings(next));
       } catch (e) {
-        toast(`保存设置失败：${errorText(e)}`, "error");
+        toast(i18n.t("store.saveSettingsFailed", { error: errorMessage(e) }), "error");
       }
     },
     [settings, toast],
@@ -188,7 +188,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           break;
         case "modelError":
           setModels((m) => (m ? { ...m, loaded: null, loading: null } : m));
-          toast(`模型加载失败：${e.error}`, "error");
+          toast(i18n.t("store.modelLoadFailed", { error: errorMessage(e.error) }), "error");
           break;
         case "modelUnloaded":
           setModels((m) => (m ? { ...m, loaded: null } : m));
@@ -255,7 +255,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           break;
         case "liveError":
           setLive((l) => (l.id === e.session ? { ...IDLE_LIVE, segments: l.segments } : l));
-          toast(`实时转写出错：${e.error}`, "error");
+          toast(i18n.t("store.liveError", { error: errorMessage(e.error) }), "error");
           break;
       }
     };
@@ -280,13 +280,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         case "failed":
         case "cancelled":
           setDownloads(({ [e.id]: _, ...rest }) => rest);
-          if (e.state === "failed") toast(`下载失败：${e.error}`, "error");
+          if (e.state === "failed") toast(i18n.t("store.downloadFailed", { error: errorMessage(e.error) }), "error");
           if (e.state === "done") {
             const model = modelsRef.current?.catalog.models.find((m) => m.id === e.id);
-            toast(`${model?.name ?? e.id} 下载完成`);
+            toast(i18n.t("store.downloadDone", { name: model?.name ?? e.id }));
             // First model on this machine: make it usable without another click.
             if (model?.kind !== "aligner" && !modelsRef.current?.loaded && !modelsRef.current?.loading) {
-              void api.loadModel(e.id).catch((err) => toast(errorText(err), "error"));
+              void api.loadModel(e.id).catch((err) => toast(errorMessage(err), "error"));
             }
           }
           void refreshModels();
@@ -315,7 +315,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             [id]: { id, title, phase: "queued", progress: 0, duration: 0, segments: [] },
           }));
         } catch (e) {
-          toast(errorText(e), "error");
+          toast(errorMessage(e), "error");
         }
       }
     },
@@ -330,7 +330,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         setLive((l) => ({ ...l, id }));
       } catch (e) {
         setLive(IDLE_LIVE);
-        toast(errorText(e), "error");
+        toast(errorMessage(e), "error");
       }
     },
     [toast],

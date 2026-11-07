@@ -1,0 +1,56 @@
+{
+  "toolbar": {
+    "title": "设置"
+  },
+  "general": {
+    "title": "通用",
+    "languageHint": "立即生效"
+  },
+  "recognition": {
+    "title": "识别",
+    "language": "识别语言",
+    "languageHintMulti": "自动检测适合多语言混合的内容",
+    "languageHintSingle": "当前模型会自动处理语言",
+    "itn": "数字与标点规整",
+    "itnHint": "把“一百二十三”写成“123”等（SenseVoice、Fun-ASR 支持）"
+  },
+  "subtitles": {
+    "title": "字幕",
+    "maxLines": "字幕行数",
+    "maxLinesHint": "每条字幕最多显示的行数，应用于已有记录的预览与导出",
+    "oneLine": "一行",
+    "twoLines": "两行"
+  },
+  "recording": {
+    "title": "录音",
+    "microphone": "麦克风",
+    "systemDefault": "系统默认",
+    "saveRecordings": "保存实时听写的录音",
+    "saveRecordingsHint": "保存后可在记录中回放并对照文字",
+    "saveRecordingsLabel": "保存录音"
+  },
+  "performance": {
+    "title": "性能",
+    "backend": "计算后端",
+    "backendHintMac": "Metal 使用 Apple 芯片的 GPU 加速",
+    "backendHintOther": "“自动”会选择可用的最快设备",
+    "reloadHint": "（重新加载模型后生效）",
+    "auto": "自动",
+    "threads": "CPU 线程数",
+    "threadsHint": "仅影响 CPU 计算部分"
+  },
+  "storage": {
+    "title": "存储",
+    "modelsDir": "模型位置",
+    "dataDir": "数据位置",
+    "change": "更改…",
+    "chooseModelsDir": "选择模型存放位置",
+    "modelsDirChanged": "模型位置已更改，已有模型需手动移动到新位置"
+  },
+  "about": {
+    "title": "关于",
+    "engine": "推理引擎",
+    "engineUnavailable": "不可用",
+    "system": "系统"
+  }
+}

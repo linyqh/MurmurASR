@@ -1,0 +1,319 @@
+{
+  "groups": {
+    "欧洲语言": "欧洲语言",
+    "特定语言优化": "特定语言优化",
+    "英语": "英语",
+    "语音翻译": "语音翻译",
+    "通用多语种（含中文）": "通用多语种（含中文）",
+    "长音频与说话人区分": "长音频与说话人区分",
+    "音频理解大模型（实验性）": "音频理解大模型（实验性）"
+  },
+  "tags": {
+    "中亚语言": "中亚语言",
+    "中文优化": "中文优化",
+    "丹麦语": "丹麦语",
+    "低延迟": "低延迟",
+    "俄语": "俄语",
+    "多语种": "多语种",
+    "大模型": "大模型",
+    "实验性": "实验性",
+    "开放数据": "开放数据",
+    "方言": "方言",
+    "欧洲语言": "欧洲语言",
+    "流式": "流式",
+    "社区": "社区",
+    "粤语": "粤语",
+    "自动识别语言": "自动识别语言",
+    "英语": "英语",
+    "语音翻译": "语音翻译",
+    "说话人": "说话人",
+    "轻量": "轻量",
+    "逐词时间戳": "逐词时间戳",
+    "长音频": "长音频",
+    "阿拉伯语": "阿拉伯语",
+    "非商业用途": "非商业用途",
+    "高精度": "高精度"
+  },
+  "models": {
+    "qwen3-asr-0.6b-q8": {
+      "languages": "中英日韩等 30 种语言 + 22 种中文方言",
+      "summary": "均衡之选：多语种、抗噪声，自动识别语言，适合大多数场景。",
+      "description": "阿里通义千问团队的语音识别模型，支持 30 种语言、22 种中文方言和多种英语口音，对噪声、长音频和歌声都比较稳健。体积适中，普通笔记本也能流畅运行。另外下载 Qwen3 强制对齐模型后可以输出词级时间戳（中文为字级）。"
+    },
+    "sensevoice-small-q8": {
+      "languages": "中文、粤语、英语、日语、韩语等",
+      "summary": "极速轻量：体积小、速度快，中文与粤语表现出色，适合低配设备。",
+      "description": "阿里 FunAudioLLM 团队的非自回归识别模型（SAN-M 编码器 + CTC），速度极快，几十秒的音频通常不到一秒就能转完。中文、粤语效果好，支持数字与标点规整。不输出词级时间戳。"
+    },
+    "fun-asr-nano-q8": {
+      "languages": "中文、英语、日语",
+      "summary": "中文专精：通义实验室出品，中文识别与数字规整效果好。",
+      "description": "阿里通义实验室的端到端语音大模型（Fun-ASR-Nano-2512），以中文为主，兼顾英语和日语，能自动判断语言。支持数字与标点规整（把“一百二十三”写成“123”）。不输出词级时间戳。"
+    },
+    "qwen3-asr-1.7b-q8": {
+      "languages": "中英日韩等 30 种语言 + 22 种中文方言",
+      "summary": "高精度：更大的 Qwen3-ASR，准确率更高，需要更多内存。",
+      "description": "Qwen3-ASR 的大号版本，语言覆盖与 0.6B 相同，在口音、噪声和专业词汇上更准，速度约为 0.6B 的一半，建议 16 GB 以上内存。同样可以搭配 Qwen3 强制对齐模型输出词级时间戳。"
+    },
+    "confucius4-r2t2-q8": {
+      "languages": "中英粤等 30 种语言",
+      "summary": "低延迟流式：网易有道基于 Qwen3-ASR 1.7B 微调，适合实时听写。",
+      "description": "网易有道在 Qwen3-ASR 1.7B 上微调的实时识别模型，采用“最长稳定前缀”解码，已输出的文字不会被回改，最低 80 毫秒一个分块。离线转写效果接近 Qwen3-ASR 1.7B。社区转换的 GGUF，使用前请阅读网易有道的模型许可。"
+    },
+    "nemotron-asr-0.6b-q8": {
+      "languages": "40 种语言（含中文）",
+      "summary": "多语种流式：NVIDIA Nemotron，覆盖 40 种语言，会议场景表现稳定，自带逐词时间戳。",
+      "description": "NVIDIA 的 6 亿参数流式识别模型（RNN-T），覆盖 40 种语言和地区变体，自带标点和大小写，能自动识别语言。原生输出词级时间戳，低延迟与批量转写都适用。"
+    },
+    "cohere-transcribe-q8": {
+      "languages": "中、英、日、韩、法、德、西、意、葡、荷、波、希、阿、越 14 种语言",
+      "summary": "高精度多语种：Cohere 出品，14 种主流语言，标点自然。",
+      "description": "Cohere 发布的 Conformer 编码器-解码器识别模型（03-2026 版），覆盖中英日韩及主要欧洲语言，可控制是否输出标点。需要手动选择语言效果最好。不输出词级时间戳。"
+    },
+    "voxtral-realtime-4b-q8": {
+      "languages": "中、英、日、韩、法、德、西、葡、意、荷、俄、阿、印地 13 种语言",
+      "summary": "实时大模型：Mistral 出品，原生流式编码器，准确率接近离线模型。",
+      "description": "Mistral 的 40 亿参数实时识别模型，采用因果音频编码器，可以边听边转写，延迟可调，准确率与主流离线开源模型相当。体积较大（约 5 GB），建议 16 GB 以上内存并使用 GPU。"
+    },
+    "crisperwhisper-2-large-q8": {
+      "languages": "近百种语言（Whisper 系多语种覆盖）",
+      "summary": "高精度时间戳：业界领先的词级时间戳精度，仅限非商业用途。",
+      "description": "基于 Whisper Large 的逐字转写模型，会保留“嗯、呃”等口语填充词，词级时间戳非常精确，适合做字幕和语音分析。语言覆盖与 Whisper 相同。许可证仅允许非商业研究用途。"
+    },
+    "owsm-v4-base-102m-q8": {
+      "languages": "151 种语言",
+      "summary": "超广语种：卡内基梅隆大学开源的 Whisper 式模型，体积最小，适合快速试用。",
+      "description": "卡内基梅隆大学 ESPnet 团队完全开放训练数据的 Whisper 式编码器-解码器模型（Open Whisper-style Speech Model v4），覆盖 151 种语言，体积最小，适合快速试用。需要在设置中指定语言（使用三字母代码，如 cmn、eng）效果最好。不输出词级时间戳。"
+    },
+    "owsm-v4-small-370m-q8": {
+      "languages": "151 种语言",
+      "summary": "超广语种：卡内基梅隆大学开源的 Whisper 式模型，体积与准确率较均衡。",
+      "description": "卡内基梅隆大学 ESPnet 团队完全开放训练数据的 Whisper 式编码器-解码器模型（Open Whisper-style Speech Model v4），覆盖 151 种语言，体积与准确率较均衡。需要在设置中指定语言（使用三字母代码，如 cmn、eng）效果最好。不输出词级时间戳。"
+    },
+    "owsm-v4-medium-1b-q8": {
+      "languages": "151 种语言",
+      "summary": "超广语种：卡内基梅隆大学开源的 Whisper 式模型，该系列最准，速度较慢。",
+      "description": "卡内基梅隆大学 ESPnet 团队完全开放训练数据的 Whisper 式编码器-解码器模型（Open Whisper-style Speech Model v4），覆盖 151 种语言，该系列最准，速度较慢。需要在设置中指定语言（使用三字母代码，如 cmn、eng）效果最好。不输出词级时间戳。"
+    },
+    "owsm-ctc-v4-1b-q8": {
+      "languages": "151 种语言",
+      "summary": "超广语种 CTC：OWSM 的非自回归版本，比同尺寸 OWSM 更快。",
+      "description": "ESPnet 团队的 10 亿参数非自回归模型（自条件 CTC），语言覆盖与 OWSM v4 相同，一次前向即可得到结果，速度明显快于自回归版本，也不容易出现重复或幻觉。"
+    },
+    "moonshine-tiny-q8": {
+      "languages": "仅英语",
+      "summary": "英语轻量：仅约 60 MB，几乎在任何设备上都能实时运行，适合英文听写。",
+      "description": "Moonshine AI 专为端侧设计的英语流式识别模型，计算量随音频长度伸缩，短句延迟极低。Tiny 版仅约 60 MB，几乎在任何设备上都能实时运行。只支持英语，不输出词级时间戳。"
+    },
+    "moonshine-small-q8": {
+      "languages": "仅英语",
+      "summary": "英语轻量：约 300 MB，速度与准确率兼顾，适合英文听写。",
+      "description": "Moonshine AI 专为端侧设计的英语流式识别模型，计算量随音频长度伸缩，短句延迟极低。Small 版约 300 MB，速度与准确率兼顾。只支持英语，不输出词级时间戳。"
+    },
+    "moonshine-medium-q8": {
+      "languages": "仅英语",
+      "summary": "英语轻量：该系列最准的版本，适合英文听写。",
+      "description": "Moonshine AI 专为端侧设计的英语流式识别模型，计算量随音频长度伸缩，短句延迟极低。Medium 版该系列最准的版本。只支持英语，不输出词级时间戳。"
+    },
+    "kroko-asr-en-community-q8": {
+      "languages": "英语",
+      "summary": "极速英语：Zipformer2/RNN-T 架构，体积小、速度快，自带逐词时间戳。",
+      "description": "Kroko 社区版英语模型（Zipformer2 + RNN-T），约 170 MB，在 CPU 上也能远超实时，原生输出词级时间戳，支持热词。其他语言的 Kroko 模型见“欧洲语言”。"
+    },
+    "niagara-19m-f32": {
+      "languages": "仅英语",
+      "summary": "超小英语：Applied Brain Research 的 19M 参数状态空间模型，速度极快。",
+      "description": "Applied Brain Research 的英语批量识别模型，采用状态空间模型加注意力的结构和 CTC 解码，参数只有 19m，适合配置很低的设备。只支持英语，不输出词级时间戳。"
+    },
+    "niagara-38m-f32": {
+      "languages": "仅英语",
+      "summary": "超小英语：Applied Brain Research 的 38M 参数状态空间模型，速度极快。",
+      "description": "Applied Brain Research 的英语批量识别模型，采用状态空间模型加注意力的结构和 CTC 解码，参数只有 38m，适合配置很低的设备。只支持英语，不输出词级时间戳。"
+    },
+    "citrinet-q8": {
+      "languages": "仅英语",
+      "summary": "最小英语：NVIDIA 经典卷积 CTC 模型，仅约 40 MB。",
+      "description": "NVIDIA NeMo 的 Citrinet-256 卷积 CTC 模型，体积只有约 40 MB，速度极快，但准确率明显低于新一代模型，适合配置很低或只需粗略转写的场景。只支持英语。"
+    },
+    "higgs-audio-v3-stt-q8": {
+      "languages": "仅英语",
+      "summary": "高精度英语：Boson AI 出品，Whisper Large v3 编码器 + Qwen 解码器。",
+      "description": "Boson AI 的英语识别模型，用 Whisper Large v3 编码器和 Qwen 语言模型解码器组合，对口音和噪声很稳健，英语准确率高。体积约 3 GB，只支持英语。"
+    },
+    "parakeet-tdt-0.6b-v3-q8": {
+      "languages": "英语及 24 种欧洲语言",
+      "summary": "欧洲语言：NVIDIA 出品，速度快，自带逐词时间戳。",
+      "description": "NVIDIA 的 FastConformer-TDT 模型，覆盖英语和 24 种欧洲语言，能自动识别语言，速度快且准确。原生输出词级时间戳，适合做字幕。不支持中文。"
+    },
+    "canary-180m-flash-q8": {
+      "languages": "英语、德语、西班牙语、法语",
+      "summary": "轻量欧洲语言：NVIDIA Canary 的小型版，约 250 MB。",
+      "description": "NVIDIA Canary 系列的 1.8 亿参数版本，支持英、德、西、法四种语言的识别，体积小、速度快，准确率在同尺寸模型中很高。不输出词级时间戳。"
+    },
+    "granite-speech-5-turboctc-q8": {
+      "languages": "英、法、德、西、葡、意、日 7 种语言",
+      "summary": "极速 CTC：IBM 出品，4.7 亿参数，自带标点与大小写。",
+      "description": "IBM Granite Speech 5.0 的 Conformer CTC 版本，非自回归解码，速度极快，自带标点和大小写，支持英、法、德、西、葡、意、日 7 种语言，并输出词级时间戳。"
+    },
+    "whistle-f32": {
+      "languages": "英、德、法、西、意、荷、波 7 种语言",
+      "summary": "实验性：轻量多语种模型，约 220 MB。",
+      "description": "Whistle 离线识别模型，编码器在 GPU 上运行、解码器在 CPU 上运行，支持 7 种欧洲语言。audio.cpp 将其标为实验性，单段音频最长约 30 秒（Murmur 会自动分段）。"
+    },
+    "kroko-asr-de-community-q8": {
+      "languages": "德语",
+      "summary": "极速德语：Kroko 社区单语模型，约 170 MB，自带逐词时间戳。",
+      "description": "Kroko 社区版德语模型（Zipformer2 + RNN-T），体积小，在 CPU 上也能远超实时，原生输出词级时间戳。只识别德语。GGUF 由 audio.cpp 的 Kroko 移植作者转换发布。"
+    },
+    "kroko-asr-es-community-q8": {
+      "languages": "西班牙语",
+      "summary": "极速西班牙语：Kroko 社区单语模型，约 170 MB，自带逐词时间戳。",
+      "description": "Kroko 社区版西班牙语模型（Zipformer2 + RNN-T），体积小，在 CPU 上也能远超实时，原生输出词级时间戳。只识别西班牙语。GGUF 由 audio.cpp 的 Kroko 移植作者转换发布。"
+    },
+    "kroko-asr-fr-community-q8": {
+      "languages": "法语",
+      "summary": "极速法语：Kroko 社区单语模型，约 170 MB，自带逐词时间戳。",
+      "description": "Kroko 社区版法语模型（Zipformer2 + RNN-T），体积小，在 CPU 上也能远超实时，原生输出词级时间戳。只识别法语。GGUF 由 audio.cpp 的 Kroko 移植作者转换发布。"
+    },
+    "kroko-asr-it-community-q8": {
+      "languages": "意大利语",
+      "summary": "极速意大利语：Kroko 社区单语模型，约 170 MB，自带逐词时间戳。",
+      "description": "Kroko 社区版意大利语模型（Zipformer2 + RNN-T），体积小，在 CPU 上也能远超实时，原生输出词级时间戳。只识别意大利语。GGUF 由 audio.cpp 的 Kroko 移植作者转换发布。"
+    },
+    "kroko-asr-nl-community-q8": {
+      "languages": "荷兰语",
+      "summary": "极速荷兰语：Kroko 社区单语模型，约 170 MB，自带逐词时间戳。",
+      "description": "Kroko 社区版荷兰语模型（Zipformer2 + RNN-T），体积小，在 CPU 上也能远超实时，原生输出词级时间戳。只识别荷兰语。GGUF 由 audio.cpp 的 Kroko 移植作者转换发布。"
+    },
+    "kroko-asr-pt-community-q8": {
+      "languages": "葡萄牙语",
+      "summary": "极速葡萄牙语：Kroko 社区单语模型，约 170 MB，自带逐词时间戳。",
+      "description": "Kroko 社区版葡萄牙语模型（Zipformer2 + RNN-T），体积小，在 CPU 上也能远超实时，原生输出词级时间戳。只识别葡萄牙语。GGUF 由 audio.cpp 的 Kroko 移植作者转换发布。"
+    },
+    "kroko-asr-sv-community-q8": {
+      "languages": "瑞典语",
+      "summary": "极速瑞典语：Kroko 社区单语模型，约 170 MB，自带逐词时间戳。",
+      "description": "Kroko 社区版瑞典语模型（Zipformer2 + RNN-T），体积小，在 CPU 上也能远超实时，原生输出词级时间戳。只识别瑞典语。GGUF 由 audio.cpp 的 Kroko 移植作者转换发布。"
+    },
+    "kroko-asr-tr-community-q8": {
+      "languages": "土耳其语",
+      "summary": "极速土耳其语：Kroko 社区单语模型，约 170 MB，自带逐词时间戳。",
+      "description": "Kroko 社区版土耳其语模型（Zipformer2 + RNN-T），体积小，在 CPU 上也能远超实时，原生输出词级时间戳。只识别土耳其语。GGUF 由 audio.cpp 的 Kroko 移植作者转换发布。"
+    },
+    "kroko-asr-iw-community-q8": {
+      "languages": "希伯来语",
+      "summary": "极速希伯来语：Kroko 社区单语模型，约 170 MB，自带逐词时间戳。",
+      "description": "Kroko 社区版希伯来语模型（Zipformer2 + RNN-T），体积小，在 CPU 上也能远超实时，原生输出词级时间戳。只识别希伯来语。GGUF 由 audio.cpp 的 Kroko 移植作者转换发布。"
+    },
+    "gigaam-asr-v3-ctc-f16": {
+      "languages": "俄语",
+      "summary": "俄语专精：Sber 出品，CTC 解码，速度最快。",
+      "description": "Sber 的 GigaAM v3 Conformer 模型，针对俄语训练，俄语识别效果领先。CTC 解码，速度最快，自带词级时间戳。"
+    },
+    "gigaam-asr-v3-rnnt-f16": {
+      "languages": "俄语",
+      "summary": "俄语专精：Sber 出品，RNN-T 解码，比 CTC 版略准。",
+      "description": "Sber 的 GigaAM v3 Conformer 模型，针对俄语训练，俄语识别效果领先。RNN-T 解码，比 CTC 版略准，自带词级时间戳。"
+    },
+    "gigaam-asr-v3-e2e-ctc-f16": {
+      "languages": "俄语",
+      "summary": "俄语专精：Sber 出品，端到端版本，直接输出带标点和大小写的文本。",
+      "description": "Sber 的 GigaAM v3 Conformer 模型，针对俄语训练，俄语识别效果领先。端到端版本，直接输出带标点和大小写的文本，自带词级时间戳。"
+    },
+    "gigaam-asr-v3-e2e-rnnt-f16": {
+      "languages": "俄语",
+      "summary": "俄语专精：Sber 出品，端到端 RNN-T 版本，带标点，该系列最准。",
+      "description": "Sber 的 GigaAM v3 Conformer 模型，针对俄语训练，俄语识别效果领先。端到端 RNN-T 版本，带标点，该系列最准，自带词级时间戳。"
+    },
+    "gigaam-multilingual-ctc-f16": {
+      "languages": "俄语、哈萨克语、吉尔吉斯语、乌兹别克语、英语",
+      "summary": "俄语及中亚语言：Sber 的多语种 GigaAM，约 440 MB。",
+      "description": "Sber GigaAM 的多语种版本，在俄语之外加入哈萨克语、吉尔吉斯语、乌兹别克语和英语，CTC 解码，速度快，自带词级时间戳。"
+    },
+    "gigaam-multilingual-large-ctc-f16": {
+      "languages": "俄语、哈萨克语、吉尔吉斯语、乌兹别克语、英语",
+      "summary": "俄语及中亚语言（大）：多语种 GigaAM 的大号版本，更准。",
+      "description": "Sber GigaAM 多语种版本的大模型，语言覆盖与 Multilingual CTC 相同，准确率更高，体积约 1.2 GB，自带词级时间戳。"
+    },
+    "hviske-v5.3-q8": {
+      "languages": "丹麦语",
+      "summary": "丹麦语专精：基于 Cohere Transcribe 微调，仅限非商业用途。",
+      "description": "syv.ai 在 Cohere Transcribe 基础上针对丹麦语微调的模型，丹麦语准确率高，可控制标点输出。许可证为 CC-BY-NC-4.0，仅限非商业用途。"
+    },
+    "hviske-v6-q8": {
+      "languages": "丹麦语",
+      "summary": "丹麦语新版：Whisper 编码器 + Qwen3 解码器，仅限非商业用途。",
+      "description": "Hviske 第六代丹麦语识别模型，采用旋转位置编码的 Whisper 编码器和 Qwen3 解码器，比 v5.3 更小更快。许可证为 CC-BY-NC-4.0，仅限非商业用途。"
+    },
+    "qwencleo-asr-q8": {
+      "languages": "埃及阿拉伯语、英语（支持混说）",
+      "summary": "埃及阿拉伯语：基于 Qwen3-ASR 1.7B 微调，擅长阿英混说。",
+      "description": "社区在 Qwen3-ASR 1.7B 上针对埃及阿拉伯语方言及阿拉伯语、英语混说微调的模型。可以搭配 Qwen3 强制对齐模型，但对齐模型不支持阿拉伯语，阿拉伯语内容不会有词级时间戳。"
+    },
+    "moss-transcribe-diarize-q8": {
+      "languages": "50 多种语言，自动识别",
+      "summary": "转写 + 说话人：复旦 OpenMOSS 出品，同时输出文字、时间与说话人。",
+      "description": "复旦大学 OpenMOSS 团队的联合转写与说话人分离模型（Whisper 编码器 + Qwen3 解码器），支持 50 多种语言并自动识别。模型本身能区分说话人，但 Murmur 目前只使用转写文字，不显示说话人标签。"
+    },
+    "vibevoice-asr-q8": {
+      "languages": "50 多种语言，自动识别",
+      "summary": "长音频大模型：微软出品，单次可处理 60 分钟音频，约 10 GB。",
+      "description": "微软 VibeVoice 的 70 亿参数长音频识别模型，可一次处理长达 60 分钟的音频并给出说话人、时间与内容，支持热词和 50 多种语言。体积约 10 GB，建议 32 GB 以上内存并使用 GPU。模型本身能区分说话人，但 Murmur 目前只使用转写文字，不显示说话人标签。"
+    },
+    "vibevoice-asr-streaming-7b-q8": {
+      "languages": "中、英、日、韩、法、德、西、葡、意、俄 10 种语言",
+      "summary": "流式长音频：VibeVoice ASR 的流式版本，7B，约 10 GB。",
+      "description": "微软 VibeVoice ASR 的流式版本，解码器状态跨分块保留，适合长时间连续转写，覆盖中英日韩等 10 种语言。体积约 10 GB，建议 32 GB 以上内存并使用 GPU。模型本身能区分说话人，但 Murmur 目前只使用转写文字，不显示说话人标签。"
+    },
+    "vibevoice-asr-streaming-1.5b-q8": {
+      "languages": "中、英、日、韩、法、德、西、葡、意、俄 10 种语言",
+      "summary": "流式长音频（小）：VibeVoice 流式识别的 1.5B 版本，约 3.3 GB。",
+      "description": "VibeVoice ASR Streaming 的 15 亿参数版本，语言覆盖与 7B 相同，内存需求小很多，适合 16 GB 内存的电脑。社区转换的 GGUF。模型本身能区分说话人，但 Murmur 目前只使用转写文字，不显示说话人标签。"
+    },
+    "index-echo-s2tt-2b-q8": {
+      "languages": "中文语音 → 英语 / 西班牙语 / 日语文字",
+      "summary": "中文语音直译：把中文语音直接转成外文字幕，2B 版。",
+      "description": "B 站 Index 团队的语音翻译模型，输入中文语音，直接输出英语（默认）、西班牙语或日语文字，而不是中文转写。2B 版约 3.2 GB。audio.cpp 将其标为实验性。"
+    },
+    "index-echo-s2tt-9b-q8": {
+      "languages": "中文语音 → 英语 / 西班牙语 / 日语文字",
+      "summary": "中文语音直译：把中文语音直接转成外文字幕，9B 版。",
+      "description": "B 站 Index 团队的语音翻译模型，输入中文语音，直接输出英语（默认）、西班牙语或日语文字，而不是中文转写。9B 版约 11 GB，建议 32 GB 以上内存。audio.cpp 将其标为实验性。"
+    },
+    "audio-flamingo-next-q8": {
+      "languages": "英语",
+      "summary": "音频理解：NVIDIA 音频大模型，能转写，也能描述声音和音乐，约 9.3 GB。",
+      "description": "NVIDIA 的音频语言大模型 Audio Flamingo Next，除转写语音外还能描述环境声、音乐并回答相关问题。在 Murmur 中用于英语转写。体积约 9.3 GB，建议 32 GB 以上内存。许可证仅限非商业用途。"
+    },
+    "audio-flamingo-3-q8": {
+      "languages": "英语",
+      "summary": "音频理解：Audio Flamingo 第三代，约 9.3 GB。",
+      "description": "NVIDIA Audio Flamingo 3，Audio Flamingo Next 的上一代，能力与体积相近。在 Murmur 中用于英语转写。建议 32 GB 以上内存。许可证仅限非商业用途。"
+    },
+    "ming-3.0-audio-tiny-q8": {
+      "languages": "中文、英语",
+      "summary": "全能音频大模型：蚂蚁百灵出品，混合专家结构，约 13.7 GB。",
+      "description": "蚂蚁集团百灵团队的全模态音频模型，Whisper 编码器加混合专家（MoE）语言模型，支持识别、理解和语音合成。在 Murmur 中用于中英文转写。体积约 13.7 GB，建议 32 GB 以上内存，audio.cpp 将其标为实验性。"
+    },
+    "firered-audio-q8": {
+      "languages": "中文、英语",
+      "summary": "全能音频大模型：小红书 FireRed 出品，约 14 GB。",
+      "description": "小红书 FireRed 团队的音频大模型，基于 Qwen3.5 混合架构，覆盖识别、音频理解、语音合成与编辑。在 Murmur 中用于中英文转写。体积约 14 GB，建议 32 GB 以上内存，audio.cpp 将其标为实验性。"
+    },
+    "lfm2.5-audio-1.5b-q8": {
+      "languages": "英语",
+      "summary": "端侧音频大模型：Liquid AI 出品，英语版，约 1.5 GB。",
+      "description": "Liquid AI 的 15 亿参数音频模型，FastConformer 编码器加 LFM2 混合架构骨干，可识别也可语音对话。在 Murmur 中用于英语转写，下载包含主模型和音频编码器两个文件。audio.cpp 将其标为实验性。"
+    },
+    "lfm2.5-audio-1.5b-jp-q8": {
+      "languages": "日语",
+      "summary": "端侧音频大模型：Liquid AI 出品，日语版，约 1.5 GB。",
+      "description": "Liquid AI 的 15 亿参数音频模型，FastConformer 编码器加 LFM2 混合架构骨干，可识别也可语音对话。在 Murmur 中用于日语转写，下载包含主模型和音频编码器两个文件。audio.cpp 将其标为实验性。"
+    },
+    "qwen3-forced-aligner-0.6b-q8": {
+      "languages": "中、粤、英、日、韩、法、德、意、葡、俄、西",
+      "summary": "为 Qwen3-ASR 生成词级时间戳（中文为字级），转写后自动对齐。",
+      "description": "Qwen3 的非自回归强制对齐模型，把转写文字与音频对齐，给出词级（中文为字级）时间戳。只作为 Qwen3-ASR 系列的附加组件使用。"
+    }
+  }
+}

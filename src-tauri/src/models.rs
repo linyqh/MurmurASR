@@ -268,7 +268,7 @@ impl Downloads {
 
 #[derive(Debug, thiserror::Error)]
 pub(crate) enum FetchError {
-    #[error("已取消")]
+    #[error("Cancelled")]
     Cancelled,
     #[error("{0}")]
     Other(String),
@@ -309,7 +309,7 @@ async fn run_download(
     if let Err(e) = tokio::fs::create_dir_all(&dir).await {
         return DownloadEvent::Failed {
             id,
-            error: format!("无法创建模型目录：{e}"),
+            error: format!("Couldn't create the models folder: {e}"),
         };
     }
     let client = match http_client() {
@@ -377,7 +377,7 @@ async fn download_file(
             Ok(_) => {
                 let _ = tokio::fs::remove_file(&partial).await;
                 log::warn!("download {} from {label} failed its checksum", file.name);
-                errors.push(format!("{label}：文件校验失败（SHA-256 不匹配）"));
+                errors.push(format!("{label}: file verification failed (SHA-256 mismatch)"));
                 continue;
             }
             Err(FetchError::Cancelled) => return Err(DownloadEvent::Cancelled { id: id.clone() }),
@@ -506,7 +506,7 @@ pub(crate) async fn fetch(
     );
     if downloaded != size {
         return Err(FetchError::Other(format!(
-            "下载不完整（{downloaded}/{size} 字节）"
+            "Incomplete download ({downloaded}/{size} bytes)"
         )));
     }
     Ok(())

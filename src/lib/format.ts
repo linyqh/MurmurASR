@@ -1,3 +1,5 @@
+import i18n, { currentLocale } from "../i18n";
+
 export function formatBytes(bytes: number): string {
   if (!Number.isFinite(bytes) || bytes <= 0) return "0 B";
   const units = ["B", "KB", "MB", "GB", "TB"];
@@ -18,35 +20,39 @@ export function formatClock(seconds: number): string {
 
 export function formatDuration(seconds: number): string {
   const s = Math.max(0, Math.round(seconds));
-  if (s < 60) return `${s} 秒`;
+  if (s < 60) return i18n.t("duration.seconds", { count: s });
   const m = Math.floor(s / 60);
-  if (m < 60) return `${m} 分 ${s % 60} 秒`;
-  return `${Math.floor(m / 60)} 小时 ${m % 60} 分`;
+  if (m < 60) return i18n.t("duration.minutesSeconds", { minutes: m, seconds: s % 60 });
+  return i18n.t("duration.hoursMinutes", { hours: Math.floor(m / 60), minutes: m % 60 });
 }
 
 export function formatEta(remainingBytes: number, bytesPerSec: number): string {
   if (bytesPerSec <= 0) return "";
   const s = remainingBytes / bytesPerSec;
-  if (s < 60) return `剩余约 ${Math.ceil(s)} 秒`;
-  return `剩余约 ${Math.ceil(s / 60)} 分钟`;
+  if (s < 60) return i18n.t("duration.etaSeconds", { count: Math.ceil(s) });
+  return i18n.t("duration.etaMinutes", { count: Math.ceil(s / 60) });
 }
 
 export function formatRelativeDate(ms: number, now = Date.now()): string {
+  const locale = currentLocale();
   const date = new Date(ms);
   const today = new Date(now);
   const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
-  const time = date.toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit", hour12: false });
-  if (ms >= startOfToday) return `今天 ${time}`;
-  if (ms >= startOfToday - 86_400_000) return `昨天 ${time}`;
+  const time = date.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit", hour12: false });
+  if (ms >= startOfToday) return i18n.t("date.todayAt", { time });
+  if (ms >= startOfToday - 86_400_000) return i18n.t("date.yesterdayAt", { time });
   if (date.getFullYear() === today.getFullYear()) {
-    return `${date.getMonth() + 1}月${date.getDate()}日`;
+    return date.toLocaleDateString(locale, { month: "short", day: "numeric" });
   }
-  return `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`;
+  return date.toLocaleDateString(locale, { year: "numeric", month: "numeric", day: "numeric" });
 }
 
 export function liveTitle(now = new Date()): string {
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `实时转写 ${now.getMonth() + 1}月${now.getDate()}日 ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  const locale = currentLocale();
+  return i18n.t("liveTitle", {
+    date: now.toLocaleDateString(locale, { month: "short", day: "numeric" }),
+    time: now.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit", hour12: false }),
+  });
 }
 
 const CJK = /[぀-ヿ㐀-䶿一-鿿가-힯]/;
@@ -108,59 +114,54 @@ export function activeWord(words: { start: number; end: number }[], time: number
   return found;
 }
 
-export const LANGUAGE_LABELS: Record<string, string> = {
-  auto: "自动检测",
-  zh: "中文",
-  en: "英语",
-  yue: "粤语",
-  ja: "日语",
-  ko: "韩语",
-  de: "德语",
-  fr: "法语",
-  es: "西班牙语",
-  pt: "葡萄牙语",
-  ru: "俄语",
-  it: "意大利语",
-  ar: "阿拉伯语",
-  Chinese: "中文",
-  English: "英语",
-  Cantonese: "粤语",
-  Japanese: "日语",
-  Korean: "韩语",
-  German: "德语",
-  French: "法语",
-  Spanish: "西班牙语",
-  Portuguese: "葡萄牙语",
-  Russian: "俄语",
-  Italian: "意大利语",
-  Arabic: "阿拉伯语",
-  Thai: "泰语",
-  Vietnamese: "越南语",
-  Indonesian: "印尼语",
-  Turkish: "土耳其语",
-  Hindi: "印地语",
-  Malay: "马来语",
-  Dutch: "荷兰语",
-  Swedish: "瑞典语",
-  Danish: "丹麦语",
-  Finnish: "芬兰语",
-  Polish: "波兰语",
-  Czech: "捷克语",
-  Filipino: "菲律宾语",
-  Persian: "波斯语",
-  Greek: "希腊语",
-  Romanian: "罗马尼亚语",
-  Hungarian: "匈牙利语",
-  Macedonian: "马其顿语",
-  "zh-CN": "中文（普通话）",
-  "en-US": "英语（美国）",
-  "en-GB": "英语（英国）",
-  "ja-JP": "日语",
-  "ko-KR": "韩语",
+/** Engine language names (and a few codes) to BCP 47 tags understood by Intl.DisplayNames. */
+const LANGUAGE_TAGS: Record<string, string> = {
+  Chinese: "zh",
+  English: "en",
+  Cantonese: "yue",
+  Japanese: "ja",
+  Korean: "ko",
+  German: "de",
+  French: "fr",
+  Spanish: "es",
+  Portuguese: "pt",
+  Russian: "ru",
+  Italian: "it",
+  Arabic: "ar",
+  Thai: "th",
+  Vietnamese: "vi",
+  Indonesian: "id",
+  Turkish: "tr",
+  Hindi: "hi",
+  Malay: "ms",
+  Dutch: "nl",
+  Swedish: "sv",
+  Danish: "da",
+  Finnish: "fi",
+  Polish: "pl",
+  Czech: "cs",
+  Filipino: "fil",
+  Persian: "fa",
+  Greek: "el",
+  Romanian: "ro",
+  Hungarian: "hu",
+  Macedonian: "mk",
 };
 
+let displayNames: { locale: string; names: Intl.DisplayNames } | null = null;
+
+/** Localized language name for an engine language code or name; unknown values pass through. */
 export function languageLabel(code: string): string {
-  return LANGUAGE_LABELS[code] ?? code;
+  if (code === "auto") return i18n.t("language.auto");
+  const locale = currentLocale();
+  if (displayNames?.locale !== locale) {
+    displayNames = { locale, names: new Intl.DisplayNames([locale], { type: "language", fallback: "none" }) };
+  }
+  try {
+    return displayNames.names.of(LANGUAGE_TAGS[code] ?? code) ?? code;
+  } catch {
+    return code; // not a valid language tag
+  }
 }
 
 /** Languages a user can pick, with "auto" first and noise entries removed. */

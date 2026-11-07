@@ -1,9 +1,12 @@
 import { useMemo, useState } from "react";
+import { Trans, useTranslation } from "react-i18next";
 import { revealItemInDir } from "@tauri-apps/plugin-opener";
 import { ask } from "@tauri-apps/plugin-dialog";
 import { api, modelSize, type CatalogModel } from "../lib/api";
 import { useStore, type DownloadProgress } from "../lib/store";
 import { formatBytes, formatEta } from "../lib/format";
+import { errorMessage } from "../lib/errors";
+import { useCatalogText } from "../lib/catalogText";
 import { Meter, Progress, Segmented } from "../components/controls";
 import {
   IconCheck,
@@ -18,11 +21,9 @@ import {
 
 type Filter = "all" | "installed";
 
-/** Whether every whitespace-separated term of `query` appears in the model's text. */
-function matches(model: CatalogModel, query: string): boolean {
-  const text = [model.name, model.family, model.languages, model.summary, model.description, model.license, ...model.tags]
-    .join(" ")
-    .toLowerCase();
+/** Whether every whitespace-separated term of `query` appears in the model's (localized) `fields`. */
+function matches(fields: string[], query: string): boolean {
+  const text = fields.join(" ").toLowerCase();
   return query
     .toLowerCase()
     .split(/\s+/)
@@ -31,6 +32,8 @@ function matches(model: CatalogModel, query: string): boolean {
 }
 
 export function ModelsView() {
+  const { t } = useTranslation(["models", "common"]);
+  const c = useCatalogText();
   const { models, downloads, settings, saveSettings } = useStore();
   const [filter, setFilter] = useState<Filter>("all");
   const [query, setQuery] = useState("");
@@ -38,9 +41,23 @@ export function ModelsView() {
   const visible = useMemo(
     () =>
       (models?.catalog.models ?? []).filter(
-        (m) => m.kind !== "aligner" && (filter === "all" || installed.has(m.id)) && matches(m, query),
+        (m) =>
+          m.kind !== "aligner" &&
+          (filter === "all" || installed.has(m.id)) &&
+          matches(
+            [
+              m.name,
+              m.family,
+              c.languages(m),
+              c.summary(m),
+              c.description(m),
+              m.license,
+              ...m.tags.map((tag) => c.tag(tag)),
+            ],
+            query,
+          ),
       ),
-    [models?.catalog.models, filter, installed, query],
+    [models?.catalog.models, filter, installed, query, c],
   );
   if (!models || !settings) return null;
 
@@ -59,38 +76,46 @@ export function ModelsView() {
   return (
     <>
       <header className="toolbar drag" data-tauri-drag-region>
-        <div className="toolbar-title">模型</div>
+        <div className="toolbar-title">{t("models:toolbar.title")}</div>
         {models.installed.length > 0 && (
           <div className="toolbar-subtitle">
-            已安装 {models.installed.length} 个 · {formatBytes(totalInstalled)}
+            {t("models:toolbar.installedSummary", {
+              count: models.installed.length,
+              size: formatBytes(totalInstalled),
+            })}
           </div>
         )}
         <div className="toolbar-spacer" />
         <div className="search-field model-search no-drag">
           <IconSearch size={13} />
           <input
-            placeholder="搜索名称、语言或特点"
-            aria-label="搜索模型"
+            placeholder={t("models:search.placeholder")}
+            aria-label={t("models:search.label")}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
         </div>
         <div className="no-drag">
           <Segmented
-            label="筛选"
+            label={t("models:filter.label")}
             value={filter}
             onChange={setFilter}
             options={[
-              { value: "all", label: "全部" },
-              { value: "installed", label: "已安装" },
+              { value: "all", label: t("models:filter.all") },
+              { value: "installed", label: t("models:filter.installed") },
             ]}
           />
         </div>
       </header>
       <div className="page">
         <p className="page-intro muted">
-          共 {models.catalog.models.filter((m) => m.kind !== "aligner").length} 个模型，按需下载，保存在本机，识别过程完全离线。首次使用推荐下载
-          <strong> {recommended?.name}</strong>，它在速度、准确率和语言覆盖之间取得了很好的平衡。可以搜索“中文”“粤语”“时间戳”等关键词快速找到合适的模型。
+          <Trans
+            t={t}
+            i18nKey="models:intro"
+            count={models.catalog.models.filter((m) => m.kind !== "aligner").length}
+            values={{ name: recommended?.name ?? "" }}
+            components={{ strong: <strong /> }}
+          />
         </p>
 
         {featured && (
@@ -106,7 +131,7 @@ export function ModelsView() {
         {groups.map((g) => (
           <section key={g.name}>
             <h2 className="section-title">
-              {g.name} <span className="muted">{g.items.length}</span>
+              {c.group(g.name)} <span className="muted">{g.items.length}</span>
             </h2>
             <div className="model-grid">
               {g.items.map((m) => (
@@ -124,24 +149,24 @@ export function ModelsView() {
 
         {visible.length === 0 && (
           <div className="empty compact">
-            <p>{query ? `没有找到与“${query}”相关的模型。` : "还没有安装任何模型。"}</p>
+            <p>{query ? t("models:empty.noResults", { query }) : t("models:empty.noneInstalled")}</p>
           </div>
         )}
 
         <div className="source-row">
-          <span className="muted">下载源</span>
+          <span className="muted">{t("models:source.label")}</span>
           <Segmented
-            label="下载源"
+            label={t("models:source.label")}
             value={settings.downloadSource}
             onChange={(downloadSource) => void saveSettings({ downloadSource })}
             options={[
-              { value: "auto", label: "自动" },
+              { value: "auto", label: t("models:source.auto") },
               { value: "huggingface", label: "Hugging Face" },
               { value: "modelscope", label: "ModelScope" },
-              { value: "hfmirror", label: "HF 镜像" },
+              { value: "hfmirror", label: t("models:source.hfMirror") },
             ]}
           />
-          <span className="muted source-hint">国内网络建议选择 ModelScope 或 HF 镜像</span>
+          <span className="muted source-hint">{t("models:source.hint")}</span>
         </div>
       </div>
     </>
@@ -161,6 +186,8 @@ function ModelCard({
   download?: DownloadProgress;
   queued: boolean;
 }) {
+  const { t } = useTranslation(["models", "common"]);
+  const c = useCatalogText();
   const { models, refreshModels, toast, info } = useStore();
   const loaded = models?.loaded?.id === model.id;
   const loading = models?.loading === model.id;
@@ -172,23 +199,23 @@ function ModelCard({
       await api.downloadModel(model.id);
       await refreshModels();
     } catch (e) {
-      toast(String(e), "error");
+      toast(errorMessage(e), "error");
     }
   };
 
   const remove = async () => {
-    const ok = await ask(`删除“${model.name}”将释放 ${formatBytes(modelSize(model))} 空间，之后可重新下载。`, {
-      title: "删除模型？",
+    const ok = await ask(t("models:deleteDialog.message", { name: model.name, size: formatBytes(modelSize(model)) }), {
+      title: t("models:deleteDialog.title"),
       kind: "warning",
-      okLabel: "删除",
-      cancelLabel: "取消",
+      okLabel: t("common:actions.delete"),
+      cancelLabel: t("common:actions.cancel"),
     });
     if (!ok) return;
     try {
       await api.deleteModel(model.id);
       await refreshModels();
     } catch (e) {
-      toast(String(e), "error");
+      toast(errorMessage(e), "error");
     }
   };
 
@@ -201,42 +228,42 @@ function ModelCard({
     <article className={`model-card card${featured ? " featured" : ""}${loaded ? " loaded" : ""}`}>
       {featured && (
         <div className="featured-label">
-          <IconSparkle size={12} /> 推荐
+          <IconSparkle size={12} /> {t("models:card.recommended")}
         </div>
       )}
       <div className="model-head">
         <div className="model-name">
           {model.name}
           <span className="badge">{model.precision}</span>
-          {loaded && <span className="badge green">使用中</span>}
+          {loaded && <span className="badge green">{t("models:card.inUse")}</span>}
         </div>
         <div className="model-size muted tabular">{formatBytes(modelSize(model))}</div>
       </div>
-      <p className="model-summary">{model.summary}</p>
-      <p className="model-description">{model.description}</p>
+      <p className="model-summary">{c.summary(model)}</p>
+      <p className="model-description">{c.description(model)}</p>
       <div className="model-facts">
         <div>
-          <span className="muted">语言</span>
-          {model.languages}
+          <span className="muted">{t("models:card.languages")}</span>
+          {c.languages(model)}
         </div>
         <div>
-          <span className="muted">速度</span>
+          <span className="muted">{t("models:card.speed")}</span>
           <Meter level={model.speed} />
         </div>
         <div>
-          <span className="muted">准确率</span>
+          <span className="muted">{t("models:card.accuracy")}</span>
           <Meter level={model.accuracy} />
         </div>
       </div>
       <div className="model-capabilities">
-        <CapabilityBadge supported={model.wordTimestamps} label="词级时间戳" />
-        <CapabilityBadge supported={model.speakerDiarization} label="说话人分段" />
+        <CapabilityBadge supported={model.wordTimestamps} label={t("models:card.wordTimestamps")} />
+        <CapabilityBadge supported={model.speakerDiarization} label={t("models:card.speakerDiarization")} />
       </div>
       {aligner && <AlignerAddon aligner={aligner} owner={model} />}
       <div className="model-tags">
-        {model.tags.map((t) => (
-          <span key={t} className="badge">
-            {t}
+        {model.tags.map((tag) => (
+          <span key={tag} className="badge">
+            {c.tag(tag)}
           </span>
         ))}
         <span className="model-license muted">{model.license}</span>
@@ -249,11 +276,11 @@ function ModelCard({
           <>
             {loaded ? (
               <span className="loaded-label">
-                <IconCheckCircle size={15} /> 已加载
+                <IconCheckCircle size={15} /> {t("models:card.loaded")}
                 {models?.loaded && (
                   <span className="muted">
                     {" "}
-                    · {models.loaded.backend.toUpperCase()} · {(models.loaded.loadMs / 1000).toFixed(1)} 秒
+                    · {models.loaded.backend.toUpperCase()} · {t("models:card.loadTime", { seconds: (models.loaded.loadMs / 1000).toFixed(1) })}
                   </span>
                 )}
               </span>
@@ -261,28 +288,28 @@ function ModelCard({
               <button
                 className="btn primary"
                 disabled={loading || !!models?.loading || !!info?.engineError}
-                onClick={() => void api.loadModel(model.id).catch((e) => toast(String(e), "error"))}
+                onClick={() => void api.loadModel(model.id).catch((e) => toast(errorMessage(e), "error"))}
               >
                 {loading ? (
                   <>
-                    <span className="spinner light" /> 加载中…
+                    <span className="spinner light" /> {t("models:card.loading")}
                   </>
                 ) : (
-                  "使用此模型"
+                  t("models:card.use")
                 )}
               </button>
             )}
             <div className="toolbar-spacer" />
-            <button className="icon-btn" aria-label="在访达中显示" onClick={reveal}>
+            <button className="icon-btn" aria-label={t("models:card.reveal")} onClick={reveal}>
               <IconFolder size={15} />
             </button>
-            <button className="icon-btn" aria-label="删除模型" onClick={() => void remove()}>
+            <button className="icon-btn" aria-label={t("models:card.deleteLabel")} onClick={() => void remove()}>
               <IconTrash size={15} />
             </button>
           </>
         ) : (
           <button className={`btn${featured ? " primary" : ""}`} onClick={() => void startDownload()}>
-            <IconDownload size={14} /> 下载
+            <IconDownload size={14} /> {t("common:actions.download")}
           </button>
         )}
       </div>
@@ -292,6 +319,8 @@ function ModelCard({
 
 /** Optional companion download that adds word timestamps to `owner`. */
 function AlignerAddon({ aligner, owner }: { aligner: CatalogModel; owner: CatalogModel }) {
+  const { t } = useTranslation(["models", "common"]);
+  const c = useCatalogText();
   const { models, downloads, refreshModels, toast } = useStore();
   const installed = !!models?.installed.some((m) => m.id === aligner.id);
   const download = downloads[aligner.id];
@@ -304,16 +333,16 @@ function AlignerAddon({ aligner, owner }: { aligner: CatalogModel; owner: Catalo
       await action();
       await refreshModels();
     } catch (e) {
-      toast(String(e), "error");
+      toast(errorMessage(e), "error");
     }
   };
 
   const remove = async () => {
-    const ok = await ask(`删除后 ${owner.name} 将不再输出词级时间戳，可随时重新下载。`, {
-      title: `删除“${aligner.name}”？`,
+    const ok = await ask(t("models:aligner.deleteMessage", { owner: owner.name }), {
+      title: t("models:aligner.deleteTitle", { name: aligner.name }),
       kind: "warning",
-      okLabel: "删除",
-      cancelLabel: "取消",
+      okLabel: t("common:actions.delete"),
+      cancelLabel: t("common:actions.cancel"),
     });
     if (ok) await run(() => api.deleteModel(aligner.id));
   };
@@ -323,27 +352,27 @@ function AlignerAddon({ aligner, owner }: { aligner: CatalogModel; owner: Catalo
       <div className="aligner-line">
         <span>
           <strong>{aligner.name}</strong>
-          <span className="muted"> · {formatBytes(modelSize(aligner))} · {aligner.summary}</span>
+          <span className="muted"> · {formatBytes(modelSize(aligner))} · {c.summary(aligner)}</span>
         </span>
         <div className="toolbar-spacer" />
         {downloading ? null : installed ? (
           <>
             {ownerLoaded && !active ? (
               <button className="btn" onClick={() => void run(() => api.loadModel(owner.id))}>
-                重新加载以启用
+                {t("models:aligner.reloadToEnable")}
               </button>
             ) : (
               <span className="aligner-state muted">
-                <IconCheck size={12} /> 已安装
+                <IconCheck size={12} /> {t("models:aligner.installed")}
               </span>
             )}
-            <button className="icon-btn" aria-label="删除对齐模型" onClick={() => void remove()}>
+            <button className="icon-btn" aria-label={t("models:aligner.deleteLabel")} onClick={() => void remove()}>
               <IconTrash size={14} />
             </button>
           </>
         ) : (
           <button className="btn" onClick={() => void run(() => api.downloadModel(aligner.id))}>
-            <IconDownload size={13} /> 下载
+            <IconDownload size={13} /> {t("common:actions.download")}
           </button>
         )}
       </div>
@@ -361,16 +390,17 @@ function CapabilityBadge({ supported, label }: { supported: boolean; label: stri
 }
 
 function DownloadStatus({ model, download }: { model: CatalogModel; download?: DownloadProgress }) {
+  const { t } = useTranslation("models");
   const fraction = download ? download.downloaded / Math.max(1, download.total) : 0;
   return (
     <div className="download-status">
       <div className="download-line">
         <span className="tabular">
           {download?.verifying
-            ? "正在校验文件…"
+            ? t("download.verifying")
             : download
               ? `${formatBytes(download.downloaded)} / ${formatBytes(download.total)}`
-              : "正在连接…"}
+              : t("download.connecting")}
         </span>
         {download && !download.verifying && (
           <span className="muted tabular">
@@ -379,7 +409,7 @@ function DownloadStatus({ model, download }: { model: CatalogModel; download?: D
           </span>
         )}
         <div className="toolbar-spacer" />
-        <button className="icon-btn" aria-label="取消下载" onClick={() => void api.cancelDownload(model.id)}>
+        <button className="icon-btn" aria-label={t("download.cancel")} onClick={() => void api.cancelDownload(model.id)}>
           <IconX size={14} />
         </button>
       </div>

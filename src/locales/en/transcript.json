@@ -1,0 +1,67 @@
+{
+  "error": {
+    "title": "Couldn't open transcript"
+  },
+  "rename": {
+    "hint": "Double-click to rename"
+  },
+  "toolbar": {
+    "copyAll": "Copy full text",
+    "export": "Export",
+    "delete": "Delete"
+  },
+  "export": {
+    "dialogTitle": "Export transcript",
+    "menuItem": "Export as {{format}}",
+    "done": "Exported {{format}} file",
+    "formats": {
+      "txt": "Plain text",
+      "srt": "SRT subtitles",
+      "vtt": "WebVTT subtitles",
+      "md": "Markdown",
+      "json": "JSON"
+    }
+  },
+  "deleteDialog": {
+    "title": "Delete “{{title}}”?",
+    "message": "This can't be undone."
+  },
+  "meta": {
+    "elapsed": "Took {{seconds}} s"
+  },
+  "downloads": {
+    "srt": "Download SRT subtitle file",
+    "json": "Download word-level timestamps JSON file",
+    "noWordTimestamps": "This transcript has no word-level timestamps saved; the JSON will contain segment timestamps and the transcribed text."
+  },
+  "view": {
+    "label": "Transcript view",
+    "subtitles": "Subtitle preview",
+    "original": "Original transcript · edit",
+    "subtitleLines": "Subtitle lines",
+    "oneLine": "1 line",
+    "twoLines": "2 lines",
+    "subtitlesNote_one": "{{count}} subtitle · line breaks match SRT / VTT export",
+    "subtitlesNote_other": "{{count}} subtitles · line breaks match SRT / VTT export",
+    "originalNote": "Editing the original text re-flows the subtitles; editing a segment clears its word-level timestamps."
+  },
+  "empty": "No speech was recognized.",
+  "segment": {
+    "playFromHere": "Play from here",
+    "edit": "Edit"
+  },
+  "issues": {
+    "segment_timing": "No reliable word timing; kept the original segment timing",
+    "reading_speed": "Fast reading speed; check the reading time",
+    "line_length": "Long text; check the line breaks",
+    "short_duration": "Shown for a short time",
+    "long_duration": "Shown for a long time"
+  },
+  "player": {
+    "pause": "Pause",
+    "play": "Play",
+    "seek": "Playback position",
+    "revealAudio": "Show audio in Finder",
+    "playbackError": "Couldn't play the audio file (it may have been moved or deleted)"
+  }
+}

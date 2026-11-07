@@ -11,17 +11,17 @@ pub const TARGET_RATE: u32 = 16_000;
 
 #[derive(Debug, thiserror::Error)]
 pub enum AudioError {
-    #[error("无法打开音频文件：{0}")]
+    #[error("Couldn't open the audio file: {0}")]
     Open(#[from] std::io::Error),
-    #[error("不支持的音频格式：{0}")]
+    #[error("Unsupported audio format: {0}")]
     Unsupported(String),
-    #[error("音频解码失败：{0}")]
+    #[error("Audio decoding failed: {0}")]
     Decode(String),
-    #[error("无法准备 ffmpeg 解码器：{0}")]
+    #[error("Couldn't prepare the ffmpeg decoder: {0}")]
     Decoder(String),
-    #[error("文件中没有音频数据")]
+    #[error("The file contains no audio")]
     Empty,
-    #[error("麦克风不可用：{0}")]
+    #[error("Microphone unavailable: {0}")]
     Device(String),
 }
 
@@ -56,14 +56,14 @@ pub fn decode_file_mono_16k(
         .map_err(|e| AudioError::Unsupported(e.to_string()))?;
     let track = format
         .default_track(TrackType::Audio)
-        .ok_or_else(|| AudioError::Unsupported("没有音轨".into()))?;
+        .ok_or_else(|| AudioError::Unsupported("No audio track".into()))?;
     let track_id = track.id;
     let total_frames = track.num_frames;
     let params = track
         .codec_params
         .as_ref()
         .and_then(|p| p.audio())
-        .ok_or_else(|| AudioError::Unsupported("无法识别的编码参数".into()))?
+        .ok_or_else(|| AudioError::Unsupported("Unrecognized codec parameters".into()))?
         .clone();
     let mut decoder = symphonia::default::get_codecs()
         .make_audio_decoder(&params, &AudioDecoderOptions::default())
@@ -79,7 +79,7 @@ pub fn decode_file_mono_16k(
 
     loop {
         if cancel.load(Ordering::Relaxed) {
-            return Err(AudioError::Decode("已取消".into()));
+            return Err(AudioError::Decode("Cancelled".into()));
         }
         let packet = match format.next_packet() {
             Ok(Some(packet)) => packet,
@@ -402,7 +402,7 @@ pub fn start_capture(
             let _ = thread.join();
             Err(e)
         }
-        Err(_) => Err(AudioError::Device("采集线程意外退出".into())),
+        Err(_) => Err(AudioError::Device("The capture thread exited unexpectedly".into())),
     }
 }
 
@@ -418,13 +418,13 @@ fn open_stream(
         Some(id) => {
             let parsed: cpal::DeviceId = id
                 .parse()
-                .map_err(|_| AudioError::Device(format!("无效的设备 ID：{id}")))?;
+                .map_err(|_| AudioError::Device(format!("Invalid device ID: {id}")))?;
             host.device_by_id(&parsed)
-                .ok_or_else(|| AudioError::Device("所选麦克风已断开".into()))?
+                .ok_or_else(|| AudioError::Device("The selected microphone was disconnected".into()))?
         }
         None => host
             .default_input_device()
-            .ok_or_else(|| AudioError::Device("未找到麦克风".into()))?,
+            .ok_or_else(|| AudioError::Device("No microphone found".into()))?,
     };
     let supported = device
         .default_input_config()
@@ -460,7 +460,7 @@ fn open_stream(
         SampleFormat::U16 => build!(u16, |s: u16| (f32::from(s) - 32768.0) / 32768.0),
         SampleFormat::I8 => build!(i8, |s: i8| f32::from(s) / 128.0),
         other => {
-            return Err(AudioError::Device(format!("不支持的采样格式 {other}")));
+            return Err(AudioError::Device(format!("Unsupported sample format {other}")));
         }
     }
     .map_err(|e| AudioError::Device(e.to_string()))?;

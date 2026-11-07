@@ -2,9 +2,11 @@ import { useEffect, useState } from "react";
 import { open } from "@tauri-apps/plugin-dialog";
 import { writeText } from "@tauri-apps/plugin-clipboard-manager";
 import { revealItemInDir } from "@tauri-apps/plugin-opener";
+import { useTranslation } from "react-i18next";
 import { api, type ExportFormat } from "../lib/api";
 import { useStore, AUDIO_EXTENSIONS, type Job } from "../lib/store";
 import { formatClock, formatDuration, joinSegments } from "../lib/format";
+import { errorMessage } from "../lib/errors";
 import { Progress } from "../components/controls";
 import {
   IconCheckCircle,
@@ -19,19 +21,8 @@ import {
 } from "../components/icons";
 import { LanguagePicker } from "./LanguagePicker";
 
-const PHASE_LABEL: Record<Job["phase"], string> = {
-  queued: "排队中",
-  fetchingDecoder: "下载解码器",
-  decoding: "解码音频",
-  detecting: "检测语音",
-  transcribing: "识别中",
-  done: "已完成",
-  failed: "失败",
-};
-
-const FORMATS = "MP3、M4A、WAV、FLAC、OGG、MP4、MOV 等";
-
 export function HomeView() {
+  const { t } = useTranslation("home");
   const { models, jobs, transcribeFiles, setView } = useStore();
   const ready = !!models?.loaded;
   // Newest first, so a fresh upload lands right under the picker.
@@ -40,8 +31,8 @@ export function HomeView() {
   const pick = async () => {
     const selected = await open({
       multiple: true,
-      title: "选择要转写的音频或视频",
-      filters: [{ name: "音频与视频", extensions: AUDIO_EXTENSIONS }],
+      title: t("dialog.pickTitle"),
+      filters: [{ name: t("dialog.filterName"), extensions: AUDIO_EXTENSIONS }],
     });
     if (!selected) return;
     void transcribeFiles(Array.isArray(selected) ? selected : [selected]);
@@ -50,7 +41,7 @@ export function HomeView() {
   return (
     <>
       <header className="toolbar drag" data-tauri-drag-region>
-        <div className="toolbar-title">转写文件</div>
+        <div className="toolbar-title">{t("toolbar.title")}</div>
         <div className="toolbar-spacer" />
         <div className="no-drag">
           <LanguagePicker />
@@ -62,15 +53,13 @@ export function HomeView() {
             <div className="empty-icon">
               <IconCube size={30} />
             </div>
-            <h2>{models?.loading ? "正在加载模型…" : "还没有可用的模型"}</h2>
+            <h2>{models?.loading ? t("empty.loadingTitle") : t("empty.noModelTitle")}</h2>
             <p>
-              {models?.loading
-                ? "模型加载完成后即可开始转写。"
-                : "Murmur 在本机完成所有识别，需要先下载一个语音识别模型。"}
+              {models?.loading ? t("empty.loadingText") : t("empty.noModelText")}
             </p>
             {!models?.loading && (
               <button className="btn primary large" onClick={() => setView({ name: "models" })}>
-                前往下载模型
+                {t("empty.goToModels")}
               </button>
             )}
           </div>
@@ -82,11 +71,13 @@ export function HomeView() {
               </span>
               <span className="uploader-body">
                 <span className="uploader-title">
-                  {jobList.length > 0 ? "继续添加音频或视频" : "选择音频或视频文件"}
+                  {jobList.length > 0 ? t("uploader.pickMore") : t("uploader.pickFirst")}
                 </span>
-                <span className="uploader-hint">也可以直接拖到窗口里 · 支持 {FORMATS}格式</span>
+                <span className="uploader-hint">
+                  {t("uploader.hint", { formats: t("uploader.formats") })}
+                </span>
               </span>
-              <span className="btn primary uploader-cta">选择文件</span>
+              <span className="btn primary uploader-cta">{t("uploader.cta")}</span>
             </button>
 
             {jobList.length === 0 ? (
@@ -102,10 +93,11 @@ export function HomeView() {
 }
 
 function Steps() {
+  const { t } = useTranslation("home");
   const steps = [
-    { icon: <IconUpload size={18} />, title: "上传", text: "选择或拖入文件，可一次添加多个" },
-    { icon: <IconWaveform size={18} />, title: "识别", text: "在本机完成，边识别边显示文字" },
-    { icon: <IconDownload size={18} />, title: "下载", text: "完成后直接下载 SRT 字幕和 JSON 数据" },
+    { icon: <IconUpload size={18} />, title: t("steps.upload.title"), text: t("steps.upload.text") },
+    { icon: <IconWaveform size={18} />, title: t("steps.recognize.title"), text: t("steps.recognize.text") },
+    { icon: <IconDownload size={18} />, title: t("steps.download.title"), text: t("steps.download.text") },
   ];
   return (
     <div className="steps">
@@ -121,7 +113,7 @@ function Steps() {
           </div>
         </div>
       ))}
-      <p className="steps-note muted">所有识别都在本机完成，音频不会离开这台设备。结果会自动保存到左侧记录。</p>
+      <p className="steps-note muted">{t("steps.note")}</p>
     </div>
   );
 }
@@ -133,6 +125,7 @@ function JobCard({ job }: { job: Job }) {
 }
 
 function ProgressCard({ job }: { job: Job }) {
+  const { t } = useTranslation("home");
   const indeterminate = job.phase === "queued" || (job.phase === "decoding" && job.progress === 0);
   return (
     <div className="job card">
@@ -143,13 +136,13 @@ function ProgressCard({ job }: { job: Job }) {
         <div className="job-name">
           <div className="job-title">{job.title}</div>
           <div className="job-phase muted tabular">
-            {PHASE_LABEL[job.phase]}
+            {t(`phase.${job.phase}`)}
             {job.phase !== "queued" && ` ${Math.round(job.progress * 100)}%`}
-            {job.duration > 0 && ` · 音频 ${formatClock(job.duration)}`}
+            {job.duration > 0 && ` · ${t("job.audioLength", { duration: formatClock(job.duration) })}`}
           </div>
         </div>
         <button className="btn plain" onClick={() => void api.cancelJob(job.id)}>
-          取消
+          {t("job.cancel")}
         </button>
       </div>
       <Progress value={job.progress} indeterminate={indeterminate} />
@@ -168,6 +161,7 @@ function ProgressCard({ job }: { job: Job }) {
 }
 
 function FailedCard({ job }: { job: Job }) {
+  const { t } = useTranslation(["home", "common"]);
   const { dismissJob } = useStore();
   return (
     <div className="job card">
@@ -177,9 +171,9 @@ function FailedCard({ job }: { job: Job }) {
         </span>
         <div className="job-name">
           <div className="job-title">{job.title}</div>
-          <div className="job-phase error-text">转写失败：{job.error}</div>
+          <div className="job-phase error-text">{t("job.failed", { error: job.error })}</div>
         </div>
-        <button className="icon-btn" aria-label="关闭" onClick={() => dismissJob(job.id)}>
+        <button className="icon-btn" aria-label={t("common:actions.close")} onClick={() => dismissJob(job.id)}>
           <IconX size={14} />
         </button>
       </div>
@@ -187,12 +181,12 @@ function FailedCard({ job }: { job: Job }) {
   );
 }
 
-const DOWNLOADS: { format: ExportFormat; label: string }[] = [
-  { format: "srt", label: "SRT 字幕" },
-  { format: "json", label: "JSON 数据" },
-];
-
 function ResultCard({ job }: { job: Job }) {
+  const { t } = useTranslation(["home", "common"]);
+  const downloads: { format: ExportFormat; label: string }[] = [
+    { format: "srt", label: t("result.downloadSrt") },
+    { format: "json", label: t("result.downloadJson") },
+  ];
   const { dismissJob, setView, toast } = useStore();
   const [expanded, setExpanded] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -202,9 +196,9 @@ function ResultCard({ job }: { job: Job }) {
   const [segments, setSegments] = useState(job.segments);
   useEffect(() => {
     api.getTranscript(job.id).then(
-      (t) => {
-        setSegments(t.segments);
-        setWords(t.segments.reduce((n, s) => n + (s.words?.length ?? 0), 0));
+      (tr) => {
+        setSegments(tr.segments);
+        setWords(tr.segments.reduce((n, s) => n + (s.words?.length ?? 0), 0));
       },
       () => undefined,
     );
@@ -214,16 +208,16 @@ function ResultCard({ job }: { job: Job }) {
   const shown = expanded ? segments : segments.slice(0, 6);
 
   const download = async (formats: ExportFormat[]) => {
-    const dir = await open({ directory: true, title: "选择保存位置" });
+    const dir = await open({ directory: true, title: t("dialog.saveTitle") });
     if (typeof dir !== "string") return;
     setBusy(true);
     try {
       const paths = await api.exportFiles(job.id, dir, formats);
-      const names = paths.map((p) => p.split(/[\\/]/).pop()).join("、");
-      toast(`已保存 ${names}`);
+      const names = paths.map((p) => p.split(/[\\/]/).pop()).join(t("result.nameSeparator"));
+      toast(t("result.saved", { names }));
       void revealItemInDir(paths[0]);
     } catch (e) {
-      toast(`保存失败：${String(e)}`, "error");
+      toast(t("result.saveFailed", { error: errorMessage(e) }), "error");
     } finally {
       setBusy(false);
     }
@@ -238,12 +232,13 @@ function ResultCard({ job }: { job: Job }) {
         <div className="job-name">
           <div className="job-title">{job.title}</div>
           <div className="job-phase muted tabular">
-            转写完成 · 音频 {formatDuration(job.duration)} · {segments.length} 段
-            {words ? ` · ${words} 个词级时间戳` : ""}
-            {job.speed ? ` · ${job.speed.toFixed(0)}× 实时` : ""}
+            {t("result.done")} · {t("result.audioLength", { duration: formatDuration(job.duration) })} ·{" "}
+            {t("result.segments", { count: segments.length })}
+            {words ? ` · ${t("result.wordTimestamps", { count: words })}` : ""}
+            {job.speed ? ` · ${t("result.speed", { speed: job.speed.toFixed(0) })}` : ""}
           </div>
         </div>
-        <button className="icon-btn" aria-label="从首页移除" title="从首页移除（记录仍保留）" onClick={() => dismissJob(job.id)}>
+        <button className="icon-btn" aria-label={t("result.dismiss")} title={t("result.dismissTitle")} onClick={() => dismissJob(job.id)}>
           <IconX size={14} />
         </button>
       </div>
@@ -251,9 +246,9 @@ function ResultCard({ job }: { job: Job }) {
       <div className="result-actions">
         <button className="btn primary" disabled={busy} onClick={() => void download(["srt", "json"])}>
           <IconDownload size={14} />
-          下载 SRT + JSON
+          {t("result.downloadBoth")}
         </button>
-        {DOWNLOADS.map((d) => (
+        {downloads.map((d) => (
           <button key={d.format} className="btn" disabled={busy} onClick={() => void download([d.format])}>
             {d.label}
           </button>
@@ -261,19 +256,19 @@ function ResultCard({ job }: { job: Job }) {
         <div className="toolbar-spacer" />
         <button
           className="btn plain"
-          onClick={() => void writeText(text).then(() => toast("已复制到剪贴板"))}
+          onClick={() => void writeText(text).then(() => toast(t("common:actions.copied")))}
         >
           <IconCopy size={14} />
-          复制全文
+          {t("result.copyAll")}
         </button>
         <button className="btn plain" onClick={() => setView({ name: "transcript", id: job.id })}>
           <IconDoc size={14} />
-          打开记录
+          {t("result.openTranscript")}
         </button>
       </div>
 
       {segments.length === 0 ? (
-        <p className="muted result-empty">没有识别到语音内容。</p>
+        <p className="muted result-empty">{t("result.noSpeech")}</p>
       ) : (
         <div className="result-text selectable">
           {shown.map((s) => (
@@ -284,7 +279,7 @@ function ResultCard({ job }: { job: Job }) {
           ))}
           {segments.length > 6 && (
             <button className="link-btn" onClick={() => setExpanded((e) => !e)}>
-              {expanded ? "收起" : `展开全部 ${segments.length} 段`}
+              {expanded ? t("result.collapse") : t("result.expand", { count: segments.length })}
             </button>
           )}
         </div>

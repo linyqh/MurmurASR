@@ -1,0 +1,23 @@
+{
+  "toolbar": {
+    "title": "实时听写",
+    "copyAll": "复制全部"
+  },
+  "empty": {
+    "title": "需要先加载模型",
+    "text": "下载并加载一个语音识别模型后，即可实时听写。",
+    "goToModels": "前往下载模型"
+  },
+  "placeholder": {
+    "listening": "正在聆听，请开始说话…",
+    "idle": "点按下方按钮开始听写，说话内容会实时出现在这里。"
+  },
+  "record": {
+    "start": "开始听写",
+    "stop": "停止"
+  },
+  "status": {
+    "starting": "正在启动麦克风…",
+    "idle": "点按开始听写"
+  }
+}

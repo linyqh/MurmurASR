@@ -1,0 +1,50 @@
+{
+  "toolbar": {
+    "title": "API",
+    "runningLan": "Running · available on local network",
+    "runningLocal": "Running · this Mac only",
+    "stopped": "Stopped"
+  },
+  "intro": "While Murmur is open it serves an HTTP API, so other programs, devices on your local network, and agents can transcribe audio through it. API jobs share the same inference queue as the app, and their results also appear in the history on the left.",
+  "enable": "Enable API server",
+  "lan": {
+    "label": "Allow local network access",
+    "hint": "Other computers and phones on the same network can call it; turn this off on public networks"
+  },
+  "port": {
+    "label": "Port",
+    "invalid": "Port must be an integer between 1024 and 65535"
+  },
+  "addresses": {
+    "title": "Server addresses",
+    "lan": "Local network",
+    "lanHint": "Use this address on other devices",
+    "lanMissing": "No local network connection detected",
+    "local": "This Mac",
+    "lanWarning": "The local network API has no password, so any device on the same network can submit transcription jobs. Other devices can only upload files; they cannot read files on this Mac or browse history."
+  },
+  "endpoints": {
+    "title": "Endpoints",
+    "localOnly": "This Mac only",
+    "health": "Server status, loaded model, and its supported languages",
+    "transcribe": "Upload an audio/video file to transcribe; output as json / txt / srt / vtt / md",
+    "job": "Check the progress of an async job; includes the result when finished",
+    "cancel": "Cancel a job",
+    "export": "Export a transcript in the given format",
+    "models": "List models and their install status",
+    "load": "Load a downloaded model",
+    "history": "List of past transcripts"
+  },
+  "examples": {
+    "title": "Examples",
+    "language": "Example language",
+    "copyLabel": "Copy code",
+    "checkService": "Check the service",
+    "uploadSrt": "Upload a file and get SRT subtitles directly",
+    "getJson": "Get JSON (with segments and word-level timestamps)"
+  },
+  "skill": {
+    "title": "Agent Skill",
+    "hint": "Copy to your agent's skills folder (e.g. ~/.claude/skills/) and the agent will transcribe audio with Murmur"
+  }
+}

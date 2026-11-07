@@ -88,7 +88,7 @@ impl Ffmpeg {
         }
         let asset = ASSET
             .as_ref()
-            .ok_or_else(|| AudioError::Decoder("当前平台没有可用的 ffmpeg 构建".into()))?;
+            .ok_or_else(|| AudioError::Decoder("No ffmpeg build is available for this platform".into()))?;
         let runtime = tokio::runtime::Builder::new_current_thread()
             .enable_all()
             .build()
@@ -129,7 +129,7 @@ impl Ffmpeg {
                     errors.clear();
                     break;
                 }
-                Err(FetchError::Cancelled) => return Err(AudioError::Decode("已取消".into())),
+                Err(FetchError::Cancelled) => return Err(AudioError::Decode("Cancelled".into())),
                 Err(FetchError::Other(e)) => {
                     log::warn!("ffmpeg download from {label} failed: {e}");
                     errors.push(format!("{label}：{e}"));
@@ -143,9 +143,9 @@ impl Ffmpeg {
             Ok(digest) if digest == asset.sha256 => {}
             Ok(_) => {
                 let _ = tokio::fs::remove_file(&partial).await;
-                return Err(failed("文件校验失败（SHA-256 不匹配），请重试".into()));
+                return Err(failed("File verification failed (SHA-256 mismatch). Please try again".into()));
             }
-            Err(FetchError::Cancelled) => return Err(AudioError::Decode("已取消".into())),
+            Err(FetchError::Cancelled) => return Err(AudioError::Decode("Cancelled".into())),
             Err(FetchError::Other(e)) => return Err(failed(e)),
         }
         unpack(&partial, bin).map_err(|e| failed(e.to_string()))?;
@@ -211,7 +211,7 @@ pub fn decode(
     }
     let mut child = command
         .spawn()
-        .map_err(|e| AudioError::Decoder(format!("无法启动 ffmpeg：{e}")))?;
+        .map_err(|e| AudioError::Decoder(format!("Couldn't start ffmpeg: {e}")))?;
 
     let duration_ms = Arc::new(AtomicU64::new(0));
     let stderr = child.stderr.take().expect("stderr is piped");
@@ -241,7 +241,7 @@ pub fn decode(
     let result = loop {
         if cancel.load(Ordering::Relaxed) {
             let _ = child.kill();
-            break Err(AudioError::Decode("已取消".into()));
+            break Err(AudioError::Decode("Cancelled".into()));
         }
         let n = match stdout.read(&mut buf[carry..]) {
             Ok(0) => break Ok(()),

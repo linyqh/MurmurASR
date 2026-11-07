@@ -1,0 +1,27 @@
+{
+  "brand": {
+    "tagline": "Offline speech to text"
+  },
+  "search": {
+    "placeholder": "Search",
+    "label": "Search transcripts"
+  },
+  "nav": {
+    "label": "Main navigation",
+    "home": "Transcribe files",
+    "live": "Live dictation",
+    "models": "Models",
+    "api": "API",
+    "settings": "Settings",
+    "recording": "Recording"
+  },
+  "history": {
+    "label": "History",
+    "noMatches": "No matching transcripts",
+    "empty": "Transcripts will appear here"
+  },
+  "model": {
+    "loading": "Loading {{name}}…",
+    "none": "No model loaded"
+  }
+}

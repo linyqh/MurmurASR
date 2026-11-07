@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { writeText } from "@tauri-apps/plugin-clipboard-manager";
+import { useTranslation } from "react-i18next";
 import { useStore } from "../lib/store";
 import { formatClock, joinSegments, liveTitle } from "../lib/format";
 import { IconCopy, IconCube, IconMic, IconStop } from "../components/icons";
@@ -8,6 +9,7 @@ import { LanguagePicker } from "./LanguagePicker";
 const BARS = 28;
 
 export function LiveView() {
+  const { t } = useTranslation(["live", "common"]);
   const { models, live, startLive, stopLive, setView, toast } = useStore();
   const [now, setNow] = useState(Date.now());
   const [levels, setLevels] = useState<number[]>(() => Array(BARS).fill(0));
@@ -47,15 +49,15 @@ export function LiveView() {
   return (
     <>
       <header className="toolbar drag" data-tauri-drag-region>
-        <div className="toolbar-title">实时听写</div>
+        <div className="toolbar-title">{t("toolbar.title")}</div>
         <div className="toolbar-spacer" />
         <div className="no-drag toolbar-actions">
           <LanguagePicker />
           <button
             className="icon-btn"
-            aria-label="复制全部"
+            aria-label={t("toolbar.copyAll")}
             disabled={!text}
-            onClick={() => void writeText(text).then(() => toast("已复制到剪贴板"))}
+            onClick={() => void writeText(text).then(() => toast(t("common:actions.copied")))}
           >
             <IconCopy size={15} />
           </button>
@@ -68,10 +70,10 @@ export function LiveView() {
             <div className="empty-icon">
               <IconCube size={30} />
             </div>
-            <h2>需要先加载模型</h2>
-            <p>下载并加载一个语音识别模型后，即可实时听写。</p>
+            <h2>{t("empty.title")}</h2>
+            <p>{t("empty.text")}</p>
             <button className="btn primary large" onClick={() => setView({ name: "models" })}>
-              前往下载模型
+              {t("empty.goToModels")}
             </button>
           </div>
         </div>
@@ -80,7 +82,7 @@ export function LiveView() {
           <div className="page live-page" ref={scroller}>
             {live.segments.length === 0 && !live.partial ? (
               <div className="live-placeholder">
-                {recording ? "正在聆听，请开始说话…" : "点按下方按钮开始听写，说话内容会实时出现在这里。"}
+                {recording ? t("placeholder.listening") : t("placeholder.idle")}
               </div>
             ) : (
               <div className="live-text selectable">
@@ -106,7 +108,7 @@ export function LiveView() {
                 className={`record-btn${recording ? " recording" : ""}`}
                 onClick={toggle}
                 disabled={live.starting}
-                aria-label={recording ? "停止" : "开始听写"}
+                aria-label={recording ? t("record.stop") : t("record.start")}
               >
                 {recording ? <IconStop size={20} /> : <IconMic size={22} />}
               </button>
@@ -123,9 +125,9 @@ export function LiveView() {
                   {formatClock(elapsed)}
                 </>
               ) : live.starting ? (
-                "正在启动麦克风…"
+                t("status.starting")
               ) : (
-                "点按开始听写"
+                t("status.idle")
               )}
             </div>
           </div>

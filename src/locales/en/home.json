@@ -1,0 +1,78 @@
+{
+  "toolbar": {
+    "title": "Transcribe files"
+  },
+  "dialog": {
+    "pickTitle": "Choose audio or video to transcribe",
+    "filterName": "Audio & video",
+    "saveTitle": "Choose where to save"
+  },
+  "empty": {
+    "loadingTitle": "Loading model…",
+    "noModelTitle": "No model available",
+    "loadingText": "You can start transcribing once the model has loaded.",
+    "noModelText": "Murmur runs all recognition on your Mac, so you need to download a speech recognition model first.",
+    "goToModels": "Download a model"
+  },
+  "uploader": {
+    "pickFirst": "Choose audio or video files",
+    "pickMore": "Add more audio or video",
+    "hint": "Or drag them into the window · Supports {{formats}}",
+    "formats": "MP3, M4A, WAV, FLAC, OGG, MP4, MOV and more",
+    "cta": "Choose files"
+  },
+  "steps": {
+    "upload": {
+      "title": "Upload",
+      "text": "Choose or drop files, several at a time"
+    },
+    "recognize": {
+      "title": "Transcribe",
+      "text": "Runs on your Mac, with text appearing as it goes"
+    },
+    "download": {
+      "title": "Download",
+      "text": "Get SRT subtitles and JSON data when it's done"
+    },
+    "note": "All recognition happens on your Mac. Audio never leaves this device. Results are saved to History on the left."
+  },
+  "phase": {
+    "queued": "Queued",
+    "fetchingDecoder": "Downloading decoder",
+    "decoding": "Decoding audio",
+    "detecting": "Detecting speech",
+    "transcribing": "Transcribing",
+    "done": "Done",
+    "failed": "Failed"
+  },
+  "job": {
+    "audioLength": "Audio {{duration}}",
+    "cancel": "Cancel",
+    "failed": "Transcription failed: {{error}}"
+  },
+  "result": {
+    "done": "Transcription complete",
+    "audioLength": "Audio {{duration}}",
+    "segments_one": "{{count}} segment",
+    "segments_other": "{{count}} segments",
+    "wordTimestamps_one": "{{count}} word timestamp",
+    "wordTimestamps_other": "{{count}} word timestamps",
+    "speed": "{{speed}}× realtime",
+    "dismiss": "Remove from Home",
+    "dismissTitle": "Remove from Home (kept in History)",
+    "downloadBoth": "Download SRT + JSON",
+    "downloadSrt": "SRT subtitles",
+    "downloadJson": "JSON data",
+    "copyAll": "Copy full text",
+    "openTranscript": "Open transcript",
+    "noSpeech": "No speech was detected.",
+    "collapse": "Show less",
+    "expand": "Show all {{count}} segments",
+    "saved": "Saved {{names}}",
+    "saveFailed": "Couldn't save: {{error}}",
+    "nameSeparator": ", "
+  },
+  "languagePicker": {
+    "label": "Recognition language"
+  }
+}

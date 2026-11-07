@@ -1,14 +1,19 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { open } from "@tauri-apps/plugin-dialog";
 import { revealItemInDir } from "@tauri-apps/plugin-opener";
 import { api, type InputDevice } from "../lib/api";
 import { useStore } from "../lib/store";
+import { errorMessage } from "../lib/errors";
 import { languageLabel, selectableLanguages } from "../lib/format";
+import { SUPPORTED_LANGUAGES, getLanguagePreference, setLanguagePreference } from "../i18n";
 import { Segmented, Select, Switch } from "../components/controls";
 
 export function SettingsView() {
+  const { t } = useTranslation(["settings", "common"]);
   const { settings, saveSettings, info, models, toast, refreshModels } = useStore();
   const [devices, setDevices] = useState<InputDevice[]>([]);
+  const [uiLanguage, setUiLanguage] = useState(getLanguagePreference);
 
   useEffect(() => {
     void api.listInputDevices().then(setDevices);
@@ -18,39 +23,61 @@ export function SettingsView() {
 
   const loaded = models?.loaded;
   const languages = loaded?.acceptsLanguage ? selectableLanguages(loaded.languages) : ["auto"];
-  const reloadHint = loaded ? "（重新加载模型后生效）" : "";
+  const reloadHint = loaded ? t("settings:performance.reloadHint") : "";
 
   const reload = async (patch: Partial<typeof settings>) => {
     await saveSettings(patch);
-    if (loaded) await api.loadModel(loaded.id).catch((e) => toast(String(e), "error"));
+    if (loaded) await api.loadModel(loaded.id).catch((e) => toast(errorMessage(e), "error"));
   };
 
   const chooseModelsDir = async () => {
-    const dir = await open({ directory: true, title: "选择模型存放位置" });
+    const dir = await open({ directory: true, title: t("settings:storage.chooseModelsDir") });
     if (typeof dir === "string") {
       await saveSettings({ modelsDir: dir });
       await refreshModels();
-      toast("模型位置已更改，已有模型需手动移动到新位置");
+      toast(t("settings:storage.modelsDirChanged"));
     }
   };
 
   return (
     <>
       <header className="toolbar drag" data-tauri-drag-region>
-        <div className="toolbar-title">设置</div>
+        <div className="toolbar-title">{t("settings:toolbar.title")}</div>
       </header>
       <div className="page settings-page">
-        <h3 className="form-group-title">识别</h3>
+        <h3 className="form-group-title">{t("settings:general.title")}</h3>
         <div className="form-group">
           <div className="form-row">
             <div className="label">
-              识别语言
+              {t("common:language.interface")}
+              <div className="hint">{t("settings:general.languageHint")}</div>
+            </div>
+            <Select
+              label={t("common:language.interface")}
+              value={uiLanguage}
+              options={[
+                { value: "system", label: t("common:language.system") },
+                ...SUPPORTED_LANGUAGES.map((l) => ({ value: l.code, label: l.name })),
+              ]}
+              onChange={(language) => {
+                void setLanguagePreference(language);
+                setUiLanguage(language);
+              }}
+            />
+          </div>
+        </div>
+
+        <h3 className="form-group-title">{t("settings:recognition.title")}</h3>
+        <div className="form-group">
+          <div className="form-row">
+            <div className="label">
+              {t("settings:recognition.language")}
               <div className="hint">
-                {loaded?.acceptsLanguage ? "自动检测适合多语言混合的内容" : "当前模型会自动处理语言"}
+                {loaded?.acceptsLanguage ? t("settings:recognition.languageHintMulti") : t("settings:recognition.languageHintSingle")}
               </div>
             </div>
             <Select
-              label="识别语言"
+              label={t("settings:recognition.language")}
               value={languages.includes(settings.language) ? settings.language : "auto"}
               disabled={!loaded?.acceptsLanguage}
               options={languages.map((l) => ({ value: l, label: languageLabel(l) }))}
@@ -59,38 +86,41 @@ export function SettingsView() {
           </div>
           <div className="form-row">
             <div className="label">
-              数字与标点规整
-              <div className="hint">把“一百二十三”写成“123”等（SenseVoice、Fun-ASR 支持）</div>
+              {t("settings:recognition.itn")}
+              <div className="hint">{t("settings:recognition.itnHint")}</div>
             </div>
-            <Switch label="数字与标点规整" checked={settings.itn} onChange={(itn) => void saveSettings({ itn })} />
+            <Switch label={t("settings:recognition.itn")} checked={settings.itn} onChange={(itn) => void saveSettings({ itn })} />
           </div>
         </div>
 
-        <h3 className="form-group-title">字幕</h3>
+        <h3 className="form-group-title">{t("settings:subtitles.title")}</h3>
         <div className="form-group">
           <div className="form-row">
             <div className="label">
-              字幕行数
-              <div className="hint">每条字幕最多显示的行数，应用于已有记录的预览与导出</div>
+              {t("settings:subtitles.maxLines")}
+              <div className="hint">{t("settings:subtitles.maxLinesHint")}</div>
             </div>
             <Segmented
-              label="字幕行数"
+              label={t("settings:subtitles.maxLines")}
               value={String(settings.subtitleMaxLines)}
-              options={[{ value: "1", label: "一行" }, { value: "2", label: "两行" }]}
+              options={[
+                { value: "1", label: t("settings:subtitles.oneLine") },
+                { value: "2", label: t("settings:subtitles.twoLines") },
+              ]}
               onChange={(value) => void saveSettings({ subtitleMaxLines: value === "2" ? 2 : 1 })}
             />
           </div>
         </div>
 
-        <h3 className="form-group-title">录音</h3>
+        <h3 className="form-group-title">{t("settings:recording.title")}</h3>
         <div className="form-group">
           <div className="form-row">
-            <div className="label">麦克风</div>
+            <div className="label">{t("settings:recording.microphone")}</div>
             <Select
-              label="麦克风"
+              label={t("settings:recording.microphone")}
               value={settings.inputDevice ?? ""}
               options={[
-                { value: "", label: "系统默认" },
+                { value: "", label: t("settings:recording.systemDefault") },
                 ...devices.map((d) => ({ value: d.id, label: d.name })),
               ]}
               onChange={(v) => void saveSettings({ inputDevice: v || null })}
@@ -98,44 +128,44 @@ export function SettingsView() {
           </div>
           <div className="form-row">
             <div className="label">
-              保存实时听写的录音
-              <div className="hint">保存后可在记录中回放并对照文字</div>
+              {t("settings:recording.saveRecordings")}
+              <div className="hint">{t("settings:recording.saveRecordingsHint")}</div>
             </div>
             <Switch
-              label="保存录音"
+              label={t("settings:recording.saveRecordingsLabel")}
               checked={settings.saveRecordings}
               onChange={(saveRecordings) => void saveSettings({ saveRecordings })}
             />
           </div>
         </div>
 
-        <h3 className="form-group-title">性能</h3>
+        <h3 className="form-group-title">{t("settings:performance.title")}</h3>
         <div className="form-group">
           <div className="form-row">
             <div className="label">
-              计算后端
+              {t("settings:performance.backend")}
               <div className="hint">
-                {info.platform === "macos" ? "Metal 使用 Apple 芯片的 GPU 加速" : "“自动”会选择可用的最快设备"}
+                {info.platform === "macos" ? t("settings:performance.backendHintMac") : t("settings:performance.backendHintOther")}
                 {reloadHint}
               </div>
             </div>
             <Segmented
-              label="计算后端"
+              label={t("settings:performance.backend")}
               value={settings.backend}
               onChange={(backend) => void reload({ backend })}
               options={info.backends.map((b) => ({
                 value: b,
-                label: b === "best" ? "自动" : b === "cpu" ? "CPU" : b.charAt(0).toUpperCase() + b.slice(1),
+                label: b === "best" ? t("settings:performance.auto") : b === "cpu" ? "CPU" : b.charAt(0).toUpperCase() + b.slice(1),
               }))}
             />
           </div>
           <div className="form-row">
             <div className="label">
-              CPU 线程数
-              <div className="hint">仅影响 CPU 计算部分{reloadHint}</div>
+              {t("settings:performance.threads")}
+              <div className="hint">{t("settings:performance.threadsHint")}{reloadHint}</div>
             </div>
             <Select
-              label="CPU 线程数"
+              label={t("settings:performance.threads")}
               value={String(settings.threads)}
               options={[1, 2, 4, 6, 8, 12, 16].map((n) => ({ value: String(n), label: `${n}` }))}
               onChange={(v) => void reload({ threads: Number(v) })}
@@ -143,29 +173,29 @@ export function SettingsView() {
           </div>
         </div>
 
-        <h3 className="form-group-title">存储</h3>
+        <h3 className="form-group-title">{t("settings:storage.title")}</h3>
         <div className="form-group">
           <div className="form-row">
-            <div className="label">模型位置</div>
+            <div className="label">{t("settings:storage.modelsDir")}</div>
             <span className="value selectable" title={info.modelsDir}>
               {settings.modelsDir ?? info.modelsDir}
             </span>
             <button className="btn" onClick={() => void chooseModelsDir()}>
-              更改…
+              {t("settings:storage.change")}
             </button>
           </div>
           <div className="form-row">
-            <div className="label">数据位置</div>
+            <div className="label">{t("settings:storage.dataDir")}</div>
             <span className="value selectable" title={info.dataDir}>
               {info.dataDir}
             </span>
             <button className="btn" onClick={() => void revealItemInDir(info.dataDir)}>
-              显示
+              {t("common:actions.show")}
             </button>
           </div>
         </div>
 
-        <h3 className="form-group-title">关于</h3>
+        <h3 className="form-group-title">{t("settings:about.title")}</h3>
         <div className="form-group">
           <div className="form-row">
             <div className="label">Murmur</div>
@@ -173,15 +203,15 @@ export function SettingsView() {
           </div>
           <div className="form-row">
             <div className="label">
-              推理引擎
+              {t("settings:about.engine")}
               {info.engineError && <div className="hint error-text">{info.engineError}</div>}
             </div>
             <span className="muted tabular">
-              {info.engineVersion ? `audio.cpp ${info.engineVersion}` : "不可用"}
+              {info.engineVersion ? `audio.cpp ${info.engineVersion}` : t("settings:about.engineUnavailable")}
             </span>
           </div>
           <div className="form-row">
-            <div className="label">系统</div>
+            <div className="label">{t("settings:about.system")}</div>
             <span className="muted">
               {info.platform} · {info.arch}
             </span>

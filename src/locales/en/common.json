@@ -1,0 +1,41 @@
+{
+  "meta": { "name": "English" },
+  "actions": {
+    "copy": "Copy",
+    "copied": "Copied to clipboard",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "close": "Close",
+    "show": "Show",
+    "download": "Download"
+  },
+  "app": {
+    "unsupportedFile": "Unsupported file type. Drop an audio or video file.",
+    "loadModelFirst": "Download and load a model first",
+    "dropToTranscribe": "Release to transcribe"
+  },
+  "store": {
+    "saveSettingsFailed": "Couldn't save settings: {{error}}",
+    "modelLoadFailed": "Couldn't load the model: {{error}}",
+    "liveError": "Live dictation error: {{error}}",
+    "downloadFailed": "Download failed: {{error}}",
+    "downloadDone": "{{name}} downloaded"
+  },
+  "duration": {
+    "seconds": "{{count}} sec",
+    "minutesSeconds": "{{minutes}} min {{seconds}} sec",
+    "hoursMinutes": "{{hours}} hr {{minutes}} min",
+    "etaSeconds": "about {{count}} sec left",
+    "etaMinutes": "about {{count}} min left"
+  },
+  "date": {
+    "todayAt": "Today {{time}}",
+    "yesterdayAt": "Yesterday {{time}}"
+  },
+  "liveTitle": "Live dictation {{date}} {{time}}",
+  "language": {
+    "auto": "Auto-detect",
+    "interface": "Interface language",
+    "system": "Follow system"
+  }
+}

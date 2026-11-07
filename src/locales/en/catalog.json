@@ -1,0 +1,319 @@
+{
+  "groups": {
+    "欧洲语言": "European languages",
+    "特定语言优化": "Language-specific",
+    "英语": "English",
+    "语音翻译": "Speech translation",
+    "通用多语种（含中文）": "General multilingual (incl. Chinese)",
+    "长音频与说话人区分": "Long audio & speakers",
+    "音频理解大模型（实验性）": "Audio understanding LLMs (experimental)"
+  },
+  "tags": {
+    "中亚语言": "Central Asian languages",
+    "中文优化": "Chinese-optimized",
+    "丹麦语": "Danish",
+    "低延迟": "Low latency",
+    "俄语": "Russian",
+    "多语种": "Multilingual",
+    "大模型": "LLM",
+    "实验性": "Experimental",
+    "开放数据": "Open data",
+    "方言": "Dialects",
+    "欧洲语言": "European languages",
+    "流式": "Streaming",
+    "社区": "Community",
+    "粤语": "Cantonese",
+    "自动识别语言": "Auto language detection",
+    "英语": "English",
+    "语音翻译": "Speech translation",
+    "说话人": "Speakers",
+    "轻量": "Lightweight",
+    "逐词时间戳": "Word timestamps",
+    "长音频": "Long audio",
+    "阿拉伯语": "Arabic",
+    "非商业用途": "Non-commercial",
+    "高精度": "High accuracy"
+  },
+  "models": {
+    "qwen3-asr-0.6b-q8": {
+      "languages": "30 languages + 22 Chinese dialects, incl. Chinese, English, Japanese, Korean",
+      "summary": "Balanced pick: multilingual, noise-robust, auto language detection. Fits most uses.",
+      "description": "A speech recognition model from Alibaba's Qwen team. Supports 30 languages, 22 Chinese dialects and many English accents, and holds up well on noise, long audio and singing. Moderate size; runs smoothly on an ordinary laptop. Download the Qwen3 forced aligner to also get word-level timestamps (character-level for Chinese)."
+    },
+    "sensevoice-small-q8": {
+      "languages": "Chinese, Cantonese, English, Japanese, Korean and more",
+      "summary": "Fast and light: small and quick, strong on Chinese and Cantonese, good for low-end devices.",
+      "description": "A non-autoregressive recognition model (SAN-M encoder + CTC) from Alibaba's FunAudioLLM team. Very fast: tens of seconds of audio usually transcribe in under a second. Good Chinese and Cantonese results, with number and punctuation normalization. No word-level timestamps."
+    },
+    "fun-asr-nano-q8": {
+      "languages": "Chinese, English, Japanese",
+      "summary": "Chinese specialist: from Tongyi Lab, strong Chinese recognition and number normalization.",
+      "description": "Alibaba Tongyi Lab's end-to-end speech model (Fun-ASR-Nano-2512), focused on Chinese with English and Japanese support and automatic language detection. Supports number and punctuation normalization (writes “一百二十三” as “123”). No word-level timestamps."
+    },
+    "qwen3-asr-1.7b-q8": {
+      "languages": "30 languages + 22 Chinese dialects, incl. Chinese, English, Japanese, Korean",
+      "summary": "High accuracy: the larger Qwen3-ASR, more accurate but needs more memory.",
+      "description": "The large version of Qwen3-ASR with the same language coverage as 0.6B. More accurate on accents, noise and technical vocabulary, at about half the speed of 0.6B. 16 GB or more of memory recommended. Can also use the Qwen3 forced aligner for word-level timestamps."
+    },
+    "confucius4-r2t2-q8": {
+      "languages": "30 languages incl. Chinese, English, Cantonese",
+      "summary": "Low-latency streaming: NetEase Youdao's fine-tune of Qwen3-ASR 1.7B, built for live dictation.",
+      "description": "A real-time recognition model fine-tuned by NetEase Youdao from Qwen3-ASR 1.7B. It uses “longest stable prefix” decoding, so text already output is never revised, with chunks as small as 80 ms. Offline quality is close to Qwen3-ASR 1.7B. Community-converted GGUF; read NetEase Youdao's model license before use."
+    },
+    "nemotron-asr-0.6b-q8": {
+      "languages": "40 languages (incl. Chinese)",
+      "summary": "Multilingual streaming: NVIDIA Nemotron, 40 languages, steady in meetings, built-in word timestamps.",
+      "description": "NVIDIA's 600M-parameter streaming recognition model (RNN-T) covering 40 languages and regional variants, with built-in punctuation and casing and automatic language detection. Outputs word-level timestamps natively; suits both low-latency and batch transcription."
+    },
+    "cohere-transcribe-q8": {
+      "languages": "14 languages: Chinese, English, Japanese, Korean, French, German, Spanish, Italian, Portuguese, Dutch, Polish, Greek, Arabic, Vietnamese",
+      "summary": "High-accuracy multilingual: from Cohere, 14 major languages, natural punctuation.",
+      "description": "Cohere's Conformer encoder-decoder recognition model (03-2026 release), covering Chinese, English, Japanese, Korean and the main European languages, with optional punctuation. Works best when you pick the language manually. No word-level timestamps."
+    },
+    "voxtral-realtime-4b-q8": {
+      "languages": "13 languages: Chinese, English, Japanese, Korean, French, German, Spanish, Portuguese, Italian, Dutch, Russian, Arabic, Hindi",
+      "summary": "Real-time LLM: from Mistral, native streaming encoder, near-offline accuracy.",
+      "description": "Mistral's 4B-parameter real-time recognition model with a causal audio encoder. It transcribes as it listens, with adjustable latency, at accuracy comparable to leading offline open-source models. Large (about 5 GB); 16 GB or more of memory and a GPU recommended."
+    },
+    "crisperwhisper-2-large-q8": {
+      "languages": "Nearly 100 languages (Whisper-family coverage)",
+      "summary": "Precise timestamps: industry-leading word-level timestamp accuracy; non-commercial use only.",
+      "description": "A verbatim transcription model based on Whisper Large that keeps fillers like “um” and “uh”, with very precise word timestamps, good for subtitles and speech analysis. Same language coverage as Whisper. The license allows non-commercial research use only."
+    },
+    "owsm-v4-base-102m-q8": {
+      "languages": "151 languages",
+      "summary": "Ultra-wide language coverage: Carnegie Mellon's open Whisper-style model, smallest, good for quick trials.",
+      "description": "An open Whisper-style encoder-decoder model (Open Whisper-style Speech Model v4) from the ESPnet team at Carnegie Mellon University, with fully open training data, covering 151 languages; it is the smallest, good for a quick try. Works best when you set the language in Settings (three-letter codes such as cmn, eng). No word-level timestamps."
+    },
+    "owsm-v4-small-370m-q8": {
+      "languages": "151 languages",
+      "summary": "Ultra-wide language coverage: Carnegie Mellon's open Whisper-style model, balanced size and accuracy.",
+      "description": "An open Whisper-style encoder-decoder model (Open Whisper-style Speech Model v4) from the ESPnet team at Carnegie Mellon University, with fully open training data, covering 151 languages; it balances size and accuracy. Works best when you set the language in Settings (three-letter codes such as cmn, eng). No word-level timestamps."
+    },
+    "owsm-v4-medium-1b-q8": {
+      "languages": "151 languages",
+      "summary": "Ultra-wide language coverage: Carnegie Mellon's open Whisper-style model, most accurate in the series, slower.",
+      "description": "An open Whisper-style encoder-decoder model (Open Whisper-style Speech Model v4) from the ESPnet team at Carnegie Mellon University, with fully open training data, covering 151 languages; it is the most accurate in the series but slower. Works best when you set the language in Settings (three-letter codes such as cmn, eng). No word-level timestamps."
+    },
+    "owsm-ctc-v4-1b-q8": {
+      "languages": "151 languages",
+      "summary": "Ultra-wide CTC: the non-autoregressive OWSM, faster than same-size OWSM.",
+      "description": "The ESPnet team's 1B-parameter non-autoregressive model (self-conditioned CTC). Same language coverage as OWSM v4, one forward pass per result, clearly faster than the autoregressive versions and less prone to repetition or hallucination."
+    },
+    "moonshine-tiny-q8": {
+      "languages": "English only",
+      "summary": "English, lightweight: ",
+      "description": "Moonshine AI's English streaming recognition model designed for on-device use; compute scales with audio length and latency on short phrases is very low. The Tiny version is only about 60 MB and runs in real time on almost any device. English only, no word-level timestamps."
+    },
+    "moonshine-small-q8": {
+      "languages": "English only",
+      "summary": "English, lightweight: ",
+      "description": "Moonshine AI's English streaming recognition model designed for on-device use; compute scales with audio length and latency on short phrases is very low. The Small version is about 300 MB and balances speed and accuracy. English only, no word-level timestamps."
+    },
+    "moonshine-medium-q8": {
+      "languages": "English only",
+      "summary": "English, lightweight: ",
+      "description": "Moonshine AI's English streaming recognition model designed for on-device use; compute scales with audio length and latency on short phrases is very low. The Medium version is the most accurate in the series. English only, no word-level timestamps."
+    },
+    "kroko-asr-en-community-q8": {
+      "languages": "English",
+      "summary": "Fast English: Zipformer2/RNN-T, small and quick, built-in word timestamps.",
+      "description": "Kroko community English model (Zipformer2 + RNN-T), about 170 MB. Runs well beyond real time even on CPU, outputs word-level timestamps natively and supports hotwords. For Kroko models in other languages, see “European languages”."
+    },
+    "niagara-19m-f32": {
+      "languages": "English only",
+      "summary": "Tiny English: Applied Brain Research's 19M-parameter state-space model, extremely fast.",
+      "description": "Applied Brain Research's English batch recognition model, combining a state-space model with attention and CTC decoding. Only 19M parameters, suited to very low-end devices. English only, no word-level timestamps."
+    },
+    "niagara-38m-f32": {
+      "languages": "English only",
+      "summary": "Tiny English: Applied Brain Research's 38M-parameter state-space model, extremely fast.",
+      "description": "Applied Brain Research's English batch recognition model, combining a state-space model with attention and CTC decoding. Only 38M parameters, suited to very low-end devices. English only, no word-level timestamps."
+    },
+    "citrinet-q8": {
+      "languages": "English only",
+      "summary": "Smallest English: NVIDIA's classic convolutional CTC model, only about 40 MB.",
+      "description": "NVIDIA NeMo's Citrinet-256 convolutional CTC model. Only about 40 MB and extremely fast, but clearly less accurate than newer models; suited to very low-end devices or rough transcripts. English only."
+    },
+    "higgs-audio-v3-stt-q8": {
+      "languages": "English only",
+      "summary": "High-accuracy English: from Boson AI, Whisper Large v3 encoder + Qwen decoder.",
+      "description": "Boson AI's English recognition model, pairing a Whisper Large v3 encoder with a Qwen language-model decoder. Robust to accents and noise with high English accuracy. About 3 GB; English only."
+    },
+    "parakeet-tdt-0.6b-v3-q8": {
+      "languages": "English and 24 European languages",
+      "summary": "European languages: from NVIDIA, fast, built-in word timestamps.",
+      "description": "NVIDIA's FastConformer-TDT model covering English and 24 European languages with automatic language detection; fast and accurate. Outputs word-level timestamps natively, good for subtitles. Does not support Chinese."
+    },
+    "canary-180m-flash-q8": {
+      "languages": "English, German, Spanish, French",
+      "summary": "Light European languages: the small NVIDIA Canary, about 250 MB.",
+      "description": "The 180M-parameter model of NVIDIA's Canary series, recognizing English, German, Spanish and French. Small and fast, with high accuracy for its size. No word-level timestamps."
+    },
+    "granite-speech-5-turboctc-q8": {
+      "languages": "7 languages: English, French, German, Spanish, Portuguese, Italian, Japanese",
+      "summary": "Fast CTC: from IBM, 470M parameters, built-in punctuation and casing.",
+      "description": "The Conformer CTC version of IBM Granite Speech 5.0. Non-autoregressive decoding makes it very fast, with built-in punctuation and casing. Supports English, French, German, Spanish, Portuguese, Italian and Japanese, and outputs word-level timestamps."
+    },
+    "whistle-f32": {
+      "languages": "7 languages: English, German, French, Spanish, Italian, Dutch, Polish",
+      "summary": "Experimental: lightweight multilingual model, about 220 MB.",
+      "description": "Whistle offline recognition model, with the encoder running on the GPU and the decoder on the CPU, supporting 7 European languages. audio.cpp marks it experimental; a single audio segment is limited to about 30 seconds (Murmur splits automatically)."
+    },
+    "kroko-asr-de-community-q8": {
+      "languages": "German",
+      "summary": "Fast German: Kroko community monolingual model, about 170 MB, built-in word timestamps.",
+      "description": "Kroko community German model (Zipformer2 + RNN-T). Small, runs well beyond real time even on CPU, and outputs word-level timestamps natively. German only. The GGUF was converted and published by the author of audio.cpp's Kroko port."
+    },
+    "kroko-asr-es-community-q8": {
+      "languages": "Spanish",
+      "summary": "Fast Spanish: Kroko community monolingual model, about 170 MB, built-in word timestamps.",
+      "description": "Kroko community Spanish model (Zipformer2 + RNN-T). Small, runs well beyond real time even on CPU, and outputs word-level timestamps natively. Spanish only. The GGUF was converted and published by the author of audio.cpp's Kroko port."
+    },
+    "kroko-asr-fr-community-q8": {
+      "languages": "French",
+      "summary": "Fast French: Kroko community monolingual model, about 170 MB, built-in word timestamps.",
+      "description": "Kroko community French model (Zipformer2 + RNN-T). Small, runs well beyond real time even on CPU, and outputs word-level timestamps natively. French only. The GGUF was converted and published by the author of audio.cpp's Kroko port."
+    },
+    "kroko-asr-it-community-q8": {
+      "languages": "Italian",
+      "summary": "Fast Italian: Kroko community monolingual model, about 170 MB, built-in word timestamps.",
+      "description": "Kroko community Italian model (Zipformer2 + RNN-T). Small, runs well beyond real time even on CPU, and outputs word-level timestamps natively. Italian only. The GGUF was converted and published by the author of audio.cpp's Kroko port."
+    },
+    "kroko-asr-nl-community-q8": {
+      "languages": "Dutch",
+      "summary": "Fast Dutch: Kroko community monolingual model, about 170 MB, built-in word timestamps.",
+      "description": "Kroko community Dutch model (Zipformer2 + RNN-T). Small, runs well beyond real time even on CPU, and outputs word-level timestamps natively. Dutch only. The GGUF was converted and published by the author of audio.cpp's Kroko port."
+    },
+    "kroko-asr-pt-community-q8": {
+      "languages": "Portuguese",
+      "summary": "Fast Portuguese: Kroko community monolingual model, about 170 MB, built-in word timestamps.",
+      "description": "Kroko community Portuguese model (Zipformer2 + RNN-T). Small, runs well beyond real time even on CPU, and outputs word-level timestamps natively. Portuguese only. The GGUF was converted and published by the author of audio.cpp's Kroko port."
+    },
+    "kroko-asr-sv-community-q8": {
+      "languages": "Swedish",
+      "summary": "Fast Swedish: Kroko community monolingual model, about 170 MB, built-in word timestamps.",
+      "description": "Kroko community Swedish model (Zipformer2 + RNN-T). Small, runs well beyond real time even on CPU, and outputs word-level timestamps natively. Swedish only. The GGUF was converted and published by the author of audio.cpp's Kroko port."
+    },
+    "kroko-asr-tr-community-q8": {
+      "languages": "Turkish",
+      "summary": "Fast Turkish: Kroko community monolingual model, about 170 MB, built-in word timestamps.",
+      "description": "Kroko community Turkish model (Zipformer2 + RNN-T). Small, runs well beyond real time even on CPU, and outputs word-level timestamps natively. Turkish only. The GGUF was converted and published by the author of audio.cpp's Kroko port."
+    },
+    "kroko-asr-iw-community-q8": {
+      "languages": "Hebrew",
+      "summary": "Fast Hebrew: Kroko community monolingual model, about 170 MB, built-in word timestamps.",
+      "description": "Kroko community Hebrew model (Zipformer2 + RNN-T). Small, runs well beyond real time even on CPU, and outputs word-level timestamps natively. Hebrew only. The GGUF was converted and published by the author of audio.cpp's Kroko port."
+    },
+    "gigaam-asr-v3-ctc-f16": {
+      "languages": "Russian",
+      "summary": "Russian specialist: from Sber, CTC decoding, fastest.",
+      "description": "Sber's GigaAM v3 Conformer model, trained for Russian with leading Russian accuracy. CTC decoding, the fastest, with built-in word timestamps."
+    },
+    "gigaam-asr-v3-rnnt-f16": {
+      "languages": "Russian",
+      "summary": "Russian specialist: from Sber, RNN-T decoding, slightly more accurate than CTC.",
+      "description": "Sber's GigaAM v3 Conformer model, trained for Russian with leading Russian accuracy. RNN-T decoding, slightly more accurate than the CTC version, with built-in word timestamps."
+    },
+    "gigaam-asr-v3-e2e-ctc-f16": {
+      "languages": "Russian",
+      "summary": "Russian specialist: from Sber, end-to-end version, outputs text with punctuation and casing.",
+      "description": "Sber's GigaAM v3 Conformer model, trained for Russian with leading Russian accuracy. End-to-end version that outputs text with punctuation and casing directly, with built-in word timestamps."
+    },
+    "gigaam-asr-v3-e2e-rnnt-f16": {
+      "languages": "Russian",
+      "summary": "Russian specialist: from Sber, end-to-end RNN-T version with punctuation, most accurate in the series.",
+      "description": "Sber's GigaAM v3 Conformer model, trained for Russian with leading Russian accuracy. End-to-end RNN-T version with punctuation, the most accurate in the series, with built-in word timestamps."
+    },
+    "gigaam-multilingual-ctc-f16": {
+      "languages": "Russian, Kazakh, Kyrgyz, Uzbek, English",
+      "summary": "Russian and Central Asian languages: Sber's multilingual GigaAM, about 440 MB.",
+      "description": "The multilingual version of Sber GigaAM. Adds Kazakh, Kyrgyz, Uzbek and English to Russian. CTC decoding, fast, with built-in word timestamps."
+    },
+    "gigaam-multilingual-large-ctc-f16": {
+      "languages": "Russian, Kazakh, Kyrgyz, Uzbek, English",
+      "summary": "Russian and Central Asian languages (large): the larger multilingual GigaAM, more accurate.",
+      "description": "The large model of the Sber GigaAM multilingual version, with the same language coverage as Multilingual CTC and higher accuracy. About 1.2 GB, with built-in word timestamps."
+    },
+    "hviske-v5.3-q8": {
+      "languages": "Danish",
+      "summary": "Danish specialist: fine-tuned from Cohere Transcribe, non-commercial use only.",
+      "description": "syv.ai's Danish fine-tune of Cohere Transcribe, with high Danish accuracy and optional punctuation. The license is CC-BY-NC-4.0, non-commercial use only."
+    },
+    "hviske-v6-q8": {
+      "languages": "Danish",
+      "summary": "Newer Danish: Whisper encoder + Qwen3 decoder, non-commercial use only.",
+      "description": "The sixth-generation Hviske Danish recognition model, using a Whisper encoder with rotary position embeddings and a Qwen3 decoder; smaller and faster than v5.3. The license is CC-BY-NC-4.0, non-commercial use only."
+    },
+    "qwencleo-asr-q8": {
+      "languages": "Egyptian Arabic, English (code-switching supported)",
+      "summary": "Egyptian Arabic: fine-tuned from Qwen3-ASR 1.7B, good at Arabic-English mixing.",
+      "description": "A community fine-tune of Qwen3-ASR 1.7B for the Egyptian Arabic dialect and Arabic-English code-switching. Can be paired with the Qwen3 forced aligner, but the aligner does not support Arabic, so Arabic content gets no word-level timestamps."
+    },
+    "moss-transcribe-diarize-q8": {
+      "languages": "50+ languages, auto-detected",
+      "summary": "Transcription + speakers: from Fudan's OpenMOSS, outputs text, timing and speakers.",
+      "description": "A joint transcription and speaker-diarization model (Whisper encoder + Qwen3 decoder) from Fudan University's OpenMOSS team, supporting 50+ languages with automatic detection. The model itself can distinguish speakers, but Murmur currently uses only the transcribed text and does not show speaker labels."
+    },
+    "vibevoice-asr-q8": {
+      "languages": "50+ languages, auto-detected",
+      "summary": "Long-audio LLM: from Microsoft, handles 60 minutes of audio in one pass, about 10 GB.",
+      "description": "Microsoft VibeVoice's 7B-parameter long-audio recognition model. It processes up to 60 minutes of audio at once and returns speakers, timing and content, with hotword support and 50+ languages. About 10 GB; 32 GB or more of memory and a GPU recommended. The model itself can distinguish speakers, but Murmur currently uses only the transcribed text and does not show speaker labels."
+    },
+    "vibevoice-asr-streaming-7b-q8": {
+      "languages": "10 languages: Chinese, English, Japanese, Korean, French, German, Spanish, Portuguese, Italian, Russian",
+      "summary": "Streaming long audio: the streaming VibeVoice ASR, 7B, about 10 GB.",
+      "description": "The streaming version of Microsoft VibeVoice ASR. Decoder state is kept across chunks, suiting long continuous transcription, covering 10 languages including Chinese, English, Japanese and Korean. About 10 GB; 32 GB or more of memory and a GPU recommended. The model itself can distinguish speakers, but Murmur currently uses only the transcribed text and does not show speaker labels."
+    },
+    "vibevoice-asr-streaming-1.5b-q8": {
+      "languages": "10 languages: Chinese, English, Japanese, Korean, French, German, Spanish, Portuguese, Italian, Russian",
+      "summary": "Streaming long audio (small): the 1.5B VibeVoice streaming recognizer, about 3.3 GB.",
+      "description": "The 1.5B-parameter version of VibeVoice ASR Streaming, with the same language coverage as 7B and much lower memory needs, suitable for computers with 16 GB of memory. Community-converted GGUF. The model itself can distinguish speakers, but Murmur currently uses only the transcribed text and does not show speaker labels."
+    },
+    "index-echo-s2tt-2b-q8": {
+      "languages": "Chinese speech → English / Spanish / Japanese text",
+      "summary": "Direct speech translation: turns Chinese speech straight into foreign-language subtitles, 2B.",
+      "description": "A speech translation model from Bilibili's Index team. It takes Chinese speech and outputs English (default), Spanish or Japanese text instead of a Chinese transcript. The 2B version is about 3.2 GB. audio.cpp marks it experimental."
+    },
+    "index-echo-s2tt-9b-q8": {
+      "languages": "Chinese speech → English / Spanish / Japanese text",
+      "summary": "Direct speech translation: turns Chinese speech straight into foreign-language subtitles, 9B.",
+      "description": "A speech translation model from Bilibili's Index team. It takes Chinese speech and outputs English (default), Spanish or Japanese text instead of a Chinese transcript. The 9B version is about 11 GB; 32 GB or more of memory recommended. audio.cpp marks it experimental."
+    },
+    "audio-flamingo-next-q8": {
+      "languages": "English",
+      "summary": "Audio understanding: NVIDIA's audio LLM, transcribes and describes sounds and music, about 9.3 GB.",
+      "description": "NVIDIA's audio-language model Audio Flamingo Next. Besides transcribing speech, it can describe ambient sounds and music and answer questions about them. Used for English transcription in Murmur. About 9.3 GB; 32 GB or more of memory recommended. The license is non-commercial only."
+    },
+    "audio-flamingo-3-q8": {
+      "languages": "English",
+      "summary": "Audio understanding: third-generation Audio Flamingo, about 9.3 GB.",
+      "description": "NVIDIA Audio Flamingo 3, the predecessor of Audio Flamingo Next, with similar capability and size. Used for English transcription in Murmur. 32 GB or more of memory recommended. The license is non-commercial only."
+    },
+    "ming-3.0-audio-tiny-q8": {
+      "languages": "Chinese, English",
+      "summary": "All-round audio LLM: from Ant Group's Ling team, mixture-of-experts, about 13.7 GB.",
+      "description": "An omni-modal audio model from Ant Group's Ling team: a Whisper encoder plus a mixture-of-experts (MoE) language model, supporting recognition, understanding and speech synthesis. Used for Chinese and English transcription in Murmur. About 13.7 GB; 32 GB or more of memory recommended. audio.cpp marks it experimental."
+    },
+    "firered-audio-q8": {
+      "languages": "Chinese, English",
+      "summary": "All-round audio LLM: from Xiaohongshu's FireRed, about 14 GB.",
+      "description": "An audio LLM from Xiaohongshu's FireRed team, built on a Qwen3.5 hybrid architecture, covering recognition, audio understanding, speech synthesis and editing. Used for Chinese and English transcription in Murmur. About 14 GB; 32 GB or more of memory recommended. audio.cpp marks it experimental."
+    },
+    "lfm2.5-audio-1.5b-q8": {
+      "languages": "English",
+      "summary": "On-device audio LLM: from Liquid AI, English version, about 1.5 GB.",
+      "description": "Liquid AI's 1.5B-parameter audio model, with a FastConformer encoder and an LFM2 hybrid-architecture backbone, capable of recognition and voice conversation. Used for English transcription in Murmur; the download contains two files, the main model and the audio encoder. audio.cpp marks it experimental."
+    },
+    "lfm2.5-audio-1.5b-jp-q8": {
+      "languages": "Japanese",
+      "summary": "On-device audio LLM: from Liquid AI, Japanese version, about 1.5 GB.",
+      "description": "Liquid AI's 1.5B-parameter audio model, with a FastConformer encoder and an LFM2 hybrid-architecture backbone, capable of recognition and voice conversation. Used for Japanese transcription in Murmur; the download contains two files, the main model and the audio encoder. audio.cpp marks it experimental."
+    },
+    "qwen3-forced-aligner-0.6b-q8": {
+      "languages": "Chinese, Cantonese, English, Japanese, Korean, French, German, Italian, Portuguese, Russian, Spanish",
+      "summary": "Generates word-level timestamps (character-level for Chinese) for Qwen3-ASR, aligned automatically after transcription.",
+      "description": "Qwen3's non-autoregressive forced-alignment model. It aligns the transcript with the audio to give word-level (character-level for Chinese) timestamps. Used only as an add-on to the Qwen3-ASR series."
+    }
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "toolbar": {
+    "title": "模型",
+    "installedSummary": "已安装 {{count}} 个 · {{size}}"
+  },
+  "search": {
+    "placeholder": "搜索名称、语言或特点",
+    "label": "搜索模型"
+  },
+  "filter": {
+    "label": "筛选",
+    "all": "全部",
+    "installed": "已安装"
+  },
+  "intro_other": "共 {{count}} 个模型，按需下载，保存在本机，识别过程完全离线。首次使用推荐下载 <strong>{{name}}</strong>，它在速度、准确率和语言覆盖之间取得了很好的平衡。可以搜索“中文”“粤语”“时间戳”等关键词快速找到合适的模型。",
+  "empty": {
+    "noResults": "没有找到与“{{query}}”相关的模型。",
+    "noneInstalled": "还没有安装任何模型。"
+  },
+  "source": {
+    "label": "下载源",
+    "auto": "自动",
+    "hfMirror": "HF 镜像",
+    "hint": "国内网络建议选择 ModelScope 或 HF 镜像"
+  },
+  "card": {
+    "recommended": "推荐",
+    "inUse": "使用中",
+    "languages": "语言",
+    "speed": "速度",
+    "accuracy": "准确率",
+    "wordTimestamps": "词级时间戳",
+    "speakerDiarization": "说话人分段",
+    "loaded": "已加载",
+    "loadTime": "{{seconds}} 秒",
+    "loading": "加载中…",
+    "use": "使用此模型",
+    "reveal": "在访达中显示",
+    "deleteLabel": "删除模型"
+  },
+  "deleteDialog": {
+    "title": "删除模型？",
+    "message": "删除“{{name}}”将释放 {{size}} 空间，之后可重新下载。"
+  },
+  "aligner": {
+    "reloadToEnable": "重新加载以启用",
+    "installed": "已安装",
+    "deleteLabel": "删除对齐模型",
+    "deleteTitle": "删除“{{name}}”？",
+    "deleteMessage": "删除后 {{owner}} 将不再输出词级时间戳，可随时重新下载。"
+  },
+  "download": {
+    "verifying": "正在校验文件…",
+    "connecting": "正在连接…",
+    "cancel": "取消下载"
+  }
+}
