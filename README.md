@@ -1,13 +1,15 @@
 <div align="center">
 
+English · **[简体中文](README.zh-CN.md)**
+
 <img src="assets/icon/app-icon.png" width="128" alt="MurmurASR">
 
 # MurmurASR
 
-**完全离线的本地语音转文字桌面应用**
+**A fully offline desktop app for speech-to-text**
 
-55 个开源语音识别模型按需下载，支持文件转写、实时听写、字幕导出和 HTTP API。<br>
-音频始终留在你的电脑上。
+55 open-source speech recognition models, downloaded on demand. File transcription, live dictation, subtitle export and an HTTP API.<br>
+Your audio never leaves your computer.
 
 [![Release build](https://github.com/linyqh/MurmurASR/actions/workflows/release.yml/badge.svg)](https://github.com/linyqh/MurmurASR/actions/workflows/release.yml)
 [![Release](https://img.shields.io/github/v/release/linyqh/MurmurASR?sort=semver)](https://github.com/linyqh/MurmurASR/releases)
@@ -16,250 +18,263 @@
 [![audio.cpp](https://img.shields.io/badge/engine-audio.cpp-blue)](https://github.com/0xShug0/audio.cpp)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-[功能](#功能) · [截图](#截图) · [模型](#模型) · [API](#api-与-agent-skill) · [开发](#开发) · [架构](#架构)
+[Website](https://linyqh.github.io/MurmurASR/) · [Features](#features) · [Screenshots](#screenshots) · [Models](#models) · [API](#api-and-agent-skill) · [Development](#development) · [Architecture](#architecture)
 
 </div>
 
 ---
 
-## 为什么选 MurmurASR
+## Why MurmurASR
 
-- **本地且离线**：推理在本机完成，不调用云服务，不需要账号，不按时长计费。
-- **模型可选**：内置 55 个开源识别模型的目录，中文、方言、英语、欧洲语言和小语种都有覆盖，用户需要哪个就下载哪个。
-- **GPU 加速**：基于 [audio.cpp](https://github.com/0xShug0/audio.cpp)（ggml）。Apple 芯片使用 Metal，Windows / Linux 使用 Vulkan 或 CUDA，没有 GPU 时自动改用 CPU。
-- **可直接产出字幕**：支持词级时间戳，字幕会按停顿、标点和阅读速度自动排版，可导出 SRT / VTT。
-- **可被程序调用**：内置 HTTP API 和 Agent Skill，脚本、局域网内的设备和 AI Agent 都可以提交转写任务。
+- **Local and offline**: inference runs on your machine. No cloud service, no account, no per-minute fees.
+- **Your choice of model**: the built-in catalog lists 55 open-source recognition models covering Chinese, dialects, English, European and lower-resource languages. Download only the ones you need.
+- **GPU acceleration**: built on [audio.cpp](https://github.com/0xShug0/audio.cpp) (ggml). Metal on Apple silicon, Vulkan or CUDA on Windows and Linux, with automatic CPU fallback.
+- **Subtitles out of the box**: word-level timestamps, with subtitles laid out automatically by pauses, punctuation and reading speed. Export SRT / VTT.
+- **Scriptable**: a built-in HTTP API and Agent Skill let scripts, other devices on your network and AI agents submit transcription jobs.
+- **English and 简体中文 interface**: follows the system language and can be switched in Settings. Adding another language only takes a folder of JSON files.
 
-## 功能
+## Features
 
 | | |
 |---|---|
-| **文件转写** | 拖入音频或视频（MP3、M4A、WAV、FLAC、OGG、MP4、MOV 等）即可转写，进度实时显示。内置解码器不支持的编码（HE-AAC、AC-3、WMA 等）会在首次遇到时自动下载 ffmpeg 来解码 |
-| **实时听写** | 用麦克风实时转文字，说话过程中显示中间结果，检测到停顿后输出最终文字，可选择保存录音 |
-| **记录管理** | 可搜索、编辑；播放时逐词高亮，点击单词可跳转播放；支持导出 TXT / SRT / VTT / Markdown / JSON |
-| **字幕编排** | 结合词级时间、标点、停顿和行长切分字幕，可选单行或双行，导出结果与预览一致 |
-| **模型管理** | 模型按用途分组，可搜索，每张卡片都有详细介绍；支持断点续传、SHA-256 校验，可在 Hugging Face、ModelScope、HF 镜像之间切换或自动选择下载源 |
-| **API 接口** | 默认在 7895 端口提供 HTTP 服务，支持局域网访问，附带 Agent Skill |
+| **File transcription** | Drop in audio or video (MP3, M4A, WAV, FLAC, OGG, MP4, MOV, …) and watch progress in real time. Codecs the built-in decoder doesn't support (HE-AAC, AC-3, WMA, …) make the app download ffmpeg the first time one is encountered |
+| **Live dictation** | Turn microphone input into text in real time: partial results while you speak, final text after a pause, with optional recording |
+| **History** | Searchable and editable. Words highlight as the audio plays and clicking a word seeks to it. Export TXT / SRT / VTT / Markdown / JSON |
+| **Subtitle layout** | Splits subtitles using word timing, punctuation, pauses and line length. One or two lines; exports match the preview |
+| **Model manager** | Models are grouped by purpose and searchable, each with a detailed card. Resumable downloads, SHA-256 verification, and a choice of Hugging Face, ModelScope or an HF mirror (or automatic) |
+| **API** | HTTP service on port 7895 by default, with optional LAN access and a bundled Agent Skill |
 
-## 截图
+## Screenshots
 
 <table>
   <tr>
-    <td width="50%"><img src="assets/screenshots/home.png" alt="文件转写"></td>
-    <td width="50%"><img src="assets/screenshots/models.png" alt="模型管理"></td>
+    <td width="50%"><img src="assets/screenshots/home.png" alt="File transcription"></td>
+    <td width="50%"><img src="assets/screenshots/models.png" alt="Model manager"></td>
   </tr>
   <tr>
-    <td align="center">文件转写：边识别边显示结果</td>
-    <td align="center">模型：55 个模型按用途分组，可搜索</td>
+    <td align="center">File transcription: results appear as they are recognized</td>
+    <td align="center">Models: 55 models grouped by purpose, searchable</td>
   </tr>
   <tr>
-    <td colspan="2"><img src="assets/screenshots/api.png" alt="API 接口"></td>
+    <td colspan="2"><img src="assets/screenshots/api.png" alt="API page"></td>
   </tr>
   <tr>
-    <td colspan="2" align="center">API 接口：开关服务、局域网访问和调用示例</td>
+    <td colspan="2" align="center">API: service switch, LAN access and usage examples</td>
   </tr>
 </table>
 
-## 快速开始
+## Quick start
 
-1. 在 [Releases](https://github.com/linyqh/MurmurASR/releases) 下载对应平台的安装包（macOS `.dmg`，Windows `-setup.exe`）。
-2. 首次启动时按引导下载推荐模型 **Qwen3-ASR 0.6B**（1.2 GB）。国内网络建议在模型页把下载源切换为 ModelScope 或 HF 镜像。
-3. 把音频或视频拖进窗口，或者切换到「实时听写」开始说话。
+1. Download the installer for your platform from [Releases](https://github.com/linyqh/MurmurASR/releases) (macOS `.dmg`, Windows `-setup.exe`).
+2. On first launch, follow the guide to download the recommended model **Qwen3-ASR 0.6B** (1.2 GB). If you are in mainland China, switch the download source to ModelScope or an HF mirror on the Models page.
+3. Drag an audio or video file into the window, or open "Live dictation" and start talking.
 
-> 实测（Apple M6，Metal）：Qwen3-ASR 0.6B 转写 7 分钟英文约 21 秒，约为实时速度的 20 倍；SenseVoice 转写 31 秒中文约 0.6 秒。
+> Measured (Apple M6, Metal): Qwen3-ASR 0.6B transcribes 7 minutes of English in about 21 seconds, roughly 20× real time. SenseVoice transcribes 31 seconds of Chinese in about 0.6 seconds.
 
-## 模型
+## Models
 
-内置 **55 个语音识别模型 + 1 个对齐模型**，全部来自 audio.cpp 支持的开源模型。安装包里不带模型，用户在模型页选择需要的模型下载即可。
+The catalog has **55 speech recognition models + 1 aligner**, all open-source models supported by audio.cpp. Installers don't bundle any model; pick what you need on the Models page.
 
-| 分组 | 代表模型 |
+| Group | Representative models |
 |---|---|
-| 🌏 通用多语种（含中文） | **Qwen3-ASR 0.6B（推荐）**、Qwen3-ASR 1.7B、SenseVoice Small、Fun-ASR Nano、Confucius4-R2T2、Nemotron 3.5、Cohere Transcribe、Voxtral Realtime、CrisperWhisper、OWSM / OWSM-CTC |
-| 🇬🇧 英语 | Moonshine Tiny / Small / Medium、Kroko、Niagara、Citrinet、Higgs Audio STT |
-| 🇪🇺 欧洲语言 | Parakeet TDT、Canary 180M Flash、Granite Speech 5.0、Whistle、Kroko 各语种版 |
-| 🎯 特定语言优化 | GigaAM（俄语及中亚语言）、Hviske（丹麦语）、QwenCleo（埃及阿拉伯语）、Kroko 希伯来语 |
-| 🎙️ 长音频与说话人区分 | MOSS-Transcribe-Diarize、VibeVoice ASR、VibeVoice ASR Streaming 7B / 1.5B |
-| 🔁 语音翻译 | Index-Echo S2TT 2B / 9B（中文语音直接输出英 / 西 / 日文字） |
-| 🧪 音频理解大模型（实验性） | Audio Flamingo 3 / Next、Ming 3.0 Audio Tiny、FireRedAudio、LFM2.5-Audio |
+| 🌏 General multilingual (incl. Chinese) | **Qwen3-ASR 0.6B (recommended)**, Qwen3-ASR 1.7B, SenseVoice Small, Fun-ASR Nano, Confucius4-R2T2, Nemotron 3.5, Cohere Transcribe, Voxtral Realtime, CrisperWhisper, OWSM / OWSM-CTC |
+| 🇬🇧 English | Moonshine Tiny / Small / Medium, Kroko, Niagara, Citrinet, Higgs Audio STT |
+| 🇪🇺 European languages | Parakeet TDT, Canary 180M Flash, Granite Speech 5.0, Whistle, Kroko per-language models |
+| 🎯 Language-specific | GigaAM (Russian and Central Asian languages), Hviske (Danish), QwenCleo (Egyptian Arabic), Kroko Hebrew |
+| 🎙️ Long audio & speakers | MOSS-Transcribe-Diarize, VibeVoice ASR, VibeVoice ASR Streaming 7B / 1.5B |
+| 🔁 Speech translation | Index-Echo S2TT 2B / 9B (Chinese speech straight to English / Spanish / Japanese text) |
+| 🧪 Audio understanding LLMs (experimental) | Audio Flamingo 3 / Next, Ming 3.0 Audio Tiny, FireRedAudio, LFM2.5-Audio |
 
-**如何选**：中文和多语种场景先试 Qwen3-ASR 0.6B；机器配置低、需要更快速度时用 SenseVoice Small；要做精确字幕选 Parakeet、Granite Speech 或 CrisperWhisper，它们原生输出词级时间戳；只处理英语时选 Moonshine。
+**How to choose**: for Chinese and multilingual use, start with Qwen3-ASR 0.6B. On low-end machines or when you need more speed, use SenseVoice Small. For precise subtitles pick Parakeet, Granite Speech or CrisperWhisper, which output word-level timestamps natively. For English only, choose Moonshine.
 
 <details>
-<summary><b>词级时间戳</b></summary>
+<summary><b>Word-level timestamps</b></summary>
 
-- Parakeet、Kroko、GigaAM、Granite Speech、CrisperWhisper、Nemotron 原生输出词级时间戳。Nemotron 输出的是子词 token，会自动合并成词。
-- Qwen3-ASR 需要额外下载 **Qwen3 强制对齐模型**（1.1 GB，在模型卡片里下载）。它支持中、粤、英、日、韩、法、德、意、葡、俄、西 11 种语言，中文按字对齐。下载后重新加载模型即可生效；某一段对齐失败时，该段会退回为不带时间戳的结果。
-- 实时听写只为最终结果生成时间戳，中间结果不做对齐。
-- 编辑某段文字后，该段的词级时间戳会被清除。
+- Parakeet, Kroko, GigaAM, Granite Speech, CrisperWhisper and Nemotron output word-level timestamps natively. Nemotron emits sub-word tokens, which are merged into words automatically.
+- Qwen3-ASR needs the extra **Qwen3 forced aligner** (1.1 GB, downloaded from the model card). It supports 11 languages: Chinese, Cantonese, English, Japanese, Korean, French, German, Italian, Portuguese, Russian and Spanish, aligning Chinese by character. Reload the model after downloading it. If a segment fails to align, that segment falls back to a result without timestamps.
+- Live dictation generates timestamps for final results only; partial results are not aligned.
+- Editing a segment's text clears that segment's word-level timestamps.
 
 </details>
 
 <details>
-<summary><b>字幕编排细节</b></summary>
+<summary><b>Subtitle layout details</b></summary>
 
-字幕编排模块会结合词级时间、标点、停顿、阅读速度和行长来决定字幕在哪里断开，默认每条一行，也可以切换为最多两行。切换行数会重新选择断点，并作为全局偏好保存。相邻的短片段可以合并成一条，明显的停顿处会留出空白。通用预设的目标是每行约 42 个英文字符或 16 个汉字，每条不超过 7 秒；语速过快或无法合理拆分的地方会标出提示，但不会删改识别出的文字。
+The subtitle layout module uses word timing, punctuation, pauses, reading speed and line length to decide where subtitles break. It defaults to one line per subtitle and can switch to at most two; switching re-selects the break points and is saved as a global preference. Adjacent short fragments can merge into one subtitle, and clear pauses leave a gap. The general preset targets about 42 Latin characters or 16 Chinese characters per line and no more than 7 seconds per subtitle. Places where speech is too fast or can't be split sensibly are flagged, but recognized text is never edited or removed.
 
-记录页默认显示「字幕预览」，换行与导出的 SRT / VTT 一致。切到「原始转写 · 编辑」可以查看和修改原文。JSON 里的 `segments` 保留原始转写和词级时间，`subtitles` 保存编排后的字幕；HTTP API 返回的格式相同。词级对齐缺失、失效或不完整时，保留整段的起止时间并标注提示，只调整行内换行，不会按字数推算出更细的时间。
+The transcript page shows "Subtitle preview" by default, with line breaks identical to the exported SRT / VTT. Switch to "Raw transcript · Edit" to view and edit the original text. In JSON, `segments` keeps the raw transcript with word timing and `subtitles` holds the laid-out subtitles; the HTTP API returns the same format. When word alignment is missing, invalid or incomplete, the whole segment's start and end are kept and flagged, only line breaks inside it are adjusted, and no finer timing is inferred from character counts.
 
 </details>
 
 <details>
-<summary><b>模型目录与未收录模型</b></summary>
+<summary><b>Model catalog and excluded models</b></summary>
 
-模型目录在 `src-tauri/catalog.json`，后端和前端共用这一份。每个模型由一个或多个文件组成，每个文件都有 SHA-256，Hugging Face 链接固定到具体 commit；某个下载源返回的文件校验不通过时，会自动换下一个源。`engine/audiocpp.conf` 里的 `AUDIOCPP_MODELS` 必须包含目录中用到的每个 family，单元测试会检查这一点。
+The catalog lives in `src-tauri/catalog.json`, shared by the backend and frontend. Each model is made of one or more files, each with a SHA-256; Hugging Face links are pinned to specific commits. If a source returns a file that fails verification, the next source is tried automatically. `AUDIOCPP_MODELS` in `engine/audiocpp.conf` must include every family used in the catalog, which a unit test checks. The catalog's display text (summaries, descriptions, tags) is translated in `src/locales/<code>/catalog.json`.
 
-以下模型没有收录：
-- audio8_asr：许可证不允许公开分发 GGUF。
-- lfm3_audio：目前只在 audio.cpp 的 main 分支上，还没有进入正式 release。
-- SAMSONE：音频描述模型，即使要求转写也只输出对声音的描述。
-- VibeASR：需要额外传入 model spec 才能加载。
+These models are not included:
+- audio8_asr: its license doesn't allow public distribution of the GGUF.
+- lfm3_audio: only on audio.cpp's main branch so far, not yet in a release.
+- SAMSONE: an audio captioning model that only describes sounds even when asked to transcribe.
+- VibeASR: needs an extra model spec to load.
 
 </details>
 
-## API 与 Agent Skill
+## API and Agent Skill
 
-App 运行时会启动 HTTP 服务，默认端口 7895。通过接口提交的任务和界面里的任务共用同一个推理队列，结果也会保存到记录中。
+While the app is running it serves an HTTP API, on port 7895 by default. Jobs submitted through the API share the same inference queue as jobs in the UI, and results are saved to history.
 
 ```bash
 curl http://127.0.0.1:7895/health
 
-# 本机调用：直接传文件路径，不需要上传
+# On this machine: pass a file path, no upload needed
 curl -H 'Content-Type: application/json' \
   -d '{"path":"/abs/path/talk.m4a","format":"srt"}' \
   http://127.0.0.1:7895/transcribe
 
-# 局域网内的其他设备：上传文件
+# From another device on your network: upload the file
 curl -F file=@talk.m4a -F format=txt http://192.168.1.23:7895/transcribe
 ```
 
-| 接口 | 说明 |
+| Endpoint | Description |
 |---|---|
-| `GET /health` | 引擎状态、已加载模型、可用语言、已安装模型 |
-| `GET /models` · `POST /models/load` | 查看模型列表 · 加载已下载的模型 |
-| `POST /transcribe` | 转写：JSON 传 `path`，或 multipart 传 `file`；`format` 可选 json / txt / srt / vtt / md；传 `wait=false` 时异步执行 |
-| `GET /jobs/{id}` · `POST /jobs/{id}/cancel` | 查询任务进度 · 取消任务 |
-| `GET /transcripts` · `GET /transcripts/{id}?format=` | 历史记录（仅限本机） · 按指定格式导出 |
+| `GET /health` | Engine status, loaded model, available languages, installed models |
+| `GET /models` · `POST /models/load` | List models · load a downloaded model |
+| `POST /transcribe` | Transcribe: JSON with `path`, or multipart with `file`; `format` is one of json / txt / srt / vtt / md; pass `wait=false` to run asynchronously |
+| `GET /jobs/{id}` · `POST /jobs/{id}/cancel` | Job progress · cancel a job |
+| `GET /transcripts` · `GET /transcripts/{id}?format=` | History (this machine only) · export in a given format |
 
 > [!WARNING]
-> 局域网访问默认开启，而且接口没有密码。在公共网络中，建议在「API 接口」页面关闭局域网访问。接口会拒绝带 `Origin` 头的请求，也会拒绝 `Host` 为其他域名的请求，以防网页借浏览器调用。局域网内的其他设备只能上传文件，不能读取本机路径，也不能列出历史记录。
+> LAN access is on by default and the API has no password. On public networks, turn LAN access off on the API page. The API rejects requests carrying an `Origin` header or a `Host` for another domain, so web pages can't use the browser to call it. Other devices on the LAN can only upload files; they can't read local paths or list history.
 
-**Agent Skill**：`skills/murmur-asr/` 包含 `SKILL.md`、完整的接口说明和不依赖任何第三方库的 Python 调用脚本。把这个文件夹复制到 Agent 的 skills 目录（例如 `~/.claude/skills/`）后，Claude 等 Agent 就能直接调用 MurmurASR 转写音频。
+**Agent Skill**: `skills/murmur-asr/` contains `SKILL.md`, the full API reference and a Python client with no third-party dependencies. Copy this folder into your agent's skills directory (for example `~/.claude/skills/`) and agents such as Claude can call MurmurASR to transcribe audio.
 
-## 架构
+## Architecture
 
 ```mermaid
 flowchart LR
-  UI["React UI"] -- "invoke / events" --> Core["Rust 核心（Tauri 2）"]
-  API["HTTP API（axum）"] --> Core
-  Core --> Audio["音频解码<br/>symphonia / ffmpeg"]
-  Audio --> VAD["Silero VAD<br/>切分语音"]
-  VAD --> Worker["推理线程"]
+  UI["React UI"] -- "invoke / events" --> Core["Rust core (Tauri 2)"]
+  API["HTTP API (axum)"] --> Core
+  Core --> Audio["Audio decoding<br/>symphonia / ffmpeg"]
+  Audio --> VAD["Silero VAD<br/>split speech"]
+  VAD --> Worker["Inference thread"]
   Worker --> Engine["libaudiocpp<br/>Metal / Vulkan / CUDA / CPU"]
-  Core --> Models["模型目录与下载<br/>续传 · 校验 · 多源"]
+  Core --> Models["Model catalog & downloads<br/>resume · verify · multi-source"]
 ```
 
-| 模块 | 作用 |
+| Module | Role |
 |---|---|
-| `src-tauri/src/commands.rs` | 命令、状态、历史记录持久化 |
-| `src-tauri/src/api.rs` | 本地 HTTP 接口 |
-| `src-tauri/src/models.rs` | 模型目录与下载（断点续传、校验、多下载源） |
-| `src-tauri/src/audio.rs` | 解码、重采样、麦克风采集 |
-| `src-tauri/src/engine/` | 专用推理线程；`ffi.rs` 运行时加载 audio.cpp C ABI，`vad.rs` 负责分段与实时断句 |
+| `src-tauri/src/commands.rs` | Commands, state, history persistence |
+| `src-tauri/src/api.rs` | Local HTTP API |
+| `src-tauri/src/models.rs` | Model catalog and downloads (resume, verification, multiple sources) |
+| `src-tauri/src/audio.rs` | Decoding, resampling, microphone capture |
+| `src-tauri/src/engine/` | Dedicated inference thread; `ffi.rs` loads the audio.cpp C ABI at runtime, `vad.rs` handles segmentation and live sentence breaks |
 
-文件转写和实时听写都先用 Silero VAD 切分语音，再逐段做离线识别。这样每个模型（包括不支持流式的）都能显示进度、随时取消，并得到字幕时间戳。
+File transcription and live dictation both split speech with Silero VAD first, then recognize segment by segment offline. This way every model, including ones without streaming support, can show progress, be cancelled at any time, and produce subtitle timestamps.
 
-## 开发
+## Development
 
-需要 Rust、Node 22、CMake；macOS 还需要 Xcode。
+Requires Rust, Node 22 and CMake; macOS also needs Xcode.
 
 ```bash
 npm install
-npm run engine:build   # 拉取 audio.cpp 最新 release 并编译（macOS 默认用 Metal）
-npm run app:dev        # 启动开发版
+npm run engine:build   # fetch and build the latest audio.cpp release (Metal by default on macOS)
+npm run app:dev        # start the dev app
 ```
 
-只预览界面、不启动 Tauri：运行 `npm run dev`，然后打开 `http://localhost:1420/?mock=home`。可用场景有 `onboarding`、`onboarding-dl`、`models`、`jobs`、`live`；加上 `#transcript:t1`、`#settings` 这样的锚点可以直接打开对应页面。
+To preview the UI without starting Tauri, run `npm run dev` and open `http://localhost:1420/?mock=home`. Available scenarios are `onboarding`, `onboarding-dl`, `models`, `jobs` and `live`; add a hash such as `#transcript:t1` or `#settings` to open that page directly.
 
-### 多语言（i18n）
+If a release build is already installed and running, the dev app would hand off to it (the app is single-instance, keyed by bundle identifier). Run the dev build under a separate identifier instead:
 
-界面使用 i18next，支持英语和简体中文，默认跟随系统语言，也可以在「设置 → 通用 → 界面语言」切换。文案位于 `src/locales/<语言代码>/<命名空间>.json`，英文（`en`）是基准，键名受 TypeScript 类型检查。新增语言：
+```bash
+npx tauri dev --config '{"identifier":"app.murmur.asr.dev","productName":"Murmur Dev"}'
+```
 
-1. 复制 `src/locales/en/` 为 `src/locales/<code>/`（如 `ja`），翻译全部 JSON，并在 `common.json` 的 `meta.name` 写该语言的自称；`catalog.json` 翻译模型介绍。
-2. 运行 `npm test`，测试会检查键是否齐全、占位符是否一致、模型目录是否全部翻译。
+The dev build then has its own data directory, so it starts without models or history.
 
-不需要改动任何代码：语言列表由目录自动发现。后端错误信息为英文，由 `src/lib/errors.ts` 映射到 `errors` 命名空间翻译；新增后端错误时请同步添加映射。
+### Internationalization (i18n)
+
+The UI uses i18next. It ships English and Simplified Chinese, follows the system language by default, and can be switched under Settings → General → Interface language. Strings live in `src/locales/<language code>/<namespace>.json`; English (`en`) is the source of truth and its keys are type-checked by TypeScript. To add a language:
+
+1. Copy `src/locales/en/` to `src/locales/<code>/` (for example `ja`), translate every JSON file, and set the language's own name in `meta.name` of `common.json`. Translate the model descriptions in `catalog.json`.
+2. Run `npm test`. The tests check that every key exists, placeholders match and the whole model catalog is translated.
+
+No code changes are needed: the language list is discovered from the directories. Backend errors are English strings; `src/lib/errors.ts` maps them to translations in the `errors` namespace, so add a mapping whenever you add a backend error.
+
+### Landing page
+
+`site/` holds the static landing page, published to GitHub Pages by `.github/workflows/pages.yml` on every push to `main` that touches it. Enable it once under Settings → Pages → Source: GitHub Actions. To preview locally, copy `assets/screenshots` and `assets/icon/app-icon.png` into a copy of `site/` under `assets/` and serve that folder.
 
 <details>
-<summary><b>测试</b></summary>
+<summary><b>Tests</b></summary>
 
 ```bash
 npm test && npm run typecheck
 cd src-tauri && cargo test
 
-# 用真实引擎和模型的端到端测试（没有模型时自动跳过）
+# End-to-end tests with a real engine and model (skipped automatically without a model)
 MURMUR_TEST_MODEL=/path/qwen3-asr-0.6b-q8_0.gguf MURMUR_TEST_AUDIO=/path/speech.m4a \
   cargo test --release --test engine -- --nocapture
-# 再加上 MURMUR_TEST_ALIGNER=/path/qwen3-forced-aligner-0.6b-q8_0.gguf，会同时校验词级时间戳
+# Add MURMUR_TEST_ALIGNER=/path/qwen3-forced-aligner-0.6b-q8_0.gguf to also verify word-level timestamps
 
-# 下载测试：下载约 254 MB，中途取消后续传，再校验 SHA-256
+# Download test: downloads about 254 MB, cancels midway, resumes, then verifies SHA-256
 MURMUR_TEST_DOWNLOAD=1 cargo test --release --test download
 ```
 
 </details>
 
 <details>
-<summary><b>audio.cpp 引擎版本</b></summary>
+<summary><b>audio.cpp engine version</b></summary>
 
-构建脚本每次都会编译 audio.cpp 最新的正式 release（`vX.Y.Z` tag），不固定版本。
+The build script compiles the latest audio.cpp release (a `vX.Y.Z` tag) every time; the version is not pinned.
 
-- 编译指定版本：设置环境变量 `AUDIOCPP_REF`，例如 `AUDIOCPP_REF=v0.9.3`。
-- 连不上 GitHub 时，脚本会沿用 `engine/vendor` 里已经检出的版本，并给出警告。
-- 要编译的模型 family 列在 `engine/audiocpp.conf`。如果上游删除或改名了某个 family，CMake 会报 `Unknown AUDIOCPP_MODELS entry`，这时需要同步修改这个文件和 `catalog.json`。
+- To build a specific version, set the `AUDIOCPP_REF` environment variable, for example `AUDIOCPP_REF=v0.9.3`.
+- If GitHub is unreachable, the script keeps the version already checked out in `engine/vendor` and prints a warning.
+- The model families to compile are listed in `engine/audiocpp.conf`. If upstream removes or renames a family, CMake fails with `Unknown AUDIOCPP_MODELS entry`; update this file and `catalog.json` together.
 
 </details>
 
 <details>
-<summary><b>打包与签名</b></summary>
+<summary><b>Packaging and signing</b></summary>
 
 **macOS**
 
 ```bash
-./scripts/package-macos.sh   # 生成 .app 和 .dmg
+./scripts/package-macos.sh   # produces the .app and .dmg
 ```
 
-DMG 带有安装引导背景、固定的拖拽图标位置和首次下载模型的说明。脚本首次运行时，会用 Python 3 在 `src-tauri/target/dmg-tools` 创建隔离环境并安装 `dmgbuild`。背景素材在 `assets/dmg/`，布局配置在 `scripts/dmg-settings.py`。
+The DMG has an install-guide background, fixed drag-icon positions and notes on downloading a model on first launch. On first run the script creates an isolated environment with Python 3 in `src-tauri/target/dmg-tools` and installs `dmgbuild`. Background assets are in `assets/dmg/` and the layout config is `scripts/dmg-settings.py`.
 
-签名：把 `.env.macos.local.example` 复制为 `.env.macos.local`，将 `APPLE_SIGNING_IDENTITY` 设为 Developer ID Application 身份。需要公证时，先运行 `xcrun notarytool store-credentials murmur-notary` 保存凭据，再在同一个文件里设置 `MURMUR_NOTARY_PROFILE="murmur-notary"`。
+Signing: copy `.env.macos.local.example` to `.env.macos.local` and set `APPLE_SIGNING_IDENTITY` to your Developer ID Application identity. For notarization, run `xcrun notarytool store-credentials murmur-notary` once to save credentials, then set `MURMUR_NOTARY_PROFILE="murmur-notary"` in the same file.
 
-**Windows**（在 PowerShell 中运行，生成 NSIS 安装程序）
+**Windows** (run in PowerShell; produces an NSIS installer)
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File scripts/package-windows.ps1              # Vulkan（默认）
+powershell -ExecutionPolicy Bypass -File scripts/package-windows.ps1              # Vulkan (default)
 powershell -ExecutionPolicy Bypass -File scripts/package-windows.ps1 -Backend cpu -RebuildEngine
 ```
 
-需要 Visual Studio 2022（C++ 工作负载）、Rust、Node 22、Git；Vulkan 后端还需要 Vulkan SDK。安装程序按当前用户安装，不需要管理员权限，并随附 VC++ 运行库和 Vulkan 加载器。目标机器没有 Vulkan 驱动时，自动使用 CPU 推理。
+Requires Visual Studio 2022 (C++ workload), Rust, Node 22 and Git; the Vulkan backend also needs the Vulkan SDK. The installer is per-user, needs no administrator rights, and bundles the VC++ runtime and the Vulkan loader. If the target machine has no Vulkan driver, inference falls back to the CPU automatically.
 
 </details>
 
-## 平台支持
+## Platform support
 
-| 平台 | 推理后端 | 状态 |
+| Platform | Inference backend | Status |
 |---|---|---|
-| macOS（Apple 芯片） | Metal | ✅ 已在真机验证 |
-| Windows x64 | Vulkan / CUDA / CPU | ✅ 已在真机验证 |
-| Linux x64 | Vulkan / CPU | 🚧 已有构建脚本，CI 暂不打包，尚未在真机验证 |
+| macOS (Apple silicon) | Metal | ✅ Verified on real hardware |
+| Windows x64 | Vulkan / CUDA / CPU | ✅ Verified on real hardware |
+| Linux x64 | Vulkan / CPU | 🚧 Build scripts exist; CI doesn't package it and it hasn't been verified on real hardware |
 
-`.github/workflows/release.yml` 只在推送版本 tag（如 `v0.1.11`，必须和 `tauri.conf.json` 里的版本一致）或手动运行时才会触发。它只在云端打包 Windows 安装包，并上传到一个 GitHub Release 草稿。编译好的引擎按 audio.cpp 版本缓存，上游没有发新版时，不会重新编译引擎，也不会安装 Vulkan SDK。
+`.github/workflows/release.yml` only runs when a version tag is pushed (such as `v0.1.11`, which must match the version in `tauri.conf.json`) or when started manually. It builds only the Windows installer in the cloud and uploads it to a draft GitHub Release. The compiled engine is cached per audio.cpp version, so when upstream hasn't released a new version the engine isn't rebuilt and the Vulkan SDK isn't installed.
 
-macOS 安装包在本机构建：确认 `.env.macos.local` 已配置签名与公证，在要发布的提交上运行 `./scripts/release-macos.sh`。脚本会打包、签名、公证 DMG，再上传到同一个版本的 Release 草稿（草稿不存在时自动创建；已发布的版本不会被覆盖）。两边都上传完成后，再手动发布草稿。
+The macOS installer is built locally: make sure `.env.macos.local` has signing and notarization configured, then run `./scripts/release-macos.sh` on the commit being released. The script builds, signs and notarizes the DMG and uploads it to the draft Release for the same version (creating the draft if it doesn't exist; a published version is never overwritten). Once both uploads are done, publish the draft manually.
 
-## 致谢
+## Acknowledgements
 
-- [audio.cpp](https://github.com/0xShug0/audio.cpp)：基于 ggml 的纯 C++ 音频推理引擎
-- [Tauri](https://tauri.app)：跨平台桌面应用框架
-- Qwen、FunAudioLLM、NVIDIA、Moonshine 等团队开源的语音识别模型
+- [audio.cpp](https://github.com/0xShug0/audio.cpp): a pure C++ audio inference engine based on ggml
+- [Tauri](https://tauri.app): cross-platform desktop app framework
+- The speech recognition models open-sourced by Qwen, FunAudioLLM, NVIDIA, Moonshine and other teams
 
-## 许可证
+## License
 
-MurmurASR 以 [MIT 许可证](LICENSE) 开源。模型权重不包含在本项目中，遵循各自的原始许可证，具体见模型卡片。
+MurmurASR is open source under the [MIT License](LICENSE). Model weights are not part of this project and follow their original licenses; see each model card.
