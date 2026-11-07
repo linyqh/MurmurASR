@@ -17,8 +17,8 @@ const zh = {
   "models.lead": "从 40 MB 的英语小模型到 7B 的长音频大模型：Qwen3-ASR、SenseVoice、Parakeet、OWSM、Moonshine 等。按需下载，支持断点续传、SHA-256 校验和镜像下载源。",
   "models.a": "覆盖中文、粤语、英语、欧洲语言和小语种", "models.b": "有流式、词级时间戳和说话人区分的模型", "models.c": "Hugging Face、ModelScope 和 HF 镜像三种下载源",
   "api.title": "一次请求就能转写", "api.lead": "应用运行时会提供本机 HTTP 接口，与界面共用同一个推理队列。",
-  "final.title": "获取 MurmurASR", "final.lead": "免费开源，MIT 许可证。macOS 版本已通过 Apple 签名与公证。",
-  "final.download": "下载最新版本", "final.docs": "阅读文档", "footer.powered": "技术支持："
+  "final.title": "获取 MurmurASR", "final.lead": "免费开源：应用代码使用 MIT 许可证，各模型保留自己的许可证。macOS 版本已通过 Apple 签名与公证。",
+  "final.download": "下载最新版本", "final.docs": "阅读文档", "footer.powered": "技术支持：", "footer.licenses": "模型许可证"
 };
 const nodes = [...document.querySelectorAll("[data-i18n]")];
 const en = Object.fromEntries(nodes.map((n) => [n.dataset.i18n, n.innerHTML]));

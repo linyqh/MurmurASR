@@ -277,4 +277,6 @@ The macOS installer is built locally: make sure `.env.macos.local` has signing a
 
 ## License
 
-MurmurASR is open source under the [MIT License](LICENSE). Model weights are not part of this project and follow their original licenses; see each model card.
+MurmurASR's source code is open source under the [MIT License](LICENSE). That license covers the code in this repository only.
+
+Models are **not** part of this project and are not bundled: you download them yourself, and each model is used under **its own license**, which can differ from MIT and from other models. Some are non-commercial only. The license is shown on every model card in the app. Check that it allows your use before you use a model. See [THIRD_PARTY.md](THIRD_PARTY.md) for a summary of the model licenses and other third-party components.
